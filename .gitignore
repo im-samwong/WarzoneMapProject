@@ -1,0 +1,18 @@
+# C++ build files
+*.o
+*.obj
+*.exe
+*.out
+*.log
+CMakeFiles/
+cmake_install.cmake
+Makefile
+
+# CLion files
+.idea/
+.vscode/
+cmake-build-debug/
+
+# OS files
+.DS_Store
+Thumbs.db
