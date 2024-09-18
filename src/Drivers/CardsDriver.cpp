@@ -1,4 +1,4 @@
-#include "Cards.h"
+#include "../Cards/Cards.h"
 #include <iostream>
 
 void testCards() {
