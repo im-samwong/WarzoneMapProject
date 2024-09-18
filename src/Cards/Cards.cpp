@@ -2,6 +2,7 @@
 #include <cstdlib>  // For rand() and srand()
 #include <ctime>  // For time()
 
+namespace Cards{
 // Card Class Implementation
 // Constructor
 Card::Card(CardType type) {
@@ -138,4 +139,5 @@ void Hand::playCard(Card* card, Deck* deck, Orders::OrderList* orderList) {
     // Remove the card from the hand
     handCards.erase(std::remove(handCards.begin(), handCards.end(), card), handCards.end());
     deck->getCards().push_back(card); // Return the card to the deck
+}
 }

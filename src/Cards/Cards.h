@@ -1,11 +1,11 @@
 #ifndef CARDS_H
 #define CARDS_H
-
 #include "../Orders/Orders.h"
 #include <vector>
 #include <string>
 #include <iostream>
 
+namespace Cards{
 class Card {
 public:
     enum CardType { BOMB, REINFORCEMENT, BLOCKADE, AIRLIFT, DIPLOMACY };
@@ -49,5 +49,6 @@ public:
 private:
     std::vector<Card*> handCards;  // Pointer type for each card in the hand
 };
+}
 
 #endif

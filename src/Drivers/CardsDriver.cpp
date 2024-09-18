@@ -1,6 +1,7 @@
-#include "../Cards/Cards.h"
+#include "Cards.h"
 #include <iostream>
 
+namespace Cards{
 void testCards() {
     Orders::OrderList orderList;
     Deck deck;
@@ -23,8 +24,4 @@ void testCards() {
     std::cout << "\nRemaining orders in the list:" << std::endl;
     orderList.printOrders();
 }
-
-int main() {
-    testCards();
-    return 0;
 }
