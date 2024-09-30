@@ -135,9 +135,19 @@ namespace Cards {
     
     // Play a card from the hand
     void Hand::playCard(Card* card, Deck* deck, Orders::OrderList* orderList) {
-        card->play(orderList);  // Play the card
-        // Remove the card from the hand
-        handCards.erase(std::remove(handCards.begin(), handCards.end(), card), handCards.end());
-        deck->getCards().push_back(card); // Return the card to the deck
+    card->play(orderList);  // Play the card
+    
+    // Iterate over handCards and find the matching card
+    for (auto it = handCards.begin(); it != handCards.end(); ++it) {
+        if (*it == card) {
+            // Remove the card from handCards
+            handCards.erase(it);
+            break; // Break the loop once the card is found and erased
+        }
     }
+    
+    // Return the card to the deck
+    deck->getCards().push_back(card);
+}
+
 }
