@@ -12,6 +12,9 @@
 using namespace std;
 
 namespace GameEngine {
+    /*
+      Enum representing the possible game states of the game i.e states on the transition diagram
+     */
     enum GameStates {
         START = 0,
         MAP_LOADED = 1,
@@ -23,6 +26,7 @@ namespace GameEngine {
         WIN = 7
     };
 
+    //Enum representing the list of possible transition commands for each state
     enum class TransitionCommand {
         LOAD_MAP = 1,
         VALIDATE_MAP = 2,
@@ -38,11 +42,17 @@ namespace GameEngine {
         INVALID = 12
     };
 
+    //Extra enum for the 2 types of states
     enum class GameStateTypes {
         STARTUP,
         PLAY
     };
 
+    /*
+        Abstract class that represents all possible states in the game. Consists entirely of pointer members
+        Each possible state of the game is derived from this class with each specific state implementing their own
+        transition logic
+     */
     class GameState {
         protected:
             shared_ptr<GameStateTypes> stateType;
@@ -53,16 +63,23 @@ namespace GameEngine {
         public:
             virtual ~GameState() = default;
 
+            //Getter for getting the state type i.e a value of the enum GameStateTypes
             GameStateTypes getStateType();
 
+            //Getter that obtains this GameState's state name i.e a value from the enum GameStates
             GameStates getStateName();
 
+            //Getter for obtaining the nextStates available for this GameState
             vector<shared_ptr<GameState>> getNextStates();
 
+            //Getter for obtaining the list of TransitionCommands
             vector<TransitionCommand> getTransitionCommands();
 
+            //Method for determining if GameState will transition to next state.
+            //Returns a pointer to the next state if transition is successful or nullptr if a transition is not to take place
             virtual shared_ptr<GameState> transitionToNextState(TransitionCommand transitionCommand) = 0;
 
+            //Setter method for setting nextStates, used for initialization
             void setNextStates(const shared_ptr<vector<shared_ptr<GameState>>> &nextStates);
     };
 
@@ -206,6 +223,10 @@ namespace GameEngine {
             shared_ptr<GameState> transitionToNextState(TransitionCommand transitionCommand) override;
     };
 
+    /*
+        Handles navigating through the states of the game will also handling command inputs, triggering transitions
+        and ending the game
+     */
     class GameEngine {
         shared_ptr<bool> gameOver;
         shared_ptr<GameState> currentGameState;
@@ -214,25 +235,35 @@ namespace GameEngine {
         public:
             explicit GameEngine(const shared_ptr<GameState> &initialGameState, const shared_ptr<bool> &gameOver);
 
+            //Getter for obtaining the current GameState object
             shared_ptr<GameState> getCurrentGameState();
 
+            //Gets the enum value representing the name of the current game state
             GameStates getCurrentGameStateName();
 
+            //Handles transitioning to next state. Returns true if successfully transitioning or false otherwise
             bool transitionToNextState(TransitionCommand transitionCommand);
 
+            //Helper function for printing out the possible commands of the current state
             void printCurrentStateCommands(const vector<TransitionCommand> &commands, const string &gameStateName);
 
+            //Free function for testing the GameEngine class
             void testGameStates();
     };
 
+    //Helper method for mapping a TransitionCommand enum value to a String
     string mapEnumToString(TransitionCommand command);
 
+    //Helper method from mapping a String to a corresponding Transition Command
     TransitionCommand mapStringToTransitionCommand(const string &transitionCommand);
 
+    //Method that fetches all TransitionCommands as Strings
     vector<string> getStringTransitionCommands();
 
+    //Method that fetches TransitionCommands as Strings but based on some input vector
     vector<string> getStringTransitionCommands(const vector<TransitionCommand> &gameStateCommands);
 
+    //Helper function for mapping any GameStates enum value to a string
     string mapEnumToString(GameStates stateName);
 }
 
