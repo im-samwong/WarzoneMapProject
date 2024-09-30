@@ -534,7 +534,6 @@ namespace GameEngine {
     }
 
     shared_ptr<GameState> GameEngine::getCurrentGameState() {
-        int x = 1;
         return this->currentGameState;
     }
 
