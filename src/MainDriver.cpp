@@ -11,6 +11,9 @@ namespace GameEngine {
     void testGameStates();
 }
 
+namespace Maps {
+    void testLoadMaps();
+}
 int main() {
     Orders::testOrdersLists();
     std::cout << std::endl;
@@ -18,7 +21,11 @@ int main() {
     Cards::testCards();
     std::cout << std::endl;
 
+    Maps::testLoadMaps();
+
     GameEngine::testGameStates();
     std::cout << std::endl;
+
+   
     return 0;
 }
