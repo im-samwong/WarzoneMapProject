@@ -48,6 +48,21 @@ namespace GameEngine {
         PLAY
     };
 
+    //Helper method for mapping a TransitionCommand enum value to a String
+    string mapEnumToString(TransitionCommand command);
+
+    //Helper method from mapping a String to a corresponding Transition Command
+    TransitionCommand mapStringToTransitionCommand(const string &transitionCommand);
+
+    //Method that fetches all TransitionCommands as Strings
+    vector<string> getStringTransitionCommands();
+
+    //Method that fetches TransitionCommands as Strings but based on some input vector
+    vector<string> getStringTransitionCommands(const vector<TransitionCommand> &gameStateCommands);
+
+    //Helper function for mapping any GameStates enum value to a string
+    string mapEnumToString(GameStates stateName);
+
     /*
         Abstract class that represents all possible states in the game. Consists entirely of pointer members
         Each possible state of the game is derived from this class with each specific state implementing their own
@@ -62,6 +77,17 @@ namespace GameEngine {
 
         public:
             virtual ~GameState() = default;
+
+            //Default Constructor given all necessary members
+            GameState(const GameStateTypes &stateType, const GameStates &stateName, const vector<TransitionCommand> &transitionCommands, const vector<shared_ptr<GameState>> &nextStates);
+
+            //Constructor used in case we don't want to declare the next states immediately
+            GameState(const GameStateTypes &stateType, const GameStates &stateName, const vector<TransitionCommand> &transitionCommands);
+
+            //Copy Constructor for Base class which will be used by derived classes as well
+            GameState(const GameState &otherGameState);
+
+            friend ostream &operator<<(ostream &os, const GameState &gameState);
 
             //Getter for getting the state type i.e a value of the enum GameStateTypes
             GameStateTypes getStateType();
@@ -81,6 +107,8 @@ namespace GameEngine {
 
             //Setter method for setting nextStates, used for initialization
             void setNextStates(const shared_ptr<vector<shared_ptr<GameState>>> &nextStates);
+
+            GameState& operator=(const GameState &otherGameState);
     };
 
     class StartState: public GameState {
@@ -224,8 +252,9 @@ namespace GameEngine {
     };
 
     /*
-        Handles navigating through the states of the game will also handling command inputs, triggering transitions
-        and ending the game
+        Handles navigating through the states of the game will also handling command inputs, triggering transitions and ending the game
+        Warning: This class should ever only be instantiated once. Logically it makes sense to only have 1 Game Engine at a time
+        Avoid trying to create multiple GameEngines unless strictly necessary
      */
     class GameEngine {
         shared_ptr<bool> gameOver;
@@ -249,22 +278,16 @@ namespace GameEngine {
 
             //Free function for testing the GameEngine class
             void testGameStates();
+
+            bool getGameOverStatus() const;
+
+            string getInputtedCommand() const;
+
+            friend ostream& operator<<(ostream& os, const GameEngine &gameEngine);
+
+            GameEngine& operator=(const GameEngine &otherGameEngine);
+
     };
-
-    //Helper method for mapping a TransitionCommand enum value to a String
-    string mapEnumToString(TransitionCommand command);
-
-    //Helper method from mapping a String to a corresponding Transition Command
-    TransitionCommand mapStringToTransitionCommand(const string &transitionCommand);
-
-    //Method that fetches all TransitionCommands as Strings
-    vector<string> getStringTransitionCommands();
-
-    //Method that fetches TransitionCommands as Strings but based on some input vector
-    vector<string> getStringTransitionCommands(const vector<TransitionCommand> &gameStateCommands);
-
-    //Helper function for mapping any GameStates enum value to a string
-    string mapEnumToString(GameStates stateName);
 }
 
 #endif //GAMEENGINE_H

@@ -20,5 +20,6 @@ int main() {
 
     GameEngine::testGameStates();
     std::cout << std::endl;
+
     return 0;
 }
