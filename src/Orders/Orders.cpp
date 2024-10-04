@@ -1,19 +1,14 @@
-//
-// Created by samue on 2024-09-12.
-//
-
 #include "Orders.h"
 
 namespace Orders {
+
     // Implementation of DeployOrder class
     bool DeployOrder::validate() {
-        // Add validation logic for the deploy order
         std::cout << "Validating Deploy Order" << std::endl;
-        return true;  // Assume valid for now
+        return true;
     }
 
     void DeployOrder::execute() {
-        // Add execution logic for the deploy order
         std::cout << "Executing Deploy Order" << std::endl;
     }
 
@@ -23,13 +18,11 @@ namespace Orders {
 
     // Implementation of AdvanceOrder class
     bool AdvanceOrder::validate() {
-        // Add validation logic for the advance order
         std::cout << "Validating Advance Order" << std::endl;
-        return true;  // Assume valid for now
+        return true;
     }
 
     void AdvanceOrder::execute() {
-        // Add execution logic for the advance order
         std::cout << "Executing Advance Order" << std::endl;
     }
 
@@ -39,13 +32,11 @@ namespace Orders {
 
     // Implementation of BombOrder class
     bool BombOrder::validate() {
-        // Add validation logic for the bomb order
         std::cout << "Validating Bomb Order" << std::endl;
-        return true;  // Assume valid for now
+        return true;
     }
 
     void BombOrder::execute() {
-        // Add execution logic for the bomb order
         std::cout << "Executing Bomb Order" << std::endl;
     }
 
@@ -55,13 +46,11 @@ namespace Orders {
 
     // Implementation of BlockadeOrder class
     bool BlockadeOrder::validate() {
-        // Add validation logic for the blockade order
         std::cout << "Validating Blockade Order" << std::endl;
-        return true;  // Assume valid for now
+        return true;
     }
 
     void BlockadeOrder::execute() {
-        // Add execution logic for the blockade order
         std::cout << "Executing Blockade Order" << std::endl;
     }
 
@@ -71,13 +60,11 @@ namespace Orders {
 
     // Implementation of AirliftOrder class
     bool AirliftOrder::validate() {
-        // Add validation logic for the airlift order
         std::cout << "Validating Airlift Order" << std::endl;
-        return true;  // Assume valid for now
+        return true;
     }
 
     void AirliftOrder::execute() {
-        // Add execution logic for the airlift order
         std::cout << "Executing Airlift Order" << std::endl;
     }
 
@@ -87,13 +74,11 @@ namespace Orders {
 
     // Implementation of NegotiateOrder class
     bool NegotiateOrder::validate() {
-        // Add validation logic for the negotiate order
         std::cout << "Validating Negotiate Order" << std::endl;
-        return true;  // Assume valid for now
+        return true;
     }
 
     void NegotiateOrder::execute() {
-        // Add execution logic for the negotiate order
         std::cout << "Executing Negotiate Order" << std::endl;
     }
 
@@ -102,10 +87,33 @@ namespace Orders {
     }
 
     // Implementation of OrderList class
-    void OrderList::addOrder(std::unique_ptr<Order> order) {
-        orders.push_back(std::move(order));  // Add the order to the queue
+    // Default constructor
+    OrderList::OrderList() = default;  // Default constructor implementation
+
+    // Copy constructor for OrderList
+    OrderList::OrderList(const OrderList& other) {
+        for (const auto& order : other.orders) {
+            orders.push_back(order->clone());  // Use the clone method for deep copy
+        }
     }
 
+    // Assignment operator for OrderList
+    OrderList& OrderList::operator=(const OrderList& other) {
+        if (this == &other) return *this;
+
+        orders.clear();
+        for (const auto& order : other.orders) {
+            orders.push_back(order->clone());  // Use the clone method for deep copy
+        }
+        return *this;
+    }
+
+    // Add an order
+    void OrderList::addOrder(std::unique_ptr<Order> order) {
+        orders.push_back(std::move(order));
+    }
+
+    // Remove an order by index
     void OrderList::removeOrder(int index) {
         if (index >= 0 && index < orders.size()) {
             orders.erase(orders.begin() + index);
@@ -114,39 +122,44 @@ namespace Orders {
         }
     }
 
+    // Move an order in the list
     void OrderList::moveOrder(int fromIndex, int toIndex) {
         if (fromIndex >= 0 && fromIndex < orders.size() && toIndex >= 0 && toIndex < orders.size()) {
-            // Transferring ownerships because of unique_ptr to auto order
             auto order = std::move(orders[fromIndex]);
-            // Erase the order in the fromIndex so that the vector class shifts everything down
             orders.erase(orders.begin() + fromIndex);
-            // Now Transfer of ownership once more and back to the new location in the vector
             orders.insert(orders.begin() + toIndex, std::move(order));
         } else {
             std::cerr << "Invalid indices" << std::endl;
         }
     }
 
+    // Execute all valid orders
     void OrderList::executeOrders() {
         for (const auto& order : orders) {
-            // Validate each order then execute
             if (order->validate()) {
                 order->execute();
             } else {
                 std::cout << "Invalid order, skipping execution." << std::endl;
             }
         }
-        std::cout << "Completed execution of orders operation." << std::endl;
-        // Clear order at the end of round
         orders.clear();
     }
 
+    // Print the list of orders
     void OrderList::printOrders() const {
-        // Displaying all the orders and their index in the queue
         for (size_t i = 0; i < orders.size(); ++i) {
             std::cout << "Order at index " << i << ": " << *orders[i] << std::endl;
         }
     }
+
+    // Get the number of orders
+    size_t OrderList::getSize() const {
+        return orders.size();
+    }
+
+    // Get the list of orders
+    const std::vector<std::unique_ptr<Order>>& OrderList::getOrders() const {
+        return orders;
+    }
+
 }
-
-
