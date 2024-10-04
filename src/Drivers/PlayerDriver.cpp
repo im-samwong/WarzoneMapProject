@@ -9,37 +9,27 @@
 
 namespace Player {
     void testPlayers() {
-        // Creating player objects
-        Player p1("Caitlyn");
+        // Create a player using the parameterized constructor (name)
+        Player* player1 = new Player("Alice");
 
-        // Printing player info
-        std::cout << p1;
+        // Create some sample territories
+        Territory* t1 = new Territory();
+        Territory* t2 = new Territory();
 
-        //Territory t1("Territory1");
-        //Territory t2("Territory2");
+        // Create a player using the parameterized constructor (name, territories)
+        std::vector<Territory*> territories = {t1, t2};
+        Player* player2 = new Player("Bob", territories);
 
-        // Using Player methods (toDefend & toAttack)
-        std::vector<Territory*> toDefendP1 = p1.toDefend();
-        std::cout << "Player 1 has to defend the following territories: \n" << endl;
-        for (const auto& territory : toDefendP1) {
-            std::cout << territory->getName() << std::endl;
-        }
+        // Create a dummy order and issue it
+        std::unique_ptr<Orders::Order> order = std::make_unique<Orders::DeployOrder>();
+        player2->issueOrder(std::move(order));
 
-        std::vector<Territory*> toAttackP1 = p1.toAttack();
-        std::cout << "Player 1 has to attack the following territories: \n" << endl;
-        for (const auto& territory : toAttackP1) {
-            std::cout << territory->getName() << std::endl;
-        }
+        // Print out player details
+        std::cout << *player1 << std::endl;
+        std::cout << *player2 << std::endl;
 
-        // Issuing orders
-        p1.issueOrder("deploy");
-        p1.issueOrder("advance");
-
-        // Printing orders
-        std::cout << "Player 1 Orders:\n";
-        p1.printOrders();
-
-        // Printing hand of cards
-        p1.printHand();
+        // Clean up
+        delete player1;
+        delete player2;
     }
 }

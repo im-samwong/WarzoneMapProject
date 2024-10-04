@@ -5,104 +5,70 @@
 
 namespace Player {
     // Default constructor
-    Player::Player() : name("No name"), hand(), orders(), territories()
-    {}
+    Player::Player() : name("Unknown"), hand(new Cards::Hand()), orders(new Orders::OrderList()) {}
 
-    // Constructor
-    Player::Player(const std::string& name) : name(name), hand(), orders(), territories()
-    {}
+    // Parameterized constructor (name)
+    Player::Player(const std::string& playerName) : name(playerName), hand(new Cards::Hand()), orders(new Orders::OrderList()) {}
 
-    // Copy constructor
-    Player::Player(const Player& p) :
-    name(p.name), hand(p.hand), orders(p.orders)
-    {
-        // the territories vector keeps the default initialization of empty because two players cannot own the same territory
-    }
+    // Parameterized constructor (name, territories)
+    Player::Player(const std::string& playerName, const std::vector<Territory*>& terrs) 
+        : name(playerName), territories(terrs), hand(new Cards::Hand()), orders(new Orders::OrderList()) {}
 
-    // Assignment operator
-    Player& Player::operator=(const Player& p) {
-        if (!(this == &p)) // ensures that the resources aren't reallocated if this == p
-        {
-            // clearing territories, cards, and orders
-            territories.clear();
-
-            // creating a copy of the name
-            name = p.name;
-
-            // creating a deep copy of the hand
-            hand = p.hand;
-
-            // creating a deep copy of the orders list
-            orders = p.orders;
+    // Destructor
+    Player::~Player() {
+        delete hand;
+        delete orders;
+        for (Territory* t : territories) {
+            delete t;
         }
-        return *this; // returning the object in case we want to chain assign
     }
 
-    // Default destructor
-    Player::~Player() = default;
+    // Copy constructor (using move semantics for unique_ptr)
+    Player::Player(const Player& other) 
+        : name(other.name), hand(new Cards::Hand(*other.hand)), territories(other.territories) {
+        this->orders = new Orders::OrderList(std::move(*other.orders)); // Move the orders
+    }
+
+    // Assignment operator (using move semantics for unique_ptr)
+    Player& Player::operator=(const Player& other) {
+        if (this == &other) return *this;
+
+        // Clean up current resources
+        delete hand;
+        delete orders;
+        for (Territory* t : territories) {
+            delete t;
+        }
+
+        // Copy new resources and move orders
+        this->name = other.name;
+        this->hand = new Cards::Hand(*other.hand);
+        this->territories = other.territories;
+        this->orders = new Orders::OrderList(std::move(*other.orders)); // Move the orders
+
+        return *this;
+    }
 
     // Stream insertion operator
-    std::ostream& operator<<(std::ostream& os, const Player& p) {
-        os << "Player: " << p.name << "\n";
-        os << "Number of Territories owned: " << p.territories.size() << "\n";
-        os << "Orders:\n";
-        p.printOrders();
-        os << "Hand contains: the following cards:\n";
-        p.printHand();
-        return os;
+    std::ostream& operator<<(std::ostream& out, const Player& player) {
+        out << "Player: " << player.name << " has " << player.territories.size() << " territories and has issued the following orders:" << std::endl;
+        player.orders->printOrders();
+        return out;
     }
 
-    //toDefend() returns a list of territories that are to be defended
+    // Return territories to defend
     std::vector<Territory*> Player::toDefend() {
-        std::vector<Territory*> toDefendList;
-        // add logic
-        return toDefendList; // returns an empty list for now -- Assignment 1
+        return territories;
     }
 
-    //toAttack() returns a list of territories that are to be attacked
+    // Return territories to attack
     std::vector<Territory*> Player::toAttack() {
-        std::vector<Territory*> toAttackList;
-        // add logic
-        return toAttackList; // returns an empty list for now -- Assignment 1
+        return std::vector<Territory*>();
     }
 
-    //issueOrder() creates an order object and adds it to the list of orders
-    void Player::issueOrder(const std::string& orderType) {
-        // Create the new order based on orderType
-        std::unique_ptr<Orders::Order> newOrder;
-
-        if (orderType == "deploy") {
-            newOrder = std::make_unique<Orders::DeployOrder>();
-        } else if (orderType == "advance") {
-            newOrder = std::make_unique<Orders::AdvanceOrder>();
-        } else if (orderType == "bomb") {
-            newOrder = std::make_unique<Orders::BombOrder>();
-        } else if (orderType == "blockade") {
-            newOrder = std::make_unique<Orders::BlockadeOrder>();
-        } else if (orderType == "airlift") {
-            newOrder = std::make_unique<Orders::AirliftOrder>();
-        } else if (orderType == "negotiate") {
-            newOrder = std::make_unique<Orders::NegotiateOrder>();
-        } else {
-            std::cerr << "Unknown order type: " << orderType << std::endl; //or std::cout
-            return;
-        }
-
-        // Add the new order to the list of orders
-        orders.addOrder(std::move(newOrder));
-    }
-
-    // Method to print hand of cards
-    void Player::printHand() const{
-    /*    std::vector<Cards::Card*> handCards = hand.getHandCards();
-        for (const auto& card : handCards) {
-            std::cout << *card << std::endl;
-        } */
-    }
-
-    // Method to print orders
-    void Player::printOrders() const {
-        orders.printOrders();
+    // Issue an order (with unique_ptr)
+    void Player::issueOrder(std::unique_ptr<Orders::Order> order) {
+        orders->addOrder(std::move(order));
     }
 
 }

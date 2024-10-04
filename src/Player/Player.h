@@ -10,46 +10,36 @@
 
 namespace Player {
     class Player {
+    private:
+        std::string name;                      // Player's name
+        std::vector<Territory*> territories;   // Collection of player's territories
+        Cards::Hand* hand;                            // Player's hand of cards
+        Orders::OrderList* orders;                    // List of orders the player has issued
+
     public:
-        // Default constructor
-        Player();
-
-        // Parameterized constructor
-        Player(const std::string& name);
-
-        // Copy constructor
-        Player(const Player& p);
-
-        // Assignment operator
-        Player& operator=(const Player& p);
-
-        // Stream insertion operator
-        friend std::ostream& operator<<(std::ostream& os, const Player& player);
+        // Constructors
+        Player();                              // Default constructor
+        Player(const std::string& playerName); // Parameterized constructor (name)
+        Player(const std::string& playerName, const std::vector<Territory*>& terrs); // Param. constructor (name, territories)
 
         // Destructor
         ~Player();
 
-        // Methods
-            //toDefend()
-            std::vector<Territory*> toDefend();
+        // Copy constructor
+        Player(const Player& other);
 
-            //toAttack()
-            std::vector<Territory*> toAttack();
+        // Assignment operator
+        Player& operator=(const Player& other);
 
-            //issueOrder()
-            void issueOrder(const std::string& orderType);
+        // Stream insertion operator
+        friend std::ostream& operator<<(std::ostream& out, const Player& player);
 
-            // method to print hand of cards
-            void printHand() const;
+        // Functions
+        std::vector<Territory*> toDefend();    // Return list of territories to defend
+        std::vector<Territory*> toAttack();    // Return list of territories to attack
+        void issueOrder(std::unique_ptr<Orders::Order> order);         // Issue an order
 
-            // method to print orders
-            void printOrders() const;
-
-    private:
-        std::string name;
-        std::vector<Territory*> territories;
-        Cards::Hand hand;
-        Orders::OrderList orders;
+        // Other getters and setters as needed
     };
 }
 
