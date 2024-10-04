@@ -7,7 +7,6 @@ namespace GameEngine {
     void testGameStates() {
         cout << "Testing GameEngine.GameStates" << endl;
 
-        // Initialize transition commands for different states
         vector<TransitionCommand> startStateTransitionCommands = { TransitionCommand::LOAD_MAP };
         shared_ptr<StartState> startState = make_shared<StartState>(
             GameStateTypes::STARTUP,
@@ -74,12 +73,11 @@ namespace GameEngine {
         executeOrdersState->setNextStates(make_shared<vector<shared_ptr<GameState>>>(vector<shared_ptr<GameState>>{ assignReinforcementState, winState }));
         winState->setNextStates(make_shared<vector<shared_ptr<GameState>>>(vector<shared_ptr<GameState>>{ startState }));
 
-        // Create game engine with current game state
+        // Create game engine with current game state set to StartState
         shared_ptr<bool> gameOver = make_shared<bool>(false);
-        shared_ptr<GameState> currentGameState = startState; // Use shared pointer directly
+        shared_ptr<GameState> currentGameState = startState;
         GameEngine gameEngine(currentGameState, gameOver);
 
-        // Start testing game states
         gameEngine.testGameStates();
     }
 }
