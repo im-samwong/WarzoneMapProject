@@ -5,10 +5,10 @@
 
 namespace Player {
     // Default constructor
-    Player::Player() : name(new std::string("Unknown")), hand(new Cards::Hand()), orders(new Orders::OrderList()) {}
+    Player::Player() : name(new std::string("Unknown")), territories(new vector<Territory*>()), hand(new Cards::Hand()), orders(new Orders::OrderList()) {}
 
     // Parameterized constructor (name)
-    Player::Player(const std::string playerName) : name(new std::string(playerName)), hand(new Cards::Hand()), orders(new Orders::OrderList()) {}
+    Player::Player(const std::string playerName) : name(new std::string(playerName)), territories(new vector<Territory*>()), hand(new Cards::Hand()), orders(new Orders::OrderList()) {}
 
     // Parameterized constructor (name, territories)
     Player::Player(const std::string playerName, const std::vector<Territory*>& terrs)
@@ -34,14 +34,12 @@ namespace Player {
         // Clean up current resources
         delete hand;
         delete orders;
-        for (Territory* t : *territories) {
-            delete t;
-        }
+        delete territories;
 
         // Copy new resources and move orders
-        this->name = other.name;
+        this->name = new std::string(*other.name);
         this->hand = new Cards::Hand(*other.hand);
-        this->territories = other.territories;
+        this->territories = new vector<Territory*>(*other.territories);
         this->orders = new Orders::OrderList(std::move(*other.orders)); // Move the orders
 
         return *this;

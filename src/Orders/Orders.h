@@ -157,7 +157,7 @@ namespace Orders {
         OrderList& operator=(const OrderList& other);
 
         // Getters
-        size_t getSize() const;
+        std::size_t getSize() const;
         const std::vector<std::unique_ptr<Order>>& getOrders() const;
 
     private:

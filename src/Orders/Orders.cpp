@@ -147,13 +147,13 @@ namespace Orders {
 
     // Print the list of orders
     void OrderList::printOrders() const {
-        for (size_t i = 0; i < orders.size(); ++i) {
+        for (std::size_t i = 0; i < orders.size(); ++i) {
             std::cout << "Order at index " << i << ": " << *orders[i] << std::endl;
         }
     }
 
     // Get the number of orders
-    size_t OrderList::getSize() const {
+    std::size_t OrderList::getSize() const {
         return orders.size();
     }
 
