@@ -5,22 +5,20 @@
 
 namespace Player {
     // Default constructor
-    Player::Player() : name("Unknown"), hand(new Cards::Hand()), orders(new Orders::OrderList()) {}
+    Player::Player() : name(new std::string("Unknown")), hand(new Cards::Hand()), orders(new Orders::OrderList()) {}
 
     // Parameterized constructor (name)
-    Player::Player(const std::string& playerName) : name(playerName), hand(new Cards::Hand()), orders(new Orders::OrderList()) {}
+    Player::Player(const std::string playerName) : name(new std::string(playerName)), hand(new Cards::Hand()), orders(new Orders::OrderList()) {}
 
     // Parameterized constructor (name, territories)
-    Player::Player(const std::string& playerName, const std::vector<Territory*>& terrs) 
-        : name(playerName), territories(terrs), hand(new Cards::Hand()), orders(new Orders::OrderList()) {}
+    Player::Player(const std::string playerName, const std::vector<Territory*>& terrs)
+        : name(new std::string(playerName)), territories(new vector<Territory*>(terrs)), hand(new Cards::Hand()), orders(new Orders::OrderList()) {}
 
     // Destructor
     Player::~Player() {
         delete hand;
         delete orders;
-        for (Territory* t : territories) {
-            delete t;
-        }
+        delete territories;
     }
 
     // Copy constructor (using move semantics for unique_ptr)
@@ -36,7 +34,7 @@ namespace Player {
         // Clean up current resources
         delete hand;
         delete orders;
-        for (Territory* t : territories) {
+        for (Territory* t : *territories) {
             delete t;
         }
 
@@ -51,14 +49,14 @@ namespace Player {
 
     // Stream insertion operator
     std::ostream& operator<<(std::ostream& out, const Player& player) {
-        out << "Player: " << player.name << " has " << player.territories.size() << " territories and has issued the following orders:" << std::endl;
+        out << "Player: " << *player.name << " has " << player.territories->size() << " territories and has issued the following orders:" << std::endl;
         player.orders->printOrders();
         return out;
     }
 
     // Return territories to defend
     std::vector<Territory*> Player::toDefend() {
-        return territories;
+        return *territories;
     }
 
     // Return territories to attack
@@ -77,7 +75,7 @@ namespace Player {
 
     // Other getters and setters
     std::string Player::getName() const {
-        return name;
+        return *name;
     }
 
     Cards::Hand& Player::getHand() {

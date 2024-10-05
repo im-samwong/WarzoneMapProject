@@ -11,16 +11,17 @@
 namespace Player {
     class Player {
     private:
-        std::string name;                      // Player's name
-        std::vector<Territory*> territories;   // Collection of player's territories
+        //std::string name;                      // Player's name
+        std::string* name;
+        std::vector<Territory*>* territories;   // Collection of player's territories
         Cards::Hand* hand;                            // Player's hand of cards
         Orders::OrderList* orders;                    // List of orders the player has issued
 
     public:
         // Constructors
         Player();                              // Default constructor
-        Player(const std::string& playerName); // Parameterized constructor (name)
-        Player(const std::string& playerName, const std::vector<Territory*>& terrs); // Param. constructor (name, territories)
+        Player(const std::string playerName); // Parameterized constructor (name)
+        Player(const std::string playerName, const std::vector<Territory*>& terrs); // Param. constructor (name, territories)
 
         // Destructor
         ~Player();
