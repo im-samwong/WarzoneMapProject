@@ -28,10 +28,17 @@ namespace Cards {
     class Deck {
     public:
         Deck(); // Constructor
+        Deck(const Deck& other); // Copy Constructor
         ~Deck(); // Destructor
+
+        // Assignment operator
+        Deck& operator=(const Deck& other);
     
         std::vector<Card*> getCards(); // Get the deck of cards
         Card* draw();  // Draw a random card from the deck
+
+        // Stream insertion operator
+        friend std::ostream& operator<<(std::ostream& out, const Deck& deck);
         
     private:
         std::vector<Card*> cards;  // Pointer type for each card in the deck
@@ -40,11 +47,18 @@ namespace Cards {
     class Hand {
     public:
         Hand(); // Constructor
+        Hand(const Hand& other);  // Copy Constructor
         ~Hand(); // Destructor
+
+        // Assignment operator
+        Hand& operator=(const Hand& other);
         
         std::vector<Card*> getHandCards(); // Get the cards in the hand
         void addCard(Card* card); // Add a card to the hand
         void playCard(Card* card, Deck* deck, Orders::OrderList* orderList); // Play a card from the hand
+
+        // Stream insertion operator
+        friend std::ostream& operator<<(std::ostream& out, const Hand& hand);
         
     private:
         std::vector<Card*> handCards;  // Pointer type for each card in the hand
