@@ -87,12 +87,34 @@ namespace Cards {
         cards.push_back(new Card(Card::AIRLIFT));
         cards.push_back(new Card(Card::DIPLOMACY));
     }
+
+    // Copy constructor (deep copy)
+    Deck::Deck(const Deck& other) {
+        for (auto card : other.cards) {
+            cards.push_back(new Card(*card));  // Deep copy each card
+        }
+    }
     
     // Destructor
     Deck::~Deck() {
         for (Card* card : cards) {
             delete card;
         }
+    }
+
+    // Assignment operator (deep copy)
+    Deck& Deck::operator=(const Deck& other) {
+        if (this != &other) {
+            for (Card* card : cards) {
+                delete card;
+            }
+            cards.clear();
+
+            for (auto card : other.cards) {
+                cards.push_back(new Card(*card));  // Deep copy each card
+            }
+        }
+        return *this;
     }
     
     // Get the cards in the deck
@@ -111,16 +133,47 @@ namespace Cards {
         cards.erase(cards.begin() + index);
         return drawnCard;
     }
+
+    // Stream insertion operator for Deck
+    std::ostream& operator<<(std::ostream& out, const Deck& deck) {
+        out << "Deck contains " << deck.cards.size() << " cards:";
+        for (auto card : deck.cards) {
+            out << "\n  - " << card->getTypeAsString();
+        }
+        return out;
+    }
     
     // Hand Class Implementation
     // Constructor
     Hand::Hand() {}
+
+    // Copy constructor (deep copy)
+    Hand::Hand(const Hand& other) {
+        for (auto card : other.handCards) {
+            handCards.push_back(new Card(*card));  // Deep copy each card
+        }
+    }
     
     // Destructor
     Hand::~Hand() {
         for (Card* card : handCards) {
             delete card;
         }
+    }
+
+    // Assignment operator (deep copy)
+    Hand& Hand::operator=(const Hand& other) {
+        if (this != &other) {
+            for (Card* card : handCards) {
+                delete card;
+            }
+            handCards.clear();
+
+            for (auto card : other.handCards) {
+                handCards.push_back(new Card(*card));  // Deep copy each card
+            }
+        }
+        return *this;
     }
     
     // Get the cards in the hand
@@ -148,6 +201,15 @@ namespace Cards {
     
     // Return the card to the deck
     deck->getCards().push_back(card);
-}
+    }
+
+    // Stream insertion operator for Hand
+    std::ostream& operator<<(std::ostream& out, const Hand& hand) {
+        out << "Hand contains " << hand.handCards.size() << " cards:";
+        for (auto card : hand.handCards) {
+            out << "\n  - " << card->getTypeAsString();
+        }
+        return out;
+    }
 
 }
