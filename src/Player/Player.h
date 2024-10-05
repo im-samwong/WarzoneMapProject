@@ -40,6 +40,8 @@ namespace Player {
         void issueOrder(std::unique_ptr<Orders::Order> order);         // Issue an order
 
         // Other getters and setters as needed
+        std::string getName() const;
+        Cards::Hand& getHand();
     };
 }
 

@@ -63,7 +63,11 @@ namespace Player {
 
     // Return territories to attack
     std::vector<Territory*> Player::toAttack() {
-        return std::vector<Territory*>();
+        Continent* dummyContinent = nullptr;
+        Territory* t = new Territory("Greenland", 140, 240, dummyContinent);
+        std::vector<Territory*> territories = {t};
+        //return std::vector<Territory*>();
+        return territories; // arbitrary list of territories
     }
 
     // Issue an order (with unique_ptr)
@@ -71,4 +75,12 @@ namespace Player {
         orders->addOrder(std::move(order));
     }
 
+    // Other getters and setters
+    std::string Player::getName() const {
+        return name;
+    }
+
+    Cards::Hand& Player::getHand() {
+        return *hand;
+    }
 }
