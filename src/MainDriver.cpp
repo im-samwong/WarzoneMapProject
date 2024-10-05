@@ -7,6 +7,10 @@ namespace Cards {
     void testCards();
 }
 
+namespace Player {
+    void testPlayers();
+}
+
 namespace GameEngine {
     void testGameStates();
 }
@@ -19,6 +23,9 @@ int main() {
     std::cout << std::endl;
 
     Cards::testCards();
+    std::cout << std::endl;
+
+    Player::testPlayers();
     std::cout << std::endl;
 
     Maps::testLoadMaps();
