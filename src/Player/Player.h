@@ -13,7 +13,7 @@ namespace Player {
     private:
         //std::string name;                      // Player's name
         std::string* name;
-        std::vector<Territory*> territories;   // Collection of player's territories
+        std::vector<Territory*>* territories;   // Collection of player's territories
         Cards::Hand* hand;                            // Player's hand of cards
         Orders::OrderList* orders;                    // List of orders the player has issued
 
