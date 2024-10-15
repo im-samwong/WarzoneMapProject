@@ -6,8 +6,14 @@
 #include <vector>
 #include <memory>
 
-namespace Orders {
+namespace Player {
+    class Player;  // Forward declaration of Player class inside Players namespace
+}
 
+class Territory;  // Forward declaration of Territory class in global scope
+
+
+namespace Orders {
     // Abstract Order class
     class Order {
     public:
@@ -18,8 +24,8 @@ namespace Orders {
         virtual ~Order() = default;
 
         // Pure virtual methods to be implemented by subclasses
-        virtual bool validate() = 0;
-        virtual void execute() = 0;
+        virtual bool validate(Player::Player* sourcePlayer, Player::Player* targetPlayer, Territory* source, Territory* target, int numUnits) const = 0;
+        virtual void execute(Player::Player* sourcePlayer, Player::Player* targetPlayer, Territory* source, Territory* target, int numUnits) = 0;
 
         // Stream insertion operator to describe the order
         friend std::ostream& operator<<(std::ostream& os, const Order& order) {
@@ -40,8 +46,8 @@ namespace Orders {
         DeployOrder(const DeployOrder& other) = default;  // Copy constructor
         DeployOrder& operator=(const DeployOrder& other) = default;  // Assignment operator
 
-        bool validate() override;
-        void execute() override;
+        bool validate(Player::Player* sourcePlayer, Player::Player* targetPlayer, Territory* source, Territory* target, int numUnits) const override;
+        void execute(Player::Player* sourcePlayer, Player::Player* targetPlayer, Territory* source, Territory* target, int numUnits) override;
 
         std::unique_ptr<Order> clone() const override {
             return std::make_unique<DeployOrder>(*this);
@@ -58,8 +64,8 @@ namespace Orders {
         AdvanceOrder(const AdvanceOrder& other) = default;
         AdvanceOrder& operator=(const AdvanceOrder& other) = default;
 
-        bool validate() override;
-        void execute() override;
+        bool validate(Player::Player* sourcePlayer, Player::Player* targetPlayer, Territory* source, Territory* target, int numUnits) const override;
+        void execute(Player::Player* sourcePlayer, Player::Player* targetPlayer, Territory* source, Territory* target, int numUnits) override;
 
         std::unique_ptr<Order> clone() const override {
             return std::make_unique<AdvanceOrder>(*this);
@@ -76,8 +82,8 @@ namespace Orders {
         BombOrder(const BombOrder& other) = default;
         BombOrder& operator=(const BombOrder& other) = default;
 
-        bool validate() override;
-        void execute() override;
+        bool validate(Player::Player* sourcePlayer, Player::Player* targetPlayer, Territory* source, Territory* target, int numUnits) const override;
+        void execute(Player::Player* sourcePlayer, Player::Player* targetPlayer, Territory* source, Territory* target, int numUnits) override;
 
         std::unique_ptr<Order> clone() const override {
             return std::make_unique<BombOrder>(*this);
@@ -94,8 +100,8 @@ namespace Orders {
         BlockadeOrder(const BlockadeOrder& other) = default;
         BlockadeOrder& operator=(const BlockadeOrder& other) = default;
 
-        bool validate() override;
-        void execute() override;
+        bool validate(Player::Player* sourcePlayer, Player::Player* targetPlayer, Territory* source, Territory* target, int numUnits) const override;
+        void execute(Player::Player* sourcePlayer, Player::Player* targetPlayer, Territory* source, Territory* target, int numUnits) override;
 
         std::unique_ptr<Order> clone() const override {
             return std::make_unique<BlockadeOrder>(*this);
@@ -112,8 +118,8 @@ namespace Orders {
         AirliftOrder(const AirliftOrder& other) = default;
         AirliftOrder& operator=(const AirliftOrder& other) = default;
 
-        bool validate() override;
-        void execute() override;
+        bool validate(Player::Player* sourcePlayer, Player::Player* targetPlayer, Territory* source, Territory* target, int numUnits) const override;
+        void execute(Player::Player* sourcePlayer, Player::Player* targetPlayer, Territory* source, Territory* target, int numUnits) override;
 
         std::unique_ptr<Order> clone() const override {
             return std::make_unique<AirliftOrder>(*this);
@@ -130,8 +136,8 @@ namespace Orders {
         NegotiateOrder(const NegotiateOrder& other) = default;
         NegotiateOrder& operator=(const NegotiateOrder& other) = default;
 
-        bool validate() override;
-        void execute() override;
+        bool validate(Player::Player* sourcePlayer, Player::Player* targetPlayer, Territory* source, Territory* target, int numUnits) const override;
+        void execute(Player::Player* sourcePlayer, Player::Player* targetPlayer, Territory* source, Territory* target, int numUnits) override;
 
         std::unique_ptr<Order> clone() const override {
             return std::make_unique<NegotiateOrder>(*this);
@@ -147,7 +153,6 @@ namespace Orders {
         void addOrder(std::unique_ptr<Order> order);  // Add an order
         void removeOrder(int index);                  // Remove an order by index
         void moveOrder(int fromIndex, int toIndex);   // Move an order in the list
-        void executeOrders();                         // Execute all valid orders
         void printOrders() const;                     // Print the list of orders
 
         OrderList();  // Default constructor
