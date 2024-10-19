@@ -8,7 +8,7 @@ void testCards() {
 
     std::cout << "Drawing 3 cards from the deck:" << std::endl;
     for (int i = 0; i < 3; i++) {
-        Card *drawnCard = deck.draw();
+        Card* drawnCard = deck.draw();
         if (drawnCard) {
             std::cout << *drawnCard << std::endl;
             hand.addCard(drawnCard);

@@ -89,19 +89,19 @@ std::string NegotiateOrder::description() const {
 OrderList::OrderList() = default; // Default constructor implementation
 
 // Copy constructor for OrderList
-OrderList::OrderList(const OrderList &other) {
-    for (const auto &order : other.orders) {
+OrderList::OrderList(const OrderList& other) {
+    for (const auto& order : other.orders) {
         orders.push_back(order->clone()); // Use the clone method for deep copy
     }
 }
 
 // Assignment operator for OrderList
-OrderList &OrderList::operator=(const OrderList &other) {
+OrderList& OrderList::operator=(const OrderList& other) {
     if (this == &other)
         return *this;
 
     orders.clear();
-    for (const auto &order : other.orders) {
+    for (const auto& order : other.orders) {
         orders.push_back(order->clone()); // Use the clone method for deep copy
     }
     return *this;
@@ -134,7 +134,7 @@ void OrderList::moveOrder(int fromIndex, int toIndex) {
 
 // Execute all valid orders
 void OrderList::executeOrders() {
-    for (const auto &order : orders) {
+    for (const auto& order : orders) {
         if (order->validate()) {
             order->execute();
         } else {
@@ -157,6 +157,6 @@ std::size_t OrderList::getSize() const {
 }
 
 // Get the list of orders
-const std::vector<std::unique_ptr<Order>> &OrderList::getOrders() const {
+const std::vector<std::unique_ptr<Order>>& OrderList::getOrders() const {
     return orders;
 }

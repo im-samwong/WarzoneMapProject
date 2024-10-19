@@ -11,11 +11,11 @@ void testLoadMaps() {
     std::cout << "Enter path of directory with map files";
     std::cin >> directoryPath; // Get directory path from user (try ../../maps/)
     // Iterate through each file in the specified directory
-    for (const auto &entry : std::filesystem::directory_iterator(directoryPath)) {
+    for (const auto& entry : std::filesystem::directory_iterator(directoryPath)) {
         if (entry.is_regular_file() && entry.path().extension() == ".map") { // Check for .map files
             std::string fileName = entry.path().string();                    // Get the full file path
             std::cout << "*************\nFile: " << fileName << std::endl;
-            Map *map = loader.loadMap(fileName); // Attempt to load the map
+            Map* map = loader.loadMap(fileName); // Attempt to load the map
 
             if (map->validate()) { // Check if the map was successfully loaded
                 std::cout << "Successfully loaded the map: " << fileName << "\n"

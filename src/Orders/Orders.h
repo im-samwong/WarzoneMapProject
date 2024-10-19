@@ -20,7 +20,7 @@ public:
     virtual void execute() = 0;
 
     // Stream insertion operator to describe the order
-    friend std::ostream &operator<<(std::ostream &os, const Order &order) {
+    friend std::ostream& operator<<(std::ostream& os, const Order& order) {
         return os << "Order: " << order.description();
     }
 
@@ -35,8 +35,8 @@ protected:
 class DeployOrder : public Order {
 public:
     DeployOrder() = default;
-    DeployOrder(const DeployOrder &other) = default;            // Copy constructor
-    DeployOrder &operator=(const DeployOrder &other) = default; // Assignment operator
+    DeployOrder(const DeployOrder& other) = default;            // Copy constructor
+    DeployOrder& operator=(const DeployOrder& other) = default; // Assignment operator
 
     bool validate() override;
     void execute() override;
@@ -53,8 +53,8 @@ protected:
 class AdvanceOrder : public Order {
 public:
     AdvanceOrder() = default;
-    AdvanceOrder(const AdvanceOrder &other) = default;
-    AdvanceOrder &operator=(const AdvanceOrder &other) = default;
+    AdvanceOrder(const AdvanceOrder& other) = default;
+    AdvanceOrder& operator=(const AdvanceOrder& other) = default;
 
     bool validate() override;
     void execute() override;
@@ -71,8 +71,8 @@ protected:
 class BombOrder : public Order {
 public:
     BombOrder() = default;
-    BombOrder(const BombOrder &other) = default;
-    BombOrder &operator=(const BombOrder &other) = default;
+    BombOrder(const BombOrder& other) = default;
+    BombOrder& operator=(const BombOrder& other) = default;
 
     bool validate() override;
     void execute() override;
@@ -89,8 +89,8 @@ protected:
 class BlockadeOrder : public Order {
 public:
     BlockadeOrder() = default;
-    BlockadeOrder(const BlockadeOrder &other) = default;
-    BlockadeOrder &operator=(const BlockadeOrder &other) = default;
+    BlockadeOrder(const BlockadeOrder& other) = default;
+    BlockadeOrder& operator=(const BlockadeOrder& other) = default;
 
     bool validate() override;
     void execute() override;
@@ -107,8 +107,8 @@ protected:
 class AirliftOrder : public Order {
 public:
     AirliftOrder() = default;
-    AirliftOrder(const AirliftOrder &other) = default;
-    AirliftOrder &operator=(const AirliftOrder &other) = default;
+    AirliftOrder(const AirliftOrder& other) = default;
+    AirliftOrder& operator=(const AirliftOrder& other) = default;
 
     bool validate() override;
     void execute() override;
@@ -125,8 +125,8 @@ protected:
 class NegotiateOrder : public Order {
 public:
     NegotiateOrder() = default;
-    NegotiateOrder(const NegotiateOrder &other) = default;
-    NegotiateOrder &operator=(const NegotiateOrder &other) = default;
+    NegotiateOrder(const NegotiateOrder& other) = default;
+    NegotiateOrder& operator=(const NegotiateOrder& other) = default;
 
     bool validate() override;
     void execute() override;
@@ -151,12 +151,12 @@ public:
     OrderList(); // Default constructor
 
     // Copy constructor and assignment operator
-    OrderList(const OrderList &other);
-    OrderList &operator=(const OrderList &other);
+    OrderList(const OrderList& other);
+    OrderList& operator=(const OrderList& other);
 
     // Getters
     std::size_t getSize() const;
-    const std::vector<std::unique_ptr<Order>> &getOrders() const;
+    const std::vector<std::unique_ptr<Order>>& getOrders() const;
 
 private:
     std::vector<std::unique_ptr<Order>> orders; // Vector of smart pointers to orders

@@ -1,13 +1,10 @@
 #include <iostream>
 
-
 void testOrdersLists();
 void testCards();
 void testLoadMaps();
 void testPlayers();
 void testGameStates();
-
-
 
 int main() {
     testOrdersLists();

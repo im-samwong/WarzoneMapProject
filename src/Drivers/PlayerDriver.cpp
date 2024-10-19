@@ -9,16 +9,16 @@
 
 void testPlayers() {
     // Create a player using the parameterized constructor (name)
-    Player *player1 = new Player("Caitlin");
+    Player* player1 = new Player("Caitlin");
 
-    Continent *sampleContinent = nullptr;
+    Continent* sampleContinent = nullptr;
 
-    Territory *t1 = new Territory("Iceland", 100, 200, sampleContinent);
-    Territory *t2 = new Territory("Norway", 120, 220, sampleContinent);
+    Territory* t1 = new Territory("Iceland", 100, 200, sampleContinent);
+    Territory* t2 = new Territory("Norway", 120, 220, sampleContinent);
 
     // Create a player using the parameterized constructor (name, territories)
-    std::vector<Territory *> territories = {t1, t2};
-    Player *player2 = new Player("Stephen", territories);
+    std::vector<Territory*> territories = {t1, t2};
+    Player* player2 = new Player("Stephen", territories);
 
     // Create a dummy order and issue it
     std::unique_ptr<Order> order = std::make_unique<DeployOrder>();
@@ -30,8 +30,8 @@ void testPlayers() {
 
     // Testing toAttack() method
     std::cout << "Player " << player2->getName() << "'s territories to attack: " << std::endl;
-    std::vector<Territory *> toAttackList = player2->toAttack();
-    for (Territory *territory : toAttackList) {
+    std::vector<Territory*> toAttackList = player2->toAttack();
+    for (Territory* territory : toAttackList) {
         std::cout << "- " << territory->getName() << std::endl; // returns arbitrary list of territories-- Assignment 1
     }
     std::cout << "\n"
@@ -39,8 +39,8 @@ void testPlayers() {
 
     // Testing toDefend() method
     std::cout << "Player " << player2->getName() << "'s territories to defend: " << std::endl;
-    std::vector<Territory *> toDefendList = player2->toDefend();
-    for (Territory *territory : toDefendList) {
+    std::vector<Territory*> toDefendList = player2->toDefend();
+    for (Territory* territory : toDefendList) {
         std::cout << "- " << territory->getName() << std::endl;
     }
     std::cout << "\n"
@@ -53,8 +53,8 @@ void testPlayers() {
 
     // Printing cards
     std::cout << "Player " << player1->getName() << "'s hand:" << std::endl;
-    std::vector<Card *> handCards = player1->getHand().getHandCards();
-    for (Card *card : handCards) {
+    std::vector<Card*> handCards = player1->getHand().getHandCards();
+    for (Card* card : handCards) {
         std::cout << *card << std::endl;
     }
 

@@ -9,7 +9,7 @@ Card::Card(CardType type) {
 }
 
 // Copy constructor
-Card::Card(const Card &other) {
+Card::Card(const Card& other) {
     this->type = new CardType(*other.type);
 }
 
@@ -19,7 +19,7 @@ Card::~Card() {
 }
 
 // Assignment operator
-Card &Card::operator=(const Card &other) {
+Card& Card::operator=(const Card& other) {
     if (this != &other) {
         delete this->type; // Free existing memory before copying
         this->type = new CardType(*other.type);
@@ -46,7 +46,7 @@ std::string Card::getTypeAsString() const {
 }
 
 // Play the card and return it to the deck
-void Card::play(OrderList *orderList) {
+void Card::play(OrderList* orderList) {
     // Play the card based on its type
     std::cout << "Playing card: " << getTypeAsString() << std::endl;
     // Send specific order to order list
@@ -77,7 +77,7 @@ void Card::play(OrderList *orderList) {
 }
 
 // Overloaded stream operator to print card details
-std::ostream &operator<<(std::ostream &out, const Card &card) {
+std::ostream& operator<<(std::ostream& out, const Card& card) {
     out << "Card type: " << card.getTypeAsString();
     return out;
 }
@@ -94,7 +94,7 @@ Deck::Deck() {
 }
 
 // Copy constructor (deep copy)
-Deck::Deck(const Deck &other) {
+Deck::Deck(const Deck& other) {
     for (auto card : other.cards) {
         cards.push_back(new Card(*card)); // Deep copy each card
     }
@@ -102,15 +102,15 @@ Deck::Deck(const Deck &other) {
 
 // Destructor
 Deck::~Deck() {
-    for (Card *card : cards) {
+    for (Card* card : cards) {
         delete card;
     }
 }
 
 // Assignment operator (deep copy)
-Deck &Deck::operator=(const Deck &other) {
+Deck& Deck::operator=(const Deck& other) {
     if (this != &other) {
-        for (Card *card : cards) {
+        for (Card* card : cards) {
             delete card;
         }
         cards.clear();
@@ -123,25 +123,25 @@ Deck &Deck::operator=(const Deck &other) {
 }
 
 // Get the cards in the deck
-std::vector<Card *> Deck::getCards() {
+std::vector<Card*> Deck::getCards() {
     return cards;
 }
 
 // Draw a random card from the deck
-Card *Deck::draw() {
+Card* Deck::draw() {
     if (cards.empty())
         return nullptr;
     // Seed the random number generator with current time to ensure randomness
     srand(static_cast<unsigned int>(time(0)));
 
     int index = rand() % cards.size();
-    Card *drawnCard = cards.at(index);
+    Card* drawnCard = cards.at(index);
     cards.erase(cards.begin() + index);
     return drawnCard;
 }
 
 // Stream insertion operator for Deck
-std::ostream &operator<<(std::ostream &out, const Deck &deck) {
+std::ostream& operator<<(std::ostream& out, const Deck& deck) {
     out << "Deck contains " << deck.cards.size() << " cards:";
     for (auto card : deck.cards) {
         out << "\n  - " << card->getTypeAsString();
@@ -154,7 +154,7 @@ std::ostream &operator<<(std::ostream &out, const Deck &deck) {
 Hand::Hand() {}
 
 // Copy constructor (deep copy)
-Hand::Hand(const Hand &other) {
+Hand::Hand(const Hand& other) {
     for (auto card : other.handCards) {
         handCards.push_back(new Card(*card)); // Deep copy each card
     }
@@ -162,15 +162,15 @@ Hand::Hand(const Hand &other) {
 
 // Destructor
 Hand::~Hand() {
-    for (Card *card : handCards) {
+    for (Card* card : handCards) {
         delete card;
     }
 }
 
 // Assignment operator (deep copy)
-Hand &Hand::operator=(const Hand &other) {
+Hand& Hand::operator=(const Hand& other) {
     if (this != &other) {
-        for (Card *card : handCards) {
+        for (Card* card : handCards) {
             delete card;
         }
         handCards.clear();
@@ -183,17 +183,17 @@ Hand &Hand::operator=(const Hand &other) {
 }
 
 // Get the cards in the hand
-std::vector<Card *> Hand::getHandCards() {
+std::vector<Card*> Hand::getHandCards() {
     return handCards;
 }
 
 // Add a card to the hand
-void Hand::addCard(Card *card) {
+void Hand::addCard(Card* card) {
     handCards.push_back(card);
 }
 
 // Play a card from the hand
-void Hand::playCard(Card *card, Deck *deck, OrderList *orderList) {
+void Hand::playCard(Card* card, Deck* deck, OrderList* orderList) {
     card->play(orderList); // Play the card
 
     // Iterate over handCards and find the matching card
@@ -210,7 +210,7 @@ void Hand::playCard(Card *card, Deck *deck, OrderList *orderList) {
 }
 
 // Stream insertion operator for Hand
-std::ostream &operator<<(std::ostream &out, const Hand &hand) {
+std::ostream& operator<<(std::ostream& out, const Hand& hand) {
     out << "Hand contains " << hand.handCards.size() << " cards:";
     for (auto card : hand.handCards) {
         out << "\n  - " << card->getTypeAsString();
