@@ -1,49 +1,47 @@
+#include "../Cards/Cards.h"
 #include "../Map/Map.h"
 #include "../Orders/Orders.h"
-#include "../Cards/Cards.h"
-#include <vector>
-#include <string>
 #include <iostream>
 #include <memory>
+#include <string>
+#include <vector>
 #ifndef PLAYER_H
 #define PLAYER_H
 
-namespace Player {
-    class Player {
-    private:
-        //std::string name;                      // Player's name
-        std::string* name;
-        std::vector<Territory*>* territories;   // Collection of player's territories
-        Cards::Hand* hand;                            // Player's hand of cards
-        Orders::OrderList* orders;                    // List of orders the player has issued
+class Player {
+private:
+    // std::string name;                      // Player's name
+    std::string *name;
+    std::vector<Territory *> *territories; // Collection of player's territories
+    Hand *hand;                            // Player's hand of cards
+    OrderList *orders;                     // List of orders the player has issued
 
-    public:
-        // Constructors
-        Player();                              // Default constructor
-        Player(const std::string playerName); // Parameterized constructor (name)
-        Player(const std::string playerName, const std::vector<Territory*>& terrs); // Param. constructor (name, territories)
+public:
+    // Constructors
+    Player();                                                                    // Default constructor
+    Player(const std::string playerName);                                        // Parameterized constructor (name)
+    Player(const std::string playerName, const std::vector<Territory *> &terrs); // Param. constructor (name, territories)
 
-        // Destructor
-        ~Player();
+    // Destructor
+    ~Player();
 
-        // Copy constructor
-        Player(const Player& other);
+    // Copy constructor
+    Player(const Player &other);
 
-        // Assignment operator
-        Player& operator=(const Player& other);
+    // Assignment operator
+    Player &operator=(const Player &other);
 
-        // Stream insertion operator
-        friend std::ostream& operator<<(std::ostream& out, const Player& player);
+    // Stream insertion operator
+    friend std::ostream &operator<<(std::ostream &out, const Player &player);
 
-        // Functions
-        std::vector<Territory*> toDefend();    // Return list of territories to defend
-        std::vector<Territory*> toAttack();    // Return list of territories to attack
-        void issueOrder(std::unique_ptr<Orders::Order> order);         // Issue an order
+    // Functions
+    std::vector<Territory *> toDefend();           // Return list of territories to defend
+    std::vector<Territory *> toAttack();           // Return list of territories to attack
+    void issueOrder(std::unique_ptr<Order> order); // Issue an order
 
-        // Other getters and setters as needed
-        std::string getName() const;
-        Cards::Hand& getHand();
-    };
-}
+    // Other getters and setters as needed
+    std::string getName() const;
+    Hand &getHand();
+};
 
-#endif //PLAYER_H
+#endif // PLAYER_H
