@@ -1,7 +1,6 @@
 //
-// Created by Daniel on 2024-09-29.
+// Created by danielm on 10/20/24.
 //
-
 #include "GameEngine.h"
 #include <iostream>
 
@@ -111,39 +110,57 @@ string mapEnumToString(const GameStates stateName) {
     return enumString;
 }
 
-void GameState::setNextStates(const shared_ptr<vector<shared_ptr<GameState>>>& nextStates) {
-    this->nextStates = nextStates;
+vector<string> getStringTransitionCommands() {
+    vector<string> commands;
+    for (int i = 0; i < 12; i++) {
+        commands.push_back(mapEnumToString(static_cast<TransitionCommand>(i)));
+    }
+    return commands;
 }
 
-GameState::GameState(
-    const GameStateTypes& stateType,
-    const GameStates& stateName,
-    const vector<TransitionCommand>& transitionCommands,
-    const vector<shared_ptr<GameState>>& nextStates) : stateType(make_shared<GameStateTypes>(stateType)),
-                                                       stateName(make_shared<GameStates>(stateName)),
-                                                       transitionCommands(make_shared<vector<TransitionCommand>>(transitionCommands)),
-                                                       nextStates(make_shared<vector<shared_ptr<GameState>>>(nextStates)) {}
-
-GameState::GameState(
-    const GameStateTypes& stateType,
-    const GameStates& stateName,
-    const vector<TransitionCommand>& transitionCommands) : stateType(make_shared<GameStateTypes>(stateType)),
-                                                           stateName(make_shared<GameStates>(stateName)),
-                                                           transitionCommands(make_shared<vector<TransitionCommand>>(transitionCommands)) {}
-
-GameState::GameState(const GameState& otherGameState) {
-    this->nextStates = make_shared<vector<shared_ptr<GameState>>>(*otherGameState.nextStates);
-    this->stateName = make_shared<GameStates>(*otherGameState.stateName);
-    this->stateType = make_shared<GameStateTypes>(*otherGameState.stateType);
-    this->transitionCommands = make_shared<vector<TransitionCommand>>(*otherGameState.transitionCommands);
+vector<string> getStringTransitionCommands(const vector<TransitionCommand>& gameStateCommands) {
+    vector<string> commands;
+    for (auto gameStateCommand : gameStateCommands) {
+        commands.push_back(mapEnumToString(gameStateCommand));
+    }
+    return commands;
 }
 
-GameState& GameState::operator=(const GameState& otherGameState) {
+//Abstract Class implementation
+
+GameState::GameState(const GameStateTypes &iStateType,const GameStates &iStateName,const vector<TransitionCommand> &iTransitionCommands,
+    const vector<GameState *> &iNextStates) {
+    stateType = new GameStateTypes(iStateType);
+    stateName = new GameStates(iStateName);
+    transitionCommands = new vector(iTransitionCommands);
+    nextStates = new vector(iNextStates);
+}
+
+GameState::GameState(const GameStateTypes &iStateType, const GameStates &iStateName, const vector<TransitionCommand> &iTransitionCommands) {
+    stateType = new GameStateTypes(iStateType);
+    stateName = new GameStates(iStateName);
+    transitionCommands = new vector(iTransitionCommands);
+    nextStates = nullptr;
+}
+
+GameState::GameState(const GameState &otherGameState) {
+    stateType = new GameStateTypes(*otherGameState.stateType);
+    stateName = new GameStates(*otherGameState.stateName);
+    transitionCommands = new vector(*otherGameState.transitionCommands);
+    nextStates = new vector(*otherGameState.nextStates);
+}
+
+GameState& GameState::operator=(const GameState &otherGameState) {
     if (this != &otherGameState) {
-        stateType = make_shared<GameStateTypes>(*otherGameState.stateType);
-        stateName = make_shared<GameStates>(*otherGameState.stateName);
-        transitionCommands = make_shared<vector<TransitionCommand>>(*otherGameState.transitionCommands);
-        nextStates = make_shared<vector<shared_ptr<GameState>>>(*otherGameState.nextStates);
+        delete stateType;
+        delete stateName;
+        delete transitionCommands;
+        delete nextStates;
+
+        stateType = new GameStateTypes(*otherGameState.stateType);
+        stateName = new GameStates(*otherGameState.stateName);
+        transitionCommands = new vector(*otherGameState.transitionCommands);
+        nextStates = new vector(*otherGameState.nextStates);
     }
     return *this;
 }
@@ -176,22 +193,29 @@ vector<TransitionCommand> GameState::getTransitionCommands() {
     return *this->transitionCommands;
 }
 
-vector<shared_ptr<GameState>> GameState::getNextStates() {
+vector<GameState*> GameState::getNextStates() {
     return *this->nextStates;
 }
+
+void GameState::setNextStates(const vector<GameState*> &nextStates) {
+    delete this->nextStates;
+    this->nextStates = new vector(nextStates);
+}
+
+//Derived classes implementation
 
 StartState::StartState(
     const GameStateTypes& stateType,
     const GameStates& stateName,
     const vector<TransitionCommand>& transitionCommands,
-    const vector<shared_ptr<GameState>>& nextStates) : GameState(stateType, stateName, transitionCommands, nextStates) {}
+    const vector<GameState*>& nextStates) : GameState(stateType, stateName, transitionCommands, nextStates) {}
 
 StartState::StartState(
     const GameStateTypes& stateType,
     const GameStates& stateName,
     const vector<TransitionCommand>& transitionCommands) : GameState(stateType, stateName, transitionCommands) {}
 
-shared_ptr<GameState> StartState::transitionToNextState(const TransitionCommand transitionCommand) {
+GameState* StartState::transitionToNextState(const TransitionCommand transitionCommand) {
     if (transitionCommand == TransitionCommand::LOAD_MAP) {
         return this->nextStates->at(0);
     }
@@ -202,14 +226,14 @@ MapLoadedState::MapLoadedState(
     const GameStateTypes& stateType,
     const GameStates& stateName,
     const vector<TransitionCommand>& transitionCommands,
-    const vector<shared_ptr<GameState>>& nextStates) : GameState(stateType, stateName, transitionCommands, nextStates) {}
+    const vector<GameState*>& nextStates) : GameState(stateType, stateName, transitionCommands, nextStates) {}
 
 MapLoadedState::MapLoadedState(
     const GameStateTypes& stateType,
     const GameStates& stateName,
     const vector<TransitionCommand>& transitionCommands) : GameState(stateType, stateName, transitionCommands) {}
 
-shared_ptr<GameState> MapLoadedState::transitionToNextState(const TransitionCommand transitionCommand) {
+GameState* MapLoadedState::transitionToNextState(const TransitionCommand transitionCommand) {
     bool isValidCommand = false;
     for (TransitionCommand command : *this->transitionCommands) {
         if (transitionCommand == command) {
@@ -219,7 +243,7 @@ shared_ptr<GameState> MapLoadedState::transitionToNextState(const TransitionComm
 
     if (isValidCommand) {
         if (transitionCommand == TransitionCommand::VALIDATE_MAP) {
-            for (shared_ptr<GameState> state : *this->nextStates) {
+            for (GameState* state : *this->nextStates) {
                 if (state->getStateName() == MAP_VALIDATED) {
                     return state;
                 }
@@ -233,14 +257,14 @@ MapValidatedState::MapValidatedState(
     const GameStateTypes& stateType,
     const GameStates& stateName,
     const vector<TransitionCommand>& transitionCommands,
-    const vector<shared_ptr<GameState>>& nextStates) : GameState(stateType, stateName, transitionCommands, nextStates) {}
+    const vector<GameState*>& nextStates) : GameState(stateType, stateName, transitionCommands, nextStates) {}
 
 MapValidatedState::MapValidatedState(
     const GameStateTypes& stateType,
     const GameStates& stateName,
     const vector<TransitionCommand>& transitionCommands) : GameState(stateType, stateName, transitionCommands) {}
 
-shared_ptr<GameState> MapValidatedState::transitionToNextState(const TransitionCommand transitionCommand) {
+GameState* MapValidatedState::transitionToNextState(const TransitionCommand transitionCommand) {
     if (transitionCommand == TransitionCommand::ADD_PLAYER) {
         return this->nextStates->at(0);
     }
@@ -251,14 +275,14 @@ PlayersAddedState::PlayersAddedState(
     const GameStateTypes& stateType,
     const GameStates& stateName,
     const vector<TransitionCommand>& transitionCommands,
-    const vector<shared_ptr<GameState>>& nextStates) : GameState(stateType, stateName, transitionCommands, nextStates) {}
+    const vector<GameState*>& nextStates) : GameState(stateType, stateName, transitionCommands, nextStates) {}
 
 PlayersAddedState::PlayersAddedState(
     const GameStateTypes& stateType,
     const GameStates& stateName,
     const vector<TransitionCommand>& transitionCommands) : GameState(stateType, stateName, transitionCommands) {}
 
-shared_ptr<GameState> PlayersAddedState::transitionToNextState(const TransitionCommand transitionCommand) {
+GameState* PlayersAddedState::transitionToNextState(const TransitionCommand transitionCommand) {
     bool isValidCommand = false;
     for (TransitionCommand command : *this->transitionCommands) {
         if (transitionCommand == command) {
@@ -268,7 +292,7 @@ shared_ptr<GameState> PlayersAddedState::transitionToNextState(const TransitionC
 
     if (isValidCommand) {
         if (transitionCommand == TransitionCommand::ASSIGN_COUNTRIES) {
-            for (shared_ptr<GameState> state : *this->nextStates) {
+            for (GameState* state : *this->nextStates) {
                 if (state->getStateName() == ASSIGN_REINFORCEMENT) {
                     return state;
                 }
@@ -282,14 +306,14 @@ AssignReinforcementState::AssignReinforcementState(
     const GameStateTypes& stateType,
     const GameStates& stateName,
     const vector<TransitionCommand>& transitionCommands,
-    const vector<shared_ptr<GameState>>& nextStates) : GameState(stateType, stateName, transitionCommands, nextStates) {}
+    const vector<GameState*>& nextStates) : GameState(stateType, stateName, transitionCommands, nextStates) {}
 
 AssignReinforcementState::AssignReinforcementState(
     const GameStateTypes& stateType,
     const GameStates& stateName,
     const vector<TransitionCommand>& transitionCommands) : GameState(stateType, stateName, transitionCommands) {}
 
-shared_ptr<GameState> AssignReinforcementState::transitionToNextState(const TransitionCommand transitionCommand) {
+GameState* AssignReinforcementState::transitionToNextState(const TransitionCommand transitionCommand) {
     if (transitionCommand == TransitionCommand::ISSUE_ORDER) {
         return this->nextStates->at(0);
     }
@@ -300,14 +324,14 @@ IssueOrdersState::IssueOrdersState(
     const GameStateTypes& stateType,
     const GameStates& stateName,
     const vector<TransitionCommand>& transitionCommands,
-    const vector<shared_ptr<GameState>>& nextStates) : GameState(stateType, stateName, transitionCommands, nextStates) {}
+    const vector<GameState*>& nextStates) : GameState(stateType, stateName, transitionCommands, nextStates) {}
 
 IssueOrdersState::IssueOrdersState(
     const GameStateTypes& stateType,
     const GameStates& stateName,
     const vector<TransitionCommand>& transitionCommands) : GameState(stateType, stateName, transitionCommands) {}
 
-shared_ptr<GameState> IssueOrdersState::transitionToNextState(TransitionCommand transitionCommand) {
+GameState* IssueOrdersState::transitionToNextState(TransitionCommand transitionCommand) {
     bool isValidCommand = false;
     for (TransitionCommand command : *this->transitionCommands) {
         if (transitionCommand == command) {
@@ -317,7 +341,7 @@ shared_ptr<GameState> IssueOrdersState::transitionToNextState(TransitionCommand 
 
     if (isValidCommand) {
         if (transitionCommand == TransitionCommand::END_ISSUE_ORDERS) {
-            for (shared_ptr<GameState> state : *this->nextStates) {
+            for (GameState* state : *this->nextStates) {
                 if (state->getStateName() == EXECUTE_ORDERS) {
                     return state;
                 }
@@ -331,14 +355,14 @@ ExecuteOrdersState::ExecuteOrdersState(
     const GameStateTypes& stateType,
     const GameStates& stateName,
     const vector<TransitionCommand>& transitionCommands,
-    const vector<shared_ptr<GameState>>& nextStates) : GameState(stateType, stateName, transitionCommands, nextStates) {}
+    const vector<GameState*>& nextStates) : GameState(stateType, stateName, transitionCommands, nextStates) {}
 
 ExecuteOrdersState::ExecuteOrdersState(
     const GameStateTypes& stateType,
     const GameStates& stateName,
     const vector<TransitionCommand>& transitionCommands) : GameState(stateType, stateName, transitionCommands) {}
 
-shared_ptr<GameState> ExecuteOrdersState::transitionToNextState(const TransitionCommand transitionCommand) {
+GameState* ExecuteOrdersState::transitionToNextState(const TransitionCommand transitionCommand) {
     bool isValidCommand = false;
     for (TransitionCommand command : *this->transitionCommands) {
         if (transitionCommand == command) {
@@ -348,14 +372,14 @@ shared_ptr<GameState> ExecuteOrdersState::transitionToNextState(const Transition
 
     if (isValidCommand) {
         if (transitionCommand == TransitionCommand::END_EXEC_ORDER) {
-            for (shared_ptr<GameState> state : *this->nextStates) {
+            for (GameState* state : *this->nextStates) {
                 if (state->getStateName() == ASSIGN_REINFORCEMENT) {
                     return state;
                 }
             }
         }
         if (transitionCommand == TransitionCommand::WIN_GAME) {
-            for (shared_ptr<GameState> state : *this->nextStates) {
+            for (GameState* state : *this->nextStates) {
                 if (state->getStateName() == WIN) {
                     return state;
                 }
@@ -369,14 +393,14 @@ WinState::WinState(
     const GameStateTypes& stateType,
     const GameStates& stateName,
     const vector<TransitionCommand>& transitionCommands,
-    const vector<shared_ptr<GameState>>& nextStates) : GameState(stateType, stateName, transitionCommands, nextStates) {}
+    const vector<GameState*>& nextStates) : GameState(stateType, stateName, transitionCommands, nextStates) {}
 
 WinState::WinState(
     const GameStateTypes& stateType,
     const GameStates& stateName,
     const vector<TransitionCommand>& transitionCommands) : GameState(stateType, stateName, transitionCommands) {}
 
-shared_ptr<GameState> WinState::transitionToNextState(const TransitionCommand transitionCommand) {
+GameState* WinState::transitionToNextState(const TransitionCommand transitionCommand) {
     bool isValidCommand = false;
     for (TransitionCommand command : *this->transitionCommands) {
         if (transitionCommand == command) {
@@ -390,7 +414,7 @@ shared_ptr<GameState> WinState::transitionToNextState(const TransitionCommand tr
 
     if (isValidCommand) {
         if (transitionCommand == TransitionCommand::PLAY_AGAIN) {
-            for (shared_ptr<GameState> state : *this->nextStates) {
+            for (GameState* state : *this->nextStates) {
                 if (state->getStateName() == START) {
                     return state;
                 }
@@ -400,47 +424,48 @@ shared_ptr<GameState> WinState::transitionToNextState(const TransitionCommand tr
     return nullptr;
 }
 
-vector<string> getStringTransitionCommands() {
-    vector<string> commands;
-    for (int i = 0; i < 12; i++) {
-        commands.push_back(mapEnumToString(static_cast<TransitionCommand>(i)));
-    }
-    return commands;
+//Game Engine implementation code
+
+GameEngine::~GameEngine() {
+    delete gameOver;
+    delete inputtedCommand;
+    delete currentGameState;
 }
 
-vector<string> getStringTransitionCommands(const vector<TransitionCommand>& gameStateCommands) {
-    vector<string> commands;
-    for (auto gameStateCommand : gameStateCommands) {
-        commands.push_back(mapEnumToString(gameStateCommand));
-    }
-    return commands;
-}
-
-void GameEngine::printCurrentStateCommands(const vector<TransitionCommand>& commands, const string& gameStateName) {
-    cout << "The available commands for the current state " + gameStateName + " are: \n";
-    vector<string> stateCommands = getStringTransitionCommands(commands);
-    for (const auto& command : stateCommands) {
-        cout << command << "\n";
-    }
-}
-
-shared_ptr<GameState> GameEngine::getCurrentGameState() {
-    return this->currentGameState;
-}
-
-GameStates GameEngine::getCurrentGameStateName() {
+GameStates GameEngine::getCurrentGameStateName() const {
     return this->currentGameState->getStateName();
 }
 
-GameEngine::GameEngine(const shared_ptr<GameState>& initialGameState, const shared_ptr<bool>& gameOver) {
-    this->gameOver = gameOver;
-    this->currentGameState = initialGameState;
-    this->inputtedCommand = make_shared<string>("N/A");
+GameState* GameEngine::getCurrentGameState() const {
+    return this->currentGameState;
+}
+
+bool GameEngine::getGameOverStatus() const {
+    return *this->gameOver;
+}
+
+string GameEngine::getInputtedCommand() const {
+    return *this->inputtedCommand;
+}
+
+void GameEngine::setCurrentGameState(GameState* gameState) {
+    delete currentGameState;
+    currentGameState = gameState;
+}
+
+void GameEngine::setGameOverStatus(const bool gameOver) {
+    delete this->gameOver;
+    this->gameOver = new bool(gameOver);
+}
+
+void GameEngine::setInputtedCommand(const string &inputtedCommand) {
+    delete this->inputtedCommand;
+    this->inputtedCommand = new string(inputtedCommand);
 }
 
 bool GameEngine::transitionToNextState(TransitionCommand transitionCommand) {
     GameStates currentGameState = this->getCurrentGameState()->getStateName();
-    shared_ptr<GameState> nextState = this->getCurrentGameState()->transitionToNextState(transitionCommand);
+    GameState* nextState = this->getCurrentGameState()->transitionToNextState(transitionCommand);
     bool isTransitionCommandLoopBack = static_cast<int>(this->getCurrentGameStateName()) == static_cast<int>(transitionCommand);
 
     if (transitionCommand == TransitionCommand::END && nextState == nullptr && currentGameState == GameStates::WIN) {
@@ -460,52 +485,28 @@ bool GameEngine::transitionToNextState(TransitionCommand transitionCommand) {
 
     cout << "Issued command is valid, transitioning to next state of game\n";
     cout << endl;
+
     this->currentGameState = nextState;
+
     return true;
 }
 
-void GameEngine::testGameStates() {
-    cout << "Game State is currently: " + mapEnumToString(GameStates::START) << endl;
-
-    this->printCurrentStateCommands(this->currentGameState->getTransitionCommands(), mapEnumToString(this->getCurrentGameStateName()));
-
-    cout << "\nPlease input one of the previous commands to continue.\n";
-
-    while (!*gameOver) {
-        string inputCommand = "INVALID_COMMAND";
-        cin >> inputCommand;
-        cout << "You inputted " + inputCommand + "\n";
-        TransitionCommand transitionCommand = mapStringToTransitionCommand(inputCommand);
-        if (this->transitionToNextState(transitionCommand)) {
-            if (mapEnumToString(this->getCurrentGameStateName()) == "WIN" && transitionCommand == TransitionCommand::END) {
-                cout << "The game state is currently: WIN and END command invoked.\n\nTerminating Program";
-                *this->gameOver = true;
-            } else {
-                this->printCurrentStateCommands(this->currentGameState->getTransitionCommands(), mapEnumToString(this->getCurrentGameStateName()));
-            }
-        }
+void GameEngine::printCurrentStateCommands(const vector<TransitionCommand>& commands, const string& gameStateName) {
+    cout << "The available commands for the current state " + gameStateName + " are: \n";
+    vector<string> stateCommands = getStringTransitionCommands(commands);
+    for (const auto& command : stateCommands) {
+        cout << command << "\n";
     }
-
-    exit(EXIT_SUCCESS);
 }
 
-string GameEngine::getInputtedCommand() const {
-    return *this->inputtedCommand;
-}
-
-bool GameEngine::getGameOverStatus() const {
-    return *this->gameOver;
-}
-
-GameEngine& GameEngine::operator=(const GameEngine& otherGameEngine) {
-    if (this != &otherGameEngine) {
-        currentGameState = make_shared<StartState>(*dynamic_cast<StartState*>(otherGameEngine.currentGameState.get()));
-        gameOver = make_shared<bool>(*otherGameEngine.gameOver);
-        inputtedCommand = make_shared<string>(*otherGameEngine.inputtedCommand);
+GameEngine* GameEngine::getInstance() {
+    if (!game_engine_instance) {
+        game_engine_instance = new GameEngine();
     }
-
-    return *this;
+    return game_engine_instance;
 }
+
+GameEngine* GameEngine::game_engine_instance = nullptr;
 
 ostream& operator<<(ostream& os, const GameEngine& gameEngine) {
     cout << "Current Game State: " << mapEnumToString(gameEngine.currentGameState->getStateName()) << endl;

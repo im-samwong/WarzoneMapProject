@@ -1,4 +1,6 @@
-// Created by Daniel on 2024-09-29.
+//
+// Created by danielm on 10/20/24.
+//
 
 #include "../GameEngine/GameEngine.h"
 #include <iostream>
@@ -7,67 +9,87 @@ void testGameStates() {
     cout << "Testing GameEngine.GameStates" << endl;
 
     vector<TransitionCommand> startStateTransitionCommands = {TransitionCommand::LOAD_MAP};
-    shared_ptr<StartState> startState = make_shared<StartState>(
+    StartState* startState = new StartState(
         GameStateTypes::STARTUP,
         GameStates::START,
         startStateTransitionCommands);
 
     vector<TransitionCommand> winTransitionCommands = {TransitionCommand::PLAY_AGAIN, TransitionCommand::END};
-    shared_ptr<WinState> winState = make_shared<WinState>(
+    WinState* winState = new WinState(
         GameStateTypes::PLAY,
         GameStates::WIN,
         winTransitionCommands);
 
     vector<TransitionCommand> executeOrdersTransitionCommands = {TransitionCommand::EXECUTE_ORDER, TransitionCommand::END_EXEC_ORDER, TransitionCommand::WIN_GAME};
-    shared_ptr<ExecuteOrdersState> executeOrdersState = make_shared<ExecuteOrdersState>(
+    ExecuteOrdersState* executeOrdersState = new ExecuteOrdersState(
         GameStateTypes::PLAY,
         GameStates::EXECUTE_ORDERS,
         executeOrdersTransitionCommands);
 
     vector<TransitionCommand> issueOrdersTransitionCommands = {TransitionCommand::ISSUE_ORDER, TransitionCommand::END_ISSUE_ORDERS};
-    shared_ptr<IssueOrdersState> issueOrdersState = make_shared<IssueOrdersState>(
+    IssueOrdersState* issueOrdersState = new IssueOrdersState(
         GameStateTypes::PLAY,
         GameStates::ISSUE_ORDERS,
         issueOrdersTransitionCommands);
 
     vector<TransitionCommand> assignReinforcementTransitionCommands = {TransitionCommand::ISSUE_ORDER};
-    shared_ptr<AssignReinforcementState> assignReinforcementState = make_shared<AssignReinforcementState>(
+    AssignReinforcementState* assignReinforcementState = new AssignReinforcementState(
         GameStateTypes::PLAY,
         GameStates::ASSIGN_REINFORCEMENT,
         assignReinforcementTransitionCommands);
 
     vector<TransitionCommand> playersAddedTransitionCommands = {TransitionCommand::ADD_PLAYER, TransitionCommand::ASSIGN_COUNTRIES};
-    shared_ptr<PlayersAddedState> playersAddedState = make_shared<PlayersAddedState>(
+    PlayersAddedState* playersAddedState = new PlayersAddedState(
         GameStateTypes::STARTUP,
         GameStates::PLAYERS_ADDED,
         playersAddedTransitionCommands);
 
     vector<TransitionCommand> mapValidatedTransitionCommands = {TransitionCommand::ADD_PLAYER};
-    shared_ptr<MapValidatedState> mapValidatedState = make_shared<MapValidatedState>(
+    MapValidatedState* mapValidatedState = new MapValidatedState(
         GameStateTypes::STARTUP,
         GameStates::MAP_VALIDATED,
         mapValidatedTransitionCommands);
 
     vector<TransitionCommand> mapLoadedTransitionCommands = {TransitionCommand::LOAD_MAP, TransitionCommand::VALIDATE_MAP};
-    shared_ptr<MapLoadedState> mapLoadedState = make_shared<MapLoadedState>(
+    MapLoadedState* mapLoadedState = new MapLoadedState(
         GameStateTypes::STARTUP,
         GameStates::MAP_LOADED,
         mapLoadedTransitionCommands);
 
-    // Set next states for each state
-    startState->setNextStates(make_shared<vector<shared_ptr<GameState>>>(vector<shared_ptr<GameState>>{mapLoadedState}));
-    mapLoadedState->setNextStates(make_shared<vector<shared_ptr<GameState>>>(vector<shared_ptr<GameState>>{mapValidatedState}));
-    mapValidatedState->setNextStates(make_shared<vector<shared_ptr<GameState>>>(vector<shared_ptr<GameState>>{playersAddedState}));
-    playersAddedState->setNextStates(make_shared<vector<shared_ptr<GameState>>>(vector<shared_ptr<GameState>>{assignReinforcementState}));
-    assignReinforcementState->setNextStates(make_shared<vector<shared_ptr<GameState>>>(vector<shared_ptr<GameState>>{issueOrdersState}));
-    issueOrdersState->setNextStates(make_shared<vector<shared_ptr<GameState>>>(vector<shared_ptr<GameState>>{executeOrdersState}));
-    executeOrdersState->setNextStates(make_shared<vector<shared_ptr<GameState>>>(vector<shared_ptr<GameState>>{assignReinforcementState, winState}));
-    winState->setNextStates(make_shared<vector<shared_ptr<GameState>>>(vector<shared_ptr<GameState>>{startState}));
+    startState->setNextStates(vector<GameState*>{mapLoadedState});
+    mapLoadedState->setNextStates(vector<GameState*>{mapValidatedState});
+    mapValidatedState->setNextStates(vector<GameState*>{playersAddedState});
+    playersAddedState->setNextStates(vector<GameState*>{assignReinforcementState});
+    assignReinforcementState->setNextStates(vector<GameState*>{issueOrdersState});
+    issueOrdersState->setNextStates(vector<GameState*>{executeOrdersState});
+    executeOrdersState->setNextStates(vector<GameState*>{assignReinforcementState, winState});
+    winState->setNextStates(vector<GameState*>{startState});
 
-    // Create game engine with current game state set to StartState
-    shared_ptr<bool> gameOver = make_shared<bool>(false);
-    shared_ptr<GameState> currentGameState = startState;
-    GameEngine gameEngine(currentGameState, gameOver);
+    GameEngine* gameEngine = GameEngine::getInstance();
+    gameEngine->setGameOverStatus(false);
+    gameEngine->setInputtedCommand("N/A");
+    gameEngine->setCurrentGameState(startState);
 
-    gameEngine.testGameStates();
+    cout << "Game State is currently: " + mapEnumToString(GameStates::START) << endl;
+
+    gameEngine->printCurrentStateCommands(gameEngine->getCurrentGameState()->getTransitionCommands(), mapEnumToString(gameEngine->getCurrentGameStateName()));
+
+    cout << "\nPlease input one of the previous commands to continue.\n";
+
+    while (!gameEngine->getGameOverStatus()) {
+        string inputCommand = "INVALID_COMMAND";
+        cin >> inputCommand;
+        cout << "You inputted " + inputCommand + "\n";
+        TransitionCommand transitionCommand = mapStringToTransitionCommand(inputCommand);
+        if (gameEngine->transitionToNextState(transitionCommand)) {
+            if (mapEnumToString(gameEngine->getCurrentGameStateName()) == "WIN" && transitionCommand == TransitionCommand::END) {
+                cout << "The game state is currently: WIN and END command invoked.\n\nTerminating Program";
+                gameEngine->setGameOverStatus(true);
+            } else {
+                gameEngine->printCurrentStateCommands(gameEngine->getCurrentGameState()->getTransitionCommands(), mapEnumToString(gameEngine->getCurrentGameStateName()));
+            }
+        }
+    }
+
+    exit(EXIT_SUCCESS);
 }

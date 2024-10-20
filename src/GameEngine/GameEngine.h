@@ -1,19 +1,16 @@
 //
-// Created by Daniel on 2024-09-29.
+// Created by danielm on 10/20/24.
 //
-
 #ifndef GAMEENGINE_H
 #define GAMEENGINE_H
+
+using namespace std;
 
 #include <memory>
 #include <string>
 #include <vector>
 
-using namespace std;
-
-/*
-  Enum representing the possible game states of the game i.e states on the transition diagram
- */
+//Enum representing the possible game states of the game i.e. states on the transition diagram
 enum GameStates {
     START = 0,
     MAP_LOADED = 1,
@@ -47,6 +44,8 @@ enum class GameStateTypes {
     PLAY
 };
 
+/*********************** Utility Functions start here ***********************/
+
 // Helper method for mapping a TransitionCommand enum value to a String
 string mapEnumToString(TransitionCommand command);
 
@@ -69,19 +68,19 @@ string mapEnumToString(GameStates stateName);
  */
 class GameState {
 protected:
-    shared_ptr<GameStateTypes> stateType;
-    shared_ptr<GameStates> stateName;
-    shared_ptr<vector<TransitionCommand>> transitionCommands;
-    shared_ptr<vector<shared_ptr<GameState>>> nextStates;
+    GameStateTypes* stateType;
+    GameStates* stateName;
+    vector<TransitionCommand>* transitionCommands;
+    vector<GameState*>* nextStates{};
 
 public:
     virtual ~GameState() = default;
 
     // Default Constructor given all necessary members
-    GameState(const GameStateTypes& stateType, const GameStates& stateName, const vector<TransitionCommand>& transitionCommands, const vector<shared_ptr<GameState>>& nextStates);
+    GameState(const GameStateTypes& iStateType, const GameStates& iStateName, const vector<TransitionCommand>& iTransitionCommands, const vector<GameState*> &iNextStates);
 
     // Constructor used in case we don't want to declare the next states immediately
-    GameState(const GameStateTypes& stateType, const GameStates& stateName, const vector<TransitionCommand>& transitionCommands);
+    GameState(const GameStateTypes& iStateType, const GameStates& iStateName, const vector<TransitionCommand>& iTransitionCommands);
 
     // Copy Constructor for Base class which will be used by derived classes as well
     GameState(const GameState& otherGameState);
@@ -95,17 +94,17 @@ public:
     GameStates getStateName();
 
     // Getter for obtaining the nextStates available for this GameState
-    vector<shared_ptr<GameState>> getNextStates();
+    vector<GameState*> getNextStates();
 
     // Getter for obtaining the list of TransitionCommands
     vector<TransitionCommand> getTransitionCommands();
 
     // Method for determining if GameState will transition to next state.
     // Returns a pointer to the next state if transition is successful or nullptr if a transition is not to take place
-    virtual shared_ptr<GameState> transitionToNextState(TransitionCommand transitionCommand) = 0;
+    virtual GameState* transitionToNextState(TransitionCommand transitionCommand) = 0;
 
     // Setter method for setting nextStates, used for initialization
-    void setNextStates(const shared_ptr<vector<shared_ptr<GameState>>>& nextStates);
+    void setNextStates(const vector<GameState*> &nextStates);
 
     GameState& operator=(const GameState& otherGameState);
 };
@@ -116,14 +115,14 @@ public:
         const GameStateTypes& stateType,
         const GameStates& stateName,
         const vector<TransitionCommand>& transitionCommands,
-        const vector<shared_ptr<GameState>>& nextStates);
+        const vector<GameState*>& nextStates);
 
     StartState(
         const GameStateTypes& stateType,
         const GameStates& stateName,
         const vector<TransitionCommand>& transitionCommands);
 
-    shared_ptr<GameState> transitionToNextState(TransitionCommand transitionCommand) override;
+    GameState* transitionToNextState(TransitionCommand transitionCommand) override;
 };
 
 class MapLoadedState : public GameState {
@@ -132,14 +131,14 @@ public:
         const GameStateTypes& stateType,
         const GameStates& stateName,
         const vector<TransitionCommand>& transitionCommands,
-        const vector<shared_ptr<GameState>>& nextStates);
+        const vector<GameState*>& nextStates);
 
     MapLoadedState(
         const GameStateTypes& stateType,
         const GameStates& stateName,
         const vector<TransitionCommand>& transitionCommands);
 
-    shared_ptr<GameState> transitionToNextState(TransitionCommand transitionCommand) override;
+    GameState* transitionToNextState(TransitionCommand transitionCommand) override;
 };
 
 class MapValidatedState : public GameState {
@@ -148,13 +147,14 @@ public:
         const GameStateTypes& stateType,
         const GameStates& stateName,
         const vector<TransitionCommand>& transitionCommands,
-        const vector<shared_ptr<GameState>>& nextStates);
+        const vector<GameState*>& nextStates);
 
     MapValidatedState(
         const GameStateTypes& stateType,
         const GameStates& stateName,
         const vector<TransitionCommand>& transitionCommands);
-    shared_ptr<GameState> transitionToNextState(TransitionCommand transitionCommand) override;
+
+    GameState* transitionToNextState(TransitionCommand transitionCommand) override;
 };
 
 class PlayersAddedState : public GameState {
@@ -163,13 +163,14 @@ public:
         const GameStateTypes& stateType,
         const GameStates& stateName,
         const vector<TransitionCommand>& transitionCommands,
-        const vector<shared_ptr<GameState>>& nextStates);
+        const vector<GameState*>& nextStates);
 
     PlayersAddedState(
         const GameStateTypes& stateType,
         const GameStates& stateName,
         const vector<TransitionCommand>& transitionCommands);
-    shared_ptr<GameState> transitionToNextState(TransitionCommand transitionCommand) override;
+
+    GameState* transitionToNextState(TransitionCommand transitionCommand) override;
 };
 
 class AssignReinforcementState : public GameState {
@@ -178,14 +179,14 @@ public:
         const GameStateTypes& stateType,
         const GameStates& stateName,
         const vector<TransitionCommand>& transitionCommands,
-        const vector<shared_ptr<GameState>>& nextStates);
+        const vector<GameState*>& nextStates);
 
     AssignReinforcementState(
         const GameStateTypes& stateType,
         const GameStates& stateName,
         const vector<TransitionCommand>& transitionCommands);
 
-    shared_ptr<GameState> transitionToNextState(TransitionCommand transitionCommand) override;
+    GameState* transitionToNextState(TransitionCommand transitionCommand) override;
 };
 
 class IssueOrdersState : public GameState {
@@ -194,13 +195,14 @@ public:
         const GameStateTypes& stateType,
         const GameStates& stateName,
         const vector<TransitionCommand>& transitionCommands,
-        const vector<shared_ptr<GameState>>& nextStates);
+        const vector<GameState*>& nextStates);
 
     IssueOrdersState(
         const GameStateTypes& stateType,
         const GameStates& stateName,
         const vector<TransitionCommand>& transitionCommands);
-    shared_ptr<GameState> transitionToNextState(TransitionCommand transitionCommand) override;
+
+    GameState* transitionToNextState(TransitionCommand transitionCommand) override;
 };
 
 class ExecuteOrdersState : public GameState {
@@ -209,14 +211,14 @@ public:
         const GameStateTypes& stateType,
         const GameStates& stateName,
         const vector<TransitionCommand>& transitionCommands,
-        const vector<shared_ptr<GameState>>& nextStates);
+        const vector<GameState*>& nextStates);
 
     ExecuteOrdersState(
         const GameStateTypes& stateType,
         const GameStates& stateName,
         const vector<TransitionCommand>& transitionCommands);
 
-    shared_ptr<GameState> transitionToNextState(TransitionCommand transitionCommand) override;
+    GameState* transitionToNextState(TransitionCommand transitionCommand) override;
 };
 
 class WinState : public GameState {
@@ -225,33 +227,57 @@ public:
         const GameStateTypes& stateType,
         const GameStates& stateName,
         const vector<TransitionCommand>& transitionCommands,
-        const vector<shared_ptr<GameState>>& nextStates);
+        const vector<GameState*>& nextStates);
 
     WinState(
         const GameStateTypes& stateType,
         const GameStates& stateName,
         const vector<TransitionCommand>& transitionCommands);
-    shared_ptr<GameState> transitionToNextState(TransitionCommand transitionCommand) override;
+
+    GameState* transitionToNextState(TransitionCommand transitionCommand) override;
 };
 
+//Game Engine declarations
+
 /*
-    Handles navigating through the states of the game will also handling command inputs, triggering transitions and ending the game
-    Warning: This class should ever only be instantiated once. Logically it makes sense to only have 1 Game Engine at a time
-    Avoid trying to create multiple GameEngines unless strictly necessary
+    GameEngine class implemented following the Singleton design pattern since logically it makes sense to only have 1 GameEngine object
+    Provides several accessors to get its internal state as well as mutators to update its state and a method to obtain(create as well if non-existent) an instance of this class.
  */
 class GameEngine {
-    shared_ptr<bool> gameOver;
-    shared_ptr<GameState> currentGameState;
-    shared_ptr<string> inputtedCommand;
+    static GameEngine* game_engine_instance;
+    bool* gameOver;
+    GameState* currentGameState;
+    string* inputtedCommand;
+
+    GameEngine() {
+        gameOver = nullptr;
+        currentGameState = nullptr;
+        inputtedCommand = nullptr;
+    };
 
 public:
-    explicit GameEngine(const shared_ptr<GameState>& initialGameState, const shared_ptr<bool>& gameOver);
-
-    // Getter for obtaining the current GameState object
-    shared_ptr<GameState> getCurrentGameState();
+    ~GameEngine();
 
     // Gets the enum value representing the name of the current game state
-    GameStates getCurrentGameStateName();
+    GameStates getCurrentGameStateName() const;
+
+    // Getter for obtaining the current GameState object
+    GameState* getCurrentGameState() const;
+
+    //Gets the current game over status of the game as a boolean
+    bool getGameOverStatus() const;
+
+    //Gets the inputted command as a string
+    string getInputtedCommand() const;
+
+    //Mutator for setting the currentGameState
+    void setCurrentGameState(GameState* gameState);
+
+    //Mutator for setting the gameOverStatus
+    void setGameOverStatus(bool gameOver);
+
+    //Mutator for setting the inputtedCommand
+    void setInputtedCommand(const string &inputtedCommand);
 
     // Handles transitioning to next state. Returns true if successfully transitioning or false otherwise
     bool transitionToNextState(TransitionCommand transitionCommand);
@@ -259,15 +285,8 @@ public:
     // Helper function for printing out the possible commands of the current state
     void printCurrentStateCommands(const vector<TransitionCommand>& commands, const string& gameStateName);
 
-    // Free function for testing the GameEngine class
-    void testGameStates();
-
-    bool getGameOverStatus() const;
-
-    string getInputtedCommand() const;
+    static GameEngine* getInstance();
 
     friend ostream& operator<<(ostream& os, const GameEngine& gameEngine);
-
-    GameEngine& operator=(const GameEngine& otherGameEngine);
 };
-#endif // GAMEENGINE_H
+#endif //GAMEENGINE_H
