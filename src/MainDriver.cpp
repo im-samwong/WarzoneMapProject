@@ -1,36 +1,24 @@
 #include <iostream>
 
-namespace Orders {
-    void testOrdersLists();
-}
-namespace Cards {
-    void testCards();
-}
+void testOrdersLists();
+void testCards();
+void testLoadMaps();
+void testPlayers();
+void testGameStates();
 
-namespace Player {
-    void testPlayers();
-}
-
-namespace GameEngine {
-    void testGameStates();
-}
-
-namespace Maps {
-    void testLoadMaps();
-}
 int main() {
-    Orders::testOrdersLists();
+    testOrdersLists();
     std::cout << std::endl;
 
-    Cards::testCards();
+    testCards();
     std::cout << std::endl;
 
-    Player::testPlayers();
+    testPlayers();
     std::cout << std::endl;
 
-    Maps::testLoadMaps();
+    testLoadMaps();
 
-    GameEngine::testGameStates();
+    testGameStates();
     std::cout << std::endl;
     return 0;
 }
