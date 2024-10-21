@@ -510,11 +510,15 @@ bool Map::validateContinents() {
     return visitedContinents.size() == continents->size();
 }
 
-// Validate that each territory is linked only to its correct continent
+// Validate that each territory is linked only to its correct continent and that all territories have at least 1 neighbor
 bool Map::validateTerritories() {
     for (const auto& pair : *territories) {
         Territory* territory = pair.second;
 
+        if (territory->getNeighbors()->empty()) {
+             std::cout << "Territory" << territory->getName() << "has no neighbors \n";
+            return false;
+        }
         // Get the continent of the current territory
         Continent* continent = territory->getContinent();
 
@@ -536,7 +540,7 @@ bool Map::validateTerritories() {
         }
 
         if (!isInCurrentContinent) {
-            std::cout << "Territory" << territory->getName() << " is not connected to its continent " << continent->getName();
+            std::cout << "Territory" << territory->getName() << " is not connected to its continent " << continent->getName() << "\n";
             return false; // Territory is not linked to its continent
         }
 
@@ -548,7 +552,7 @@ bool Map::validateTerritories() {
                 const auto& otherTerritories = *(otherContinent->getTerritories());
                 for (const auto& otherTerritory : otherTerritories) {
                     if (otherTerritory == territory) {
-                        std::cout << "Territory" << territory->getName() << " is can't be in more than one continent.";
+                        std::cout << "Territory" << territory->getName() << " is can't be in more than one continent. \n";
                         return false; // Territory is found in another continent
                     }
                 }
