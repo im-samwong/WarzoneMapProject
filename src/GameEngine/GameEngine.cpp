@@ -4,8 +4,8 @@
 #include "GameEngine.h"
 #include <iostream>
 
-string mapEnumToString(const TransitionCommand command) {
-    string enumString;
+std::string mapEnumToString(const TransitionCommand command) {
+    std::string enumString;
     switch (command) {
     case TransitionCommand::LOAD_MAP:
         enumString = "LOAD_MAP";
@@ -46,7 +46,7 @@ string mapEnumToString(const TransitionCommand command) {
     return enumString;
 }
 
-TransitionCommand mapStringToTransitionCommand(const string& transitionCommand) {
+TransitionCommand mapStringToTransitionCommand(const std::string& transitionCommand) {
     TransitionCommand enumValue;
     if (transitionCommand == "LOAD_MAP") {
         enumValue = TransitionCommand::LOAD_MAP;
@@ -76,8 +76,8 @@ TransitionCommand mapStringToTransitionCommand(const string& transitionCommand) 
     return enumValue;
 }
 
-string mapEnumToString(const GameStates stateName) {
-    string enumString;
+std::string mapEnumToString(const GameStates stateName) {
+    std::string enumString;
     switch (stateName) {
     case START:
         enumString = "START";
@@ -110,16 +110,16 @@ string mapEnumToString(const GameStates stateName) {
     return enumString;
 }
 
-vector<string> getStringTransitionCommands() {
-    vector<string> commands;
+std::vector<std::string> getStringTransitionCommands() {
+    std::vector<std::string> commands;
     for (int i = 0; i < 12; i++) {
         commands.push_back(mapEnumToString(static_cast<TransitionCommand>(i)));
     }
     return commands;
 }
 
-vector<string> getStringTransitionCommands(const vector<TransitionCommand>& gameStateCommands) {
-    vector<string> commands;
+std::vector<std::string> getStringTransitionCommands(const std::vector<TransitionCommand>& gameStateCommands) {
+    std::vector<std::string> commands;
     for (auto gameStateCommand : gameStateCommands) {
         commands.push_back(mapEnumToString(gameStateCommand));
     }
@@ -128,26 +128,26 @@ vector<string> getStringTransitionCommands(const vector<TransitionCommand>& game
 
 //Abstract Class implementation
 
-GameState::GameState(const GameStateTypes &iStateType,const GameStates &iStateName,const vector<TransitionCommand> &iTransitionCommands,
-    const vector<GameState *> &iNextStates) {
+GameState::GameState(const GameStateTypes &iStateType,const GameStates &iStateName,const std::vector<TransitionCommand> &iTransitionCommands,
+    const std::vector<GameState *> &iNextStates) {
     stateType = new GameStateTypes(iStateType);
     stateName = new GameStates(iStateName);
-    transitionCommands = new vector(iTransitionCommands);
-    nextStates = new vector(iNextStates);
+    transitionCommands = new std::vector(iTransitionCommands);
+    nextStates = new std::vector(iNextStates);
 }
 
-GameState::GameState(const GameStateTypes &iStateType, const GameStates &iStateName, const vector<TransitionCommand> &iTransitionCommands) {
+GameState::GameState(const GameStateTypes &iStateType, const GameStates &iStateName, const std::vector<TransitionCommand> &iTransitionCommands) {
     stateType = new GameStateTypes(iStateType);
     stateName = new GameStates(iStateName);
-    transitionCommands = new vector(iTransitionCommands);
+    transitionCommands = new std::vector(iTransitionCommands);
     nextStates = nullptr;
 }
 
 GameState::GameState(const GameState &otherGameState) {
     stateType = new GameStateTypes(*otherGameState.stateType);
     stateName = new GameStates(*otherGameState.stateName);
-    transitionCommands = new vector(*otherGameState.transitionCommands);
-    nextStates = new vector(*otherGameState.nextStates);
+    transitionCommands = new std::vector(*otherGameState.transitionCommands);
+    nextStates = new std::vector(*otherGameState.nextStates);
 }
 
 GameState& GameState::operator=(const GameState &otherGameState) {
@@ -159,23 +159,23 @@ GameState& GameState::operator=(const GameState &otherGameState) {
 
         stateType = new GameStateTypes(*otherGameState.stateType);
         stateName = new GameStates(*otherGameState.stateName);
-        transitionCommands = new vector(*otherGameState.transitionCommands);
-        nextStates = new vector(*otherGameState.nextStates);
+        transitionCommands = new std::vector(*otherGameState.transitionCommands);
+        nextStates = new std::vector(*otherGameState.nextStates);
     }
     return *this;
 }
 
-ostream& operator<<(ostream& os, const GameState& gameState) {
-    os << "GameState: " << mapEnumToString(*gameState.stateName) << endl;
-    os << "Available Commands:" << endl;
+std::ostream& operator<<(std::ostream& os, const GameState& gameState) {
+    os << "GameState: " << mapEnumToString(*gameState.stateName) << std::endl;
+    os << "Available Commands:" << std::endl;
 
     for (const auto& transitionCommand : *gameState.transitionCommands) {
-        os << "    " << mapEnumToString(transitionCommand) << endl;
+        os << "    " << mapEnumToString(transitionCommand) << std::endl;
     }
 
-    os << "Next States:" << endl;
+    os << "Next States:" << std::endl;
     for (const auto& nextState : *gameState.nextStates) {
-        os << "    " << mapEnumToString(*nextState->stateName) << endl;
+        os << "    " << mapEnumToString(*nextState->stateName) << std::endl;
     }
 
     return os;
@@ -189,17 +189,17 @@ GameStates GameState::getStateName() {
     return *this->stateName;
 }
 
-vector<TransitionCommand> GameState::getTransitionCommands() {
+std::vector<TransitionCommand> GameState::getTransitionCommands() {
     return *this->transitionCommands;
 }
 
-vector<GameState*> GameState::getNextStates() {
+std::vector<GameState*> GameState::getNextStates() {
     return *this->nextStates;
 }
 
-void GameState::setNextStates(const vector<GameState*> &nextStates) {
+void GameState::setNextStates(const std::vector<GameState*> &nextStates) {
     delete this->nextStates;
-    this->nextStates = new vector(nextStates);
+    this->nextStates = new std::vector(nextStates);
 }
 
 //Derived classes implementation
@@ -207,13 +207,13 @@ void GameState::setNextStates(const vector<GameState*> &nextStates) {
 StartState::StartState(
     const GameStateTypes& stateType,
     const GameStates& stateName,
-    const vector<TransitionCommand>& transitionCommands,
-    const vector<GameState*>& nextStates) : GameState(stateType, stateName, transitionCommands, nextStates) {}
+    const std::vector<TransitionCommand>& transitionCommands,
+    const std::vector<GameState*>& nextStates) : GameState(stateType, stateName, transitionCommands, nextStates) {}
 
 StartState::StartState(
     const GameStateTypes& stateType,
     const GameStates& stateName,
-    const vector<TransitionCommand>& transitionCommands) : GameState(stateType, stateName, transitionCommands) {}
+    const std::vector<TransitionCommand>& transitionCommands) : GameState(stateType, stateName, transitionCommands) {}
 
 GameState* StartState::transitionToNextState(const TransitionCommand transitionCommand) {
     if (transitionCommand == TransitionCommand::LOAD_MAP) {
@@ -225,13 +225,13 @@ GameState* StartState::transitionToNextState(const TransitionCommand transitionC
 MapLoadedState::MapLoadedState(
     const GameStateTypes& stateType,
     const GameStates& stateName,
-    const vector<TransitionCommand>& transitionCommands,
-    const vector<GameState*>& nextStates) : GameState(stateType, stateName, transitionCommands, nextStates) {}
+    const std::vector<TransitionCommand>& transitionCommands,
+    const std::vector<GameState*>& nextStates) : GameState(stateType, stateName, transitionCommands, nextStates) {}
 
 MapLoadedState::MapLoadedState(
     const GameStateTypes& stateType,
     const GameStates& stateName,
-    const vector<TransitionCommand>& transitionCommands) : GameState(stateType, stateName, transitionCommands) {}
+    const std::vector<TransitionCommand>& transitionCommands) : GameState(stateType, stateName, transitionCommands) {}
 
 GameState* MapLoadedState::transitionToNextState(const TransitionCommand transitionCommand) {
     bool isValidCommand = false;
@@ -256,13 +256,13 @@ GameState* MapLoadedState::transitionToNextState(const TransitionCommand transit
 MapValidatedState::MapValidatedState(
     const GameStateTypes& stateType,
     const GameStates& stateName,
-    const vector<TransitionCommand>& transitionCommands,
-    const vector<GameState*>& nextStates) : GameState(stateType, stateName, transitionCommands, nextStates) {}
+    const std::vector<TransitionCommand>& transitionCommands,
+    const std::vector<GameState*>& nextStates) : GameState(stateType, stateName, transitionCommands, nextStates) {}
 
 MapValidatedState::MapValidatedState(
     const GameStateTypes& stateType,
     const GameStates& stateName,
-    const vector<TransitionCommand>& transitionCommands) : GameState(stateType, stateName, transitionCommands) {}
+    const std::vector<TransitionCommand>& transitionCommands) : GameState(stateType, stateName, transitionCommands) {}
 
 GameState* MapValidatedState::transitionToNextState(const TransitionCommand transitionCommand) {
     if (transitionCommand == TransitionCommand::ADD_PLAYER) {
@@ -274,13 +274,13 @@ GameState* MapValidatedState::transitionToNextState(const TransitionCommand tran
 PlayersAddedState::PlayersAddedState(
     const GameStateTypes& stateType,
     const GameStates& stateName,
-    const vector<TransitionCommand>& transitionCommands,
-    const vector<GameState*>& nextStates) : GameState(stateType, stateName, transitionCommands, nextStates) {}
+    const std::vector<TransitionCommand>& transitionCommands,
+    const std::vector<GameState*>& nextStates) : GameState(stateType, stateName, transitionCommands, nextStates) {}
 
 PlayersAddedState::PlayersAddedState(
     const GameStateTypes& stateType,
     const GameStates& stateName,
-    const vector<TransitionCommand>& transitionCommands) : GameState(stateType, stateName, transitionCommands) {}
+    const std::vector<TransitionCommand>& transitionCommands) : GameState(stateType, stateName, transitionCommands) {}
 
 GameState* PlayersAddedState::transitionToNextState(const TransitionCommand transitionCommand) {
     bool isValidCommand = false;
@@ -305,13 +305,13 @@ GameState* PlayersAddedState::transitionToNextState(const TransitionCommand tran
 AssignReinforcementState::AssignReinforcementState(
     const GameStateTypes& stateType,
     const GameStates& stateName,
-    const vector<TransitionCommand>& transitionCommands,
-    const vector<GameState*>& nextStates) : GameState(stateType, stateName, transitionCommands, nextStates) {}
+    const std::vector<TransitionCommand>& transitionCommands,
+    const std::vector<GameState*>& nextStates) : GameState(stateType, stateName, transitionCommands, nextStates) {}
 
 AssignReinforcementState::AssignReinforcementState(
     const GameStateTypes& stateType,
     const GameStates& stateName,
-    const vector<TransitionCommand>& transitionCommands) : GameState(stateType, stateName, transitionCommands) {}
+    const std::vector<TransitionCommand>& transitionCommands) : GameState(stateType, stateName, transitionCommands) {}
 
 GameState* AssignReinforcementState::transitionToNextState(const TransitionCommand transitionCommand) {
     if (transitionCommand == TransitionCommand::ISSUE_ORDER) {
@@ -323,13 +323,13 @@ GameState* AssignReinforcementState::transitionToNextState(const TransitionComma
 IssueOrdersState::IssueOrdersState(
     const GameStateTypes& stateType,
     const GameStates& stateName,
-    const vector<TransitionCommand>& transitionCommands,
-    const vector<GameState*>& nextStates) : GameState(stateType, stateName, transitionCommands, nextStates) {}
+    const std::vector<TransitionCommand>& transitionCommands,
+    const std::vector<GameState*>& nextStates) : GameState(stateType, stateName, transitionCommands, nextStates) {}
 
 IssueOrdersState::IssueOrdersState(
     const GameStateTypes& stateType,
     const GameStates& stateName,
-    const vector<TransitionCommand>& transitionCommands) : GameState(stateType, stateName, transitionCommands) {}
+    const std::vector<TransitionCommand>& transitionCommands) : GameState(stateType, stateName, transitionCommands) {}
 
 GameState* IssueOrdersState::transitionToNextState(TransitionCommand transitionCommand) {
     bool isValidCommand = false;
@@ -354,13 +354,13 @@ GameState* IssueOrdersState::transitionToNextState(TransitionCommand transitionC
 ExecuteOrdersState::ExecuteOrdersState(
     const GameStateTypes& stateType,
     const GameStates& stateName,
-    const vector<TransitionCommand>& transitionCommands,
-    const vector<GameState*>& nextStates) : GameState(stateType, stateName, transitionCommands, nextStates) {}
+    const std::vector<TransitionCommand>& transitionCommands,
+    const std::vector<GameState*>& nextStates) : GameState(stateType, stateName, transitionCommands, nextStates) {}
 
 ExecuteOrdersState::ExecuteOrdersState(
     const GameStateTypes& stateType,
     const GameStates& stateName,
-    const vector<TransitionCommand>& transitionCommands) : GameState(stateType, stateName, transitionCommands) {}
+    const std::vector<TransitionCommand>& transitionCommands) : GameState(stateType, stateName, transitionCommands) {}
 
 GameState* ExecuteOrdersState::transitionToNextState(const TransitionCommand transitionCommand) {
     bool isValidCommand = false;
@@ -392,13 +392,13 @@ GameState* ExecuteOrdersState::transitionToNextState(const TransitionCommand tra
 WinState::WinState(
     const GameStateTypes& stateType,
     const GameStates& stateName,
-    const vector<TransitionCommand>& transitionCommands,
-    const vector<GameState*>& nextStates) : GameState(stateType, stateName, transitionCommands, nextStates) {}
+    const std::vector<TransitionCommand>& transitionCommands,
+    const std::vector<GameState*>& nextStates) : GameState(stateType, stateName, transitionCommands, nextStates) {}
 
 WinState::WinState(
     const GameStateTypes& stateType,
     const GameStates& stateName,
-    const vector<TransitionCommand>& transitionCommands) : GameState(stateType, stateName, transitionCommands) {}
+    const std::vector<TransitionCommand>& transitionCommands) : GameState(stateType, stateName, transitionCommands) {}
 
 GameState* WinState::transitionToNextState(const TransitionCommand transitionCommand) {
     bool isValidCommand = false;
@@ -444,7 +444,7 @@ bool GameEngine::getGameOverStatus() const {
     return *this->gameOver;
 }
 
-string GameEngine::getInputtedCommand() const {
+std::string GameEngine::getInputtedCommand() const {
     return *this->inputtedCommand;
 }
 
@@ -458,9 +458,9 @@ void GameEngine::setGameOverStatus(const bool gameOver) {
     this->gameOver = new bool(gameOver);
 }
 
-void GameEngine::setInputtedCommand(const string &inputtedCommand) {
+void GameEngine::setInputtedCommand(const std::string &inputtedCommand) {
     delete this->inputtedCommand;
-    this->inputtedCommand = new string(inputtedCommand);
+    this->inputtedCommand = new std::string(inputtedCommand);
 }
 
 bool GameEngine::transitionToNextState(TransitionCommand transitionCommand) {
@@ -469,33 +469,33 @@ bool GameEngine::transitionToNextState(TransitionCommand transitionCommand) {
     bool isTransitionCommandLoopBack = static_cast<int>(this->getCurrentGameStateName()) == static_cast<int>(transitionCommand);
 
     if (transitionCommand == TransitionCommand::END && nextState == nullptr && currentGameState == GameStates::WIN) {
-        cout << "Issued command is END and current state is WIN. Game is over \n";
+        std::cout << "Issued command is END and current state is WIN. Game is over \n";
         return true;
     }
 
     if (isTransitionCommandLoopBack && nextState == nullptr) {
         // Do nothing because we stay in the same state for say executing another order
-        cout << "Issued command is valid, staying in same state: " + mapEnumToString(this->getCurrentGameStateName()) << "\n\n";
+        std::cout << "Issued command is valid, staying in same state: " + mapEnumToString(this->getCurrentGameStateName()) << "\n\n";
         return false;
     }
     if (!isTransitionCommandLoopBack && nextState == nullptr) {
-        cout << "Invalid Command. Please try again. State of Game has not changed \n\n";
+        std::cout << "Invalid Command. Please try again. State of Game has not changed \n\n";
         return false;
     }
 
-    cout << "Issued command is valid, transitioning to next state of game\n";
-    cout << endl;
+    std::cout << "Issued command is valid, transitioning to next state of game\n";
+    std::cout << std::endl;
 
     this->currentGameState = nextState;
 
     return true;
 }
 
-void GameEngine::printCurrentStateCommands(const vector<TransitionCommand>& commands, const string& gameStateName) {
-    cout << "The available commands for the current state " + gameStateName + " are: \n";
-    vector<string> stateCommands = getStringTransitionCommands(commands);
+void GameEngine::printCurrentStateCommands(const std::vector<TransitionCommand>& commands, const std::string& gameStateName) {
+    std::cout << "The available commands for the current state " + gameStateName + " are: \n";
+    std::vector<std::string> stateCommands = getStringTransitionCommands(commands);
     for (const auto& command : stateCommands) {
-        cout << command << "\n";
+        std::cout << command << "\n";
     }
 }
 
@@ -508,10 +508,10 @@ GameEngine* GameEngine::getInstance() {
 
 GameEngine* GameEngine::game_engine_instance = nullptr;
 
-ostream& operator<<(ostream& os, const GameEngine& gameEngine) {
-    cout << "Current Game State: " << mapEnumToString(gameEngine.currentGameState->getStateName()) << endl;
-    string gameOverString = *gameEngine.gameOver ? "True" : "False";
-    cout << "Is Game Over: " << gameOverString << endl;
-    cout << "Inputted Command: " << *gameEngine.inputtedCommand << endl;
+std::ostream& operator<<(std::ostream& os, const GameEngine& gameEngine) {
+    std::cout << "Current Game State: " << mapEnumToString(gameEngine.currentGameState->getStateName()) << std::endl;
+    std::string gameOverString = *gameEngine.gameOver ? "True" : "False";
+    std::cout << "Is Game Over: " << gameOverString << std::endl;
+    std::cout << "Inputted Command: " << *gameEngine.inputtedCommand << std::endl;
     return os;
 }
