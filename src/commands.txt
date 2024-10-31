@@ -1,0 +1,35 @@
+loadmap World.map
+validatemap
+addplayer Binal
+addplayer Sam
+addplayer Daniel
+addplayer Jason
+addplayer Renal
+gamestart
+issueorder
+issueorder
+issueorder
+issueordersend
+execorder
+execorder
+endexecorder
+issueorder
+issueordersend
+execorder
+endexecorder
+issueorder
+issueorder
+issueorder
+issueordersend
+execorder
+execorder
+endexecorder
+issueorder
+issueordersend
+execorder
+execorder
+endexecorder
+issueorder
+issueordersend
+execorder
+win
