@@ -6,31 +6,58 @@
 #include <string>
 #include <iostream>
 
-Command::Command(const std::string& cmd, const std::string& arg)
-    : command(cmd), argument(arg) {}
-
-void Command::saveEffect(const std::string& effect) {
-    this->effect = effect;
+//Command class definition
+Command::Command(const std::string& cmd, const std::string& arg) {
+    command = new std::string(cmd);
+    argument = new std::string(arg);
+    effect = new std::string();
 }
 
+Command::Command(const Command& other) {
+    command = new std::string(*other.command);
+    argument = new std::string(*other.argument);
+    effect = new std::string(*other.effect);
+}
+
+Command::~Command() {
+    delete command;
+    delete argument;
+    delete effect;
+}
+
+void Command::saveEffect(const std::string& eff) {
+    *effect = eff;
+}
+
+
+//CommandProcessor class definition
+CommandProcessor::CommandProcessor() {
+    currentGameState = new std::string("start");
+}
+
+CommandProcessor::~CommandProcessor() {
+    delete currentGameState;
+    for (Command* cmd : lc) {
+        delete cmd;
+    }
+}
 
 void CommandProcessor::getCommand(const std::string& cmd) {
     std::string commandName = cmd.substr(0, cmd.find(" "));
     std::string argument = (cmd.find(" ") != std::string::npos) ? cmd.substr(cmd.find(" ") + 1) : "";
 
-    Command command(commandName, argument);
+    Command* command = new Command(commandName, argument);
 
-    if (validate(command)) {
-        command.saveEffect("The command '" + commandName + "' is valid!");
-        std::cout << "Command's effect: " + command.getEffect() << std::endl;
-        saveCommand(command);
+    if (validate(*command)) {
+        command->saveEffect("The command '" + commandName + "' is valid!");
+        std::cout << "Command's effect: " + command->getEffect() << std::endl;
+        saveCommand(*command);
 
-        updateGameState(command.getCommand());
-        std::cout << "Current game state: " + currentGameState + "\n" << std::endl;
-
+        updateGameState(command->getCommand());
+        std::cout << "Current game state: " + *currentGameState + "\n" << std::endl;
     } else {
-        command.saveEffect("ERROR! The command '" + commandName + "' is invalid!\n Current game state: " + currentGameState);
-        saveCommand(command);
+        command->saveEffect("ERROR! The command '" + commandName + "' is invalid!\n Current game state: " + *currentGameState);
+        saveCommand(*command);
     }
 }
 
@@ -50,7 +77,7 @@ bool CommandProcessor::validate(Command& command) {
         {"win", {"replay", "quit"}}
     };
 
-    const auto& validCommandsForCurrentState = validCommands.find(currentGameState);
+    const auto& validCommandsForCurrentState = validCommands.find(*currentGameState);
     bool isValid = false;
 
     if (validCommandsForCurrentState != validCommands.end()) {
@@ -74,7 +101,7 @@ bool CommandProcessor::validate(Command& command) {
     }
 
     if (!isValid) {
-        command.saveEffect("For the current game state '" + currentGameState + "' the command '" + command.getCommand() + "' is invalid!");
+        command.saveEffect("For the current game state '" + *currentGameState + "' the command '" + command.getCommand() + "' is invalid!");
     }
 
     return isValid;
@@ -92,69 +119,83 @@ void CommandProcessor::readCommand(const std::string& cmd) {
         command = cmd; // for commands that are not loadmap or addplayer
     }
 
-    lc.push_back(std::make_unique<Command>(command, argument));
+    lc.push_back(new Command(command, argument));
     updateGameState(command);
 }
 
 void CommandProcessor::saveCommand(const Command& command) {
-    auto commandCopy = std::make_unique<Command>(command);
-    lc.push_back(std::move(commandCopy));
+    lc.push_back(new Command(command));
 }
 
 void CommandProcessor::updateGameState(const std::string& command) {
     if (command.find("loadmap") == 0) {
-        currentGameState = "maploaded";
+        *currentGameState = "maploaded";
     }
     else if (command == "validatemap") {
-        currentGameState = "mapvalidated";
+        *currentGameState = "mapvalidated";
     }
     else if (command.find("addplayer") == 0) {
-        currentGameState = "playersadded";
+        *currentGameState = "playersadded";
     }
     else if (command == "gamestart") {
-        currentGameState = "assignreinforcement";
+        *currentGameState = "assignreinforcement";
     }
     else if (command == "issueorder") {
-        currentGameState = "issueorders";
+        *currentGameState = "issueorders";
     }
     else if (command == "issueordersend") {
-        currentGameState = "executeorders";
+        *currentGameState = "executeorders";
     }
     else if (command == "execorder") {
-        currentGameState = "executeorders";
+        *currentGameState = "executeorders";
     }
     else if (command == "endexecorders") {
-        currentGameState = "assignreinforcement";
+        *currentGameState = "assignreinforcement";
     }
     else if (command == "win") {
-        currentGameState = "win";
+        *currentGameState = "win";
     }
     else if (command == "replay") {
-        currentGameState = "start";
+        *currentGameState = "start";
     }
     else if (command == "quit") {
-        currentGameState = "exit";
+        *currentGameState = "exit";
     }
 }
 
 
-FileLineReader::FileLineReader(const std::string& fileName) : file(fileName) {
-    if (!file.is_open()) {
+//FileLineReader class definition
+FileLineReader::FileLineReader(const std::string& fileName) {
+    file = new std::ifstream(fileName);
+    if (!file->is_open()) {
         throw std::runtime_error("Error! The file '" + fileName + "' could not be opened");
     }
 }
 
+FileLineReader::~FileLineReader() {
+    if (file->is_open()) {
+        file->close();
+    }
+    delete file;
+}
+
 bool FileLineReader::readLineFromFile(std::string& line) {
-    return std::getline(file, line) ? true : false;
+    return std::getline(*file, line) ? true : false;
 }
 
 
-FileCommandProcessorAdapter::FileCommandProcessorAdapter(const std::string& fileName)
-    : flr(fileName) {}
+//FileCommandProcessorAdapter class definition
+FileCommandProcessorAdapter::FileCommandProcessorAdapter(const std::string& fileName) {
+    flr = new FileLineReader(fileName);
+}
+
+FileCommandProcessorAdapter::~FileCommandProcessorAdapter() {
+    delete flr;
+}
 
 void FileCommandProcessorAdapter::readCommand() {
     std::string line;
-    while (flr.readLineFromFile(line)) {
+    while (flr->readLineFromFile(line)) {
         getCommand(line);
     }
 }

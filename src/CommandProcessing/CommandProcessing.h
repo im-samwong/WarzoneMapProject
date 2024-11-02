@@ -14,24 +14,29 @@ class Command {
 public:
     //Constructors
     Command(const std::string& cmd, const std::string& arg);
-    //Methods
+    Command(const Command& other);
+    //Destructor
+    ~Command();
+    // Methods
     void saveEffect(const std::string& effect);
-    std::string getCommand() const {return command;}
-    std::string getEffect() const {return effect;}
-    std::string getArgument() const {return argument;}
+    std::string getCommand() const {return *command;}
+    std::string getEffect() const {return *effect;}
+    std::string getArgument() const {return *argument;}
 
 private:
     //Attributes
-    std::string command;
-    std::string effect;
-    std::string argument;
+    std::string* command;
+    std::string* effect;
+    std::string* argument;
 };
 
 
 class CommandProcessor {
 public:
     //Constructor
-    CommandProcessor() : currentGameState("start") {}
+    CommandProcessor();
+    //Destructor
+    ~CommandProcessor();
     //Methods
     void getCommand(const std::string& cmd);
     bool validate(Command& command);
@@ -43,8 +48,8 @@ private:
     void saveCommand(const Command& command);
     void updateGameState(const std::string& command);
     //Attributes
-    std::string currentGameState;
-    std::vector<std::unique_ptr<Command>> lc; //stores collection of command objects
+    std::string* currentGameState;
+    std::vector<Command*> lc; //stores collection of command objects
 };
 
 
@@ -52,11 +57,13 @@ class FileLineReader {
 public:
     //Constructor
     FileLineReader(const std::string& fileName);
+    //Destructor
+    ~FileLineReader();
     //Method
     bool readLineFromFile(std::string& line);
 
-//private:
-    std::ifstream file;
+private:
+    std::ifstream* file;
 };
 
 
@@ -64,11 +71,13 @@ class FileCommandProcessorAdapter : public CommandProcessor {
 public:
     //Constructor
     FileCommandProcessorAdapter(const std::string& fileName);
+    //Destructor
+    ~FileCommandProcessorAdapter();
     //Method
     void readCommand();
 
 private:
-    FileLineReader flr;
+    FileLineReader* flr;
 };
 
 #endif // COMMANDPROCESSING_H
