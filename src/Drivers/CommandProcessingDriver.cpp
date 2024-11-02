@@ -22,7 +22,6 @@ void testCommandProcessor() {
                 break;
             }
             consoleProcessor.getCommand(command);
-            std::cout << "Effect of the command: " << consoleProcessor.getLastCommand().getEffect() << std::endl;
             std::cout << "Enter a command (or type 'quit' to end the game): " << std::endl;
         }
     }
@@ -30,6 +29,6 @@ void testCommandProcessor() {
         // Reading commands from a file
         FileCommandProcessorAdapter fileProcessor("commands.txt");
         fileProcessor.readCommand();
-        std::cout << "Commands successfully read from file." << std::endl;
+        std::cout << "Commands successfully read from a file!" << std::endl;
     }
 }

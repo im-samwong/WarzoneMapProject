@@ -22,10 +22,12 @@ void CommandProcessor::getCommand(const std::string& cmd) {
 
     if (validate(command)) {
         command.saveEffect("The command '" + commandName + "' is valid!");
-        std::cout << "Current game state: " + currentGameState << std::endl;
+        std::cout << "Command's effect: " + command.getEffect() << std::endl;
         saveCommand(command);
 
         updateGameState(command.getCommand());
+        std::cout << "Current game state: " + currentGameState + "\n" << std::endl;
+
     } else {
         command.saveEffect("ERROR! The command '" + commandName + "' is invalid!\n Current game state: " + currentGameState);
         saveCommand(command);
@@ -44,7 +46,7 @@ bool CommandProcessor::validate(Command& command) {
         {"playersadded", {"addplayer", "gamestart"}},
         {"assignreinforcement", {"issueorder"}},
         {"issueorders", {"issueorder", "issueordersend"}},
-        {"executeorders", {"executeorder", "endexecorders", "win"}},
+        {"executeorders", {"execorder", "endexecorders", "win"}},
         {"win", {"replay", "quit"}}
     };
 
@@ -136,14 +138,14 @@ void CommandProcessor::updateGameState(const std::string& command) {
 }
 
 
-FileLineReader::FileLineReader(const std::string& file) : inputFile(file) {
-    if (!inputFile.is_open()) {
-        throw std::runtime_error("Error! The file '" + file + "' could not be opened");
+FileLineReader::FileLineReader(const std::string& fileName) : file(fileName) {
+    if (!file.is_open()) {
+        throw std::runtime_error("Error! The file '" + fileName + "' could not be opened");
     }
 }
 
 bool FileLineReader::readLineFromFile(std::string& line) {
-    return std::getline(inputFile, line) ? true : false;
+    return std::getline(file, line) ? true : false;
 }
 
 

@@ -51,12 +51,12 @@ private:
 class FileLineReader {
 public:
     //Constructor
-    FileLineReader(const std::string& file);
+    FileLineReader(const std::string& fileName);
     //Method
     bool readLineFromFile(std::string& line);
 
-private:
-    std::ifstream inputFile;
+//private:
+    std::ifstream file;
 };
 
 
