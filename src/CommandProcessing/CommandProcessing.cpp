@@ -1,16 +1,19 @@
-//
-// Created by Binal Patel on 2024-10-15.
-//
 #include "CommandProcessing.h"
 #include <vector>
 #include <string>
 #include <iostream>
 
-//Command class definition
+Command::Command(std::string& cmd) {
+    command = new std::string(cmd);
+    argument = nullptr;
+    effect = nullptr;
+}
+
+// Command class definition
 Command::Command(const std::string& cmd, const std::string& arg) {
     command = new std::string(cmd);
     argument = new std::string(arg);
-    effect = new std::string();
+    effect = nullptr;
 }
 
 Command::Command(const Command& other) {
@@ -26,46 +29,37 @@ Command::~Command() {
 }
 
 void Command::saveEffect(const std::string& eff) {
-    *effect = eff;
+    effect = new std::string(eff);
 }
 
+std::string Command::getArgument() const {
+    if(argument==nullptr){
+        return "";
+    } else {
+        return *argument;
+    }
+}
 
 //CommandProcessor class definition
-CommandProcessor::CommandProcessor() {
-    currentGameState = new std::string("start");
-}
+CommandProcessor::CommandProcessor() {}
 
 CommandProcessor::~CommandProcessor() {
-    delete currentGameState;
     for (Command* cmd : lc) {
         delete cmd;
     }
 }
 
-void CommandProcessor::getCommand(const std::string& cmd) {
-    std::string commandName = cmd.substr(0, cmd.find(" "));
-    std::string argument = (cmd.find(" ") != std::string::npos) ? cmd.substr(cmd.find(" ") + 1) : "";
+Command* CommandProcessor::getCommand() {
 
-    Command* command = new Command(commandName, argument);
-
-    if (validate(*command)) {
-        command->saveEffect("The command '" + commandName + "' is valid!");
-        std::cout << "Command's effect: " + command->getEffect() << std::endl;
-        saveCommand(*command);
-
-        updateGameState(command->getCommand());
-        std::cout << "Current game state: " + *currentGameState + "\n" << std::endl;
-    } else {
-        command->saveEffect("ERROR! The command '" + commandName + "' is invalid!\n Current game state: " + *currentGameState);
-        saveCommand(*command);
-    }
+    readCommand(); //reads a command from user input and stores it in the list of commmands.
+    return getLastCommand();
 }
 
-Command CommandProcessor::getLastCommand() const {
-    return *lc.back(); //returns last command
+Command* CommandProcessor::getLastCommand() const {
+    return lc.back(); //returns last command
 }
 
-bool CommandProcessor::validate(Command& command) {
+bool CommandProcessor::validate(Command& command, std::string& currentGameState) {
     static const std::unordered_map<std::string, std::vector<std::string>> validCommands = {
         {"start", {"loadmap"}},
         {"maploaded", {"loadmap", "validatemap"}},
@@ -77,7 +71,7 @@ bool CommandProcessor::validate(Command& command) {
         {"win", {"replay", "quit"}}
     };
 
-    const auto& validCommandsForCurrentState = validCommands.find(*currentGameState);
+    const auto& validCommandsForCurrentState = validCommands.find(currentGameState);
     bool isValid = false;
 
     if (validCommandsForCurrentState != validCommands.end()) {
@@ -101,65 +95,37 @@ bool CommandProcessor::validate(Command& command) {
     }
 
     if (!isValid) {
-        command.saveEffect("For the current game state '" + *currentGameState + "' the command '" + command.getCommand() + "' is invalid!");
+        command.saveEffect("For the current game state '" + currentGameState + "' the command '" + command.getCommand() + "' is invalid!");
     }
 
     return isValid;
 }
 
-void CommandProcessor::readCommand(const std::string& cmd) {
-    std::string command;
-    std::string argument;
+void CommandProcessor::readCommand() {
 
-    size_t space = cmd.find(' ');
+    std::string* cmd = new std::string();
+    std::cout << "Please enter command:\n";
+    std::cin >> *cmd;
+    std::string* command;
+    std::string* argument;
+
+    std::size_t space = cmd->find(' ');
     if (space != std::string::npos) {
-        command = cmd.substr(0, cmd.find(" "));
-        argument = cmd.substr(cmd.find(" ") + 1);
+        *command = cmd->substr(0, cmd->find(" "));
+        *argument = cmd->substr(cmd->find(" ") + 1);
+        saveCommand(command,argument);
+    } else { // for commands that are not loadmap or addplayer
+        command = cmd;
+        saveCommand(command); 
+    }
+}
+
+void CommandProcessor::saveCommand(std::string* command, std::string* argument) {
+
+    if(argument == nullptr) {
+        lc.push_back(new Command(*command));
     } else {
-        command = cmd; // for commands that are not loadmap or addplayer
-    }
-
-    lc.push_back(new Command(command, argument));
-    updateGameState(command);
-}
-
-void CommandProcessor::saveCommand(const Command& command) {
-    lc.push_back(new Command(command));
-}
-
-void CommandProcessor::updateGameState(const std::string& command) {
-    if (command.find("loadmap") == 0) {
-        *currentGameState = "maploaded";
-    }
-    else if (command == "validatemap") {
-        *currentGameState = "mapvalidated";
-    }
-    else if (command.find("addplayer") == 0) {
-        *currentGameState = "playersadded";
-    }
-    else if (command == "gamestart") {
-        *currentGameState = "assignreinforcement";
-    }
-    else if (command == "issueorder") {
-        *currentGameState = "issueorders";
-    }
-    else if (command == "issueordersend") {
-        *currentGameState = "executeorders";
-    }
-    else if (command == "execorder") {
-        *currentGameState = "executeorders";
-    }
-    else if (command == "endexecorders") {
-        *currentGameState = "assignreinforcement";
-    }
-    else if (command == "win") {
-        *currentGameState = "win";
-    }
-    else if (command == "replay") {
-        *currentGameState = "start";
-    }
-    else if (command == "quit") {
-        *currentGameState = "exit";
+        lc.push_back(new Command(*command, *argument));
     }
 }
 
@@ -179,8 +145,11 @@ FileLineReader::~FileLineReader() {
     delete file;
 }
 
-bool FileLineReader::readLineFromFile(std::string& line) {
-    return std::getline(*file, line) ? true : false;
+std::string FileLineReader::readLine() {
+
+    std::string line;
+    std::getline(*file, line);
+    return line;
 }
 
 
@@ -194,8 +163,20 @@ FileCommandProcessorAdapter::~FileCommandProcessorAdapter() {
 }
 
 void FileCommandProcessorAdapter::readCommand() {
-    std::string line;
-    while (flr->readLineFromFile(line)) {
-        getCommand(line);
+    
+    std::cout << "Getting command from file\n";
+    
+    std::string* cmd = new std::string(flr->readLine());
+    std::string* command;
+    std::string* argument;
+
+    std::size_t space = cmd->find(' ');
+    if (space != std::string::npos) {
+        *command = cmd->substr(0, cmd->find(" "));
+        *argument = cmd->substr(cmd->find(" ") + 1);
+        saveCommand(command,argument);
+    } else { // for commands that are not loadmap or addplayer
+        command = cmd;
+        saveCommand(command); 
     }
 }

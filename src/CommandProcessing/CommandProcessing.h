@@ -9,10 +9,12 @@
 #include <unordered_map>
 #include <vector>
 
+class GameEngine;
 
 class Command {
 public:
     //Constructors
+    Command(std::string& cmd);
     Command(const std::string& cmd, const std::string& arg);
     Command(const Command& other);
     //Destructor
@@ -20,8 +22,8 @@ public:
     // Methods
     void saveEffect(const std::string& effect);
     std::string getCommand() const {return *command;}
-    std::string getEffect() const {return *effect;}
-    std::string getArgument() const {return *argument;}
+    std::string getEffect() const;
+    std::string getArgument() const;
 
 private:
     //Attributes
@@ -38,17 +40,20 @@ public:
     //Destructor
     ~CommandProcessor();
     //Methods
-    void getCommand(const std::string& cmd);
-    bool validate(Command& command);
-    Command getLastCommand() const;
+    Command* getCommand();
+    
+    //check if command is valid given the current state of the program
+    bool validate(Command& command, std::string& currentGameState);
+    
+    Command* getLastCommand() const;
+
+protected:
+    void saveCommand(std::string* command, std::string* argument=nullptr);
 
 private:
     //Methods
-    void readCommand(const std::string& cmd);
-    void saveCommand(const Command& command);
-    void updateGameState(const std::string& command);
+    virtual void readCommand();
     //Attributes
-    std::string* currentGameState;
     std::vector<Command*> lc; //stores collection of command objects
 };
 
@@ -60,7 +65,7 @@ public:
     //Destructor
     ~FileLineReader();
     //Method
-    bool readLineFromFile(std::string& line);
+    std::string readLine();
 
 private:
     std::ifstream* file;
@@ -74,9 +79,10 @@ public:
     //Destructor
     ~FileCommandProcessorAdapter();
     //Method
-    void readCommand();
+    void readCommand() override;
 
 private:
+    
     FileLineReader* flr;
 };
 

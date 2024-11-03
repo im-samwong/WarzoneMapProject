@@ -1,6 +1,3 @@
-//
-// Created by danielm on 10/20/24.
-//
 #include "GameEngine.h"
 #include <iostream>
 
@@ -8,13 +5,13 @@ std::string mapEnumToString(const TransitionCommand command) {
     std::string enumString;
     switch (command) {
     case TransitionCommand::LOAD_MAP:
-        enumString = "LOAD_MAP";
+        enumString = "loadmap";
         break;
     case TransitionCommand::VALIDATE_MAP:
-        enumString = "VALIDATE_MAP";
+        enumString = "validatemap";
         break;
     case TransitionCommand::ADD_PLAYER:
-        enumString = "ADD_PLAYER";
+        enumString = "addplayer";
         break;
     case TransitionCommand::ASSIGN_COUNTRIES:
         enumString = "ASSIGN_COUNTRIES";
@@ -48,11 +45,11 @@ std::string mapEnumToString(const TransitionCommand command) {
 
 TransitionCommand mapStringToTransitionCommand(const std::string& transitionCommand) {
     TransitionCommand enumValue;
-    if (transitionCommand == "LOAD_MAP") {
+    if (transitionCommand == "loadmap") {
         enumValue = TransitionCommand::LOAD_MAP;
-    } else if (transitionCommand == "VALIDATE_MAP") {
+    } else if (transitionCommand == "validatemap") {
         enumValue = TransitionCommand::VALIDATE_MAP;
-    } else if (transitionCommand == "ADD_PLAYER") {
+    } else if (transitionCommand == "addplayer") {
         enumValue = TransitionCommand::ADD_PLAYER;
     } else if (transitionCommand == "ASSIGN_COUNTRIES") {
         enumValue = TransitionCommand::ASSIGN_COUNTRIES;
@@ -80,19 +77,19 @@ std::string mapEnumToString(const GameStates stateName) {
     std::string enumString;
     switch (stateName) {
     case START:
-        enumString = "START";
+        enumString = "start";
         break;
     case MAP_LOADED:
-        enumString = "MAP_LOADED";
+        enumString = "maploaded";
         break;
     case MAP_VALIDATED:
-        enumString = "MAP_VALIDATED";
+        enumString = "mapvalidated";
         break;
     case PLAYERS_ADDED:
-        enumString = "PLAYERS_ADDED";
+        enumString = "playersadded";
         break;
     case ASSIGN_REINFORCEMENT:
-        enumString = "ASSIGN_REINFORCEMENT";
+        enumString = "assignreinforcement";
         break;
     case ISSUE_ORDERS:
         enumString = "ISSUE_ORDERS";
@@ -504,6 +501,10 @@ GameEngine* GameEngine::getInstance() {
         game_engine_instance = new GameEngine();
     }
     return game_engine_instance;
+}
+
+void GameEngine::startupPhase() {
+    std::cout << "Entering Startup Phase: \n" ;
 }
 
 GameEngine* GameEngine::game_engine_instance = nullptr;

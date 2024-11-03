@@ -1,9 +1,8 @@
-//
-// Created by danielm on 10/20/24.
-//
 #ifndef GAMEENGINE_H
 #define GAMEENGINE_H
 
+#include "../CommandProcessing/CommandProcessing.h"
+#include "../Map/Map.h"
 #include <memory>
 #include <string>
 #include <vector>
@@ -22,18 +21,18 @@ enum GameStates {
 
 // Enum representing the list of possible transition commands for each state
 enum class TransitionCommand {
-    LOAD_MAP = 1,
-    VALIDATE_MAP = 2,
-    ADD_PLAYER = 3,
-    ASSIGN_COUNTRIES = 4,
-    ISSUE_ORDER = 5,
-    END_ISSUE_ORDERS = 7,
+    LOAD_MAP = 0,
+    VALIDATE_MAP = 1,
+    ADD_PLAYER = 2,
+    ASSIGN_COUNTRIES = 3,
+    ISSUE_ORDER = 4,
+    END_ISSUE_ORDERS = 5,
     EXECUTE_ORDER = 6,
-    END_EXEC_ORDER = 8,
-    WIN_GAME = 9,
-    PLAY_AGAIN = 10,
-    END = 11,
-    INVALID = 12
+    END_EXEC_ORDER = 7,
+    WIN_GAME = 8,
+    PLAY_AGAIN = 9,
+    END = 10,
+    INVALID = 11
 };
 
 // Extra enum for the 2 types of states
@@ -284,6 +283,8 @@ public:
     void printCurrentStateCommands(const std::vector<TransitionCommand>& commands, const std::string& gameStateName);
 
     static GameEngine* getInstance();
+
+    void startupPhase();
 
     friend std::ostream& operator<<(std::ostream& os, const GameEngine& gameEngine);
 };
