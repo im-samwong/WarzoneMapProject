@@ -9,8 +9,6 @@
 #include <unordered_map>
 #include <vector>
 
-class GameEngine;
-
 class Command {
 public:
     //Constructors

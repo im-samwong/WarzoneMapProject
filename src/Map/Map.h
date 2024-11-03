@@ -100,8 +100,10 @@ public:
 
     // Find a territory by name (case-insensitive)
     Territory* getTerritory(const std::string& name) const;
-
+    // Find a continent by name (case-insensitive)
     Continent* getContinent(const std::string& name) const;
+
+    std::vector<Territory*> getTerritories() const;
 
     // Add links to territories and continents in the map
     void addTerritory(Territory* territory);

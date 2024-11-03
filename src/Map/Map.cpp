@@ -417,6 +417,14 @@ Continent* Map::getContinent(const std::string& name) const {
     return nullptr;
 }
 
+std::vector<Territory*> Map::getTerritories() const {
+    std::vector<Territory*> t;
+        for (auto& pair : *territories) {
+            t.push_back(pair.second);
+        }
+    return t;
+}
+
 // Find a territory by name (case-insensitive)
 
 // Adds a Territory to the map's territories if it doesn't already exist.

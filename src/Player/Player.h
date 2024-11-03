@@ -15,7 +15,7 @@ private:
     std::vector<Territory*>* territories; // Collection of player's territories
     Hand* hand;                           // Player's hand of cards
     OrderList* orders;                    // List of orders the player has issued
-
+    int* reinforcements;
 public:
     // Constructors
     Player();                                                                   // Default constructor
@@ -38,6 +38,10 @@ public:
     std::vector<Territory*> toDefend();            // Return list of territories to defend
     std::vector<Territory*> toAttack();            // Return list of territories to attack
     void issueOrder(std::unique_ptr<Order> order); // Issue an order
+    void addTerritory(Territory* t);
+
+    void changeReinforcements(int i);
+    int getReinforcements() const;
 
     // Other getters and setters as needed
     std::string getName() const;

@@ -3,9 +3,12 @@
 
 #include "../CommandProcessing/CommandProcessing.h"
 #include "../Map/Map.h"
+#include "../Player/Player.h"
 #include <memory>
 #include <string>
 #include <vector>
+#include <algorithm>
+#include <random>
 
 //Enum representing the possible game states of the game i.e. states on the transition diagram
 enum GameStates {
@@ -40,6 +43,9 @@ enum class GameStateTypes {
     STARTUP,
     PLAY
 };
+
+const int MAX_PLAYERS = 6;
+const int MIN_PLAYERS = 2;
 
 /*********************** Utility Functions start here ***********************/
 
@@ -241,15 +247,23 @@ public:
     Provides several accessors to get its internal state as well as mutators to update its state and a method to obtain(create as well if non-existent) an instance of this class.
  */
 class GameEngine {
+
     static GameEngine* game_engine_instance;
     bool* gameOver;
     GameState* currentGameState;
     std::string* inputtedCommand;
+    std::vector<Player*>* players; //vector containing pointers to all player object initialized for the game.
+    Map* map; //stores the map for the game
+    CommandProcessor* cp; //to get commands from the command line or a file.
+    Deck* deck; //The main deck which players draw from
 
-    GameEngine() {
+    GameEngine() { //Consturctor
         gameOver = nullptr;
         currentGameState = nullptr;
         inputtedCommand = nullptr;
+        players = new std::vector<Player*>();
+        deck = new Deck();
+        cp = new CommandProcessor();
     };
 
 public:
@@ -284,7 +298,19 @@ public:
 
     static GameEngine* getInstance();
 
-    void startupPhase();
+    //helper method to add player to game
+    void addPlayer(const std::string& playerName);
+
+    //tells the GameEngine to take commands from a file instead
+    void readInputFromFile(const std:: string& filename); 
+
+    bool startupPhase();
+
+    //helper method to distribute territories to players at the start of the game
+    void distrubuteTerritories(); 
+
+    //helper method to randomly determine play order by shuffling the players vector.
+    void shufflePlayers(); 
 
     friend std::ostream& operator<<(std::ostream& os, const GameEngine& gameEngine);
 };
