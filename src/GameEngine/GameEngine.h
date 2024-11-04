@@ -328,6 +328,16 @@ public:
 
     bool startupPhase();
 
+    void mainGameLoop();
+
+    void reinforcementPhase();
+
+    void issueOrdersPhase();
+
+    void executeOrdersPhase();
+
+    void removeEliminatedPlayers();
+
     //helper method to distribute territories to players at the start of the game
     void distrubuteTerritories(); 
 

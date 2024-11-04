@@ -729,3 +729,23 @@ std::ostream& operator<<(std::ostream& os, const GameEngine& gameEngine) {
     std::cout << "Inputted Command: " << *gameEngine.inputtedCommand << std::endl;
     return os;
 }
+
+void GameEngine::reinforcementPhase() {
+    for (Player* player : *players) {
+        player->changeReinforcements(3);
+        std::size_t player_territory_count = player->toDefend().size();
+        int reinforcements = static_cast<int>(player_territory_count / 3);
+        player->changeReinforcements(reinforcements);
+        //Need to figure out how to find Continent control bonus
+    }
+}
+
+void GameEngine::mainGameLoop() {
+    while (!*gameOver) {
+        reinforcementPhase();
+        issueOrdersPhase();
+        executeOrdersPhase();
+        removeEliminatedPlayers();
+    }
+}
+
