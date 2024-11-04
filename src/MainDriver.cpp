@@ -1,6 +1,6 @@
 #include <iostream>
 
-void testOrderExecution();
+void testOrdersLists();
 void testCards();
 void testLoadMaps();
 void testPlayers();
@@ -8,9 +8,9 @@ void testGameStates();
 void testCommandProcessor();
 
 int main() {
-    testOrderExecution();
-    std::cout << std::endl;
-
+    // testOrdersLists();
+    // std::cout << std::endl;
+    //
     // testCards();
     // std::cout << std::endl;
     //
