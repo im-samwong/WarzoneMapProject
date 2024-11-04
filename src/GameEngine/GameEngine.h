@@ -117,7 +117,7 @@ public:
         negotiations.insert(makeClause(player1, player2));
     }
 
-    static bool hasNegotiation(Player::Player* player1, Player::Player* player2) {
+    static bool hasNegotiation(Player* player1, Player* player2) {
         return negotiations.find(makeClause(player1, player2)) != negotiations.end();
     }
 
@@ -128,7 +128,7 @@ public:
 private:
     static std::set<std::string> negotiations;  // Set of negotiation clauses
 
-    static std::string makeClause(Player::Player* player1, Player::Player* player2) {
+    static std::string makeClause(Player* player1, Player* player2) {
         return "negotiate " + player1->getName() + " " + player2->getName();
     }
 };
