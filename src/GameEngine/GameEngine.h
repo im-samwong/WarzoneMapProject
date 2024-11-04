@@ -113,7 +113,7 @@ public:
 
     GameState& operator=(const GameState& otherGameState);
 
-    static void addNegotiation(Player::Player* player1, Player::Player* player2) {
+    static void addNegotiation(Player* player1, Player* player2) {
         negotiations.insert(makeClause(player1, player2));
     }
 
