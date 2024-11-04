@@ -743,9 +743,9 @@ void GameEngine::reinforcementPhase() {
 void GameEngine::mainGameLoop() {
     while (!*gameOver) {
         reinforcementPhase();
-        issueOrdersPhase();
-        executeOrdersPhase();
-        removeEliminatedPlayers();
+        // issueOrdersPhase();
+        // executeOrdersPhase();
+        // removeEliminatedPlayers();
     }
 }
 
