@@ -4,25 +4,26 @@
 #include "../Orders/Orders.h"
 
 // Default constructor
-Player::Player() : name(new std::string("Unknown")), territories(new std::vector<Territory*>()), hand(new Hand()), orders(new OrderList()) {}
+Player::Player() : name(new std::string("Unknown")), territories(new std::vector<Territory*>()), hand(new Hand()), orders(new OrderList()), reinforcements(new int()) {}
 
 // Parameterized constructor (name)
-Player::Player(const std::string playerName) : name(new std::string(playerName)), territories(new std::vector<Territory*>()), hand(new Hand()), orders(new OrderList()) {}
+Player::Player(const std::string playerName) : name(new std::string(playerName)), territories(new std::vector<Territory*>()), hand(new Hand()), orders(new OrderList()),reinforcements(new int()) {}
 
 // Parameterized constructor (name, territories)
 Player::Player(const std::string playerName, const std::vector<Territory*>& terrs)
-    : name(new std::string(playerName)), territories(new std::vector<Territory*>(terrs)), hand(new Hand()), orders(new OrderList()) {}
+    : name(new std::string(playerName)), territories(new std::vector<Territory*>(terrs)), hand(new Hand()), orders(new OrderList()), reinforcements(new int()) {}
 
 // Destructor
 Player::~Player() {
     delete hand;
     delete orders;
     delete territories;
+    delete reinforcements;
 }
 
 // Copy constructor (using move semantics for unique_ptr)
 Player::Player(const Player& other)
-    : name(other.name), hand(new Hand(*other.hand)), territories(other.territories) {
+    : name(other.name), hand(new Hand(*other.hand)), territories(other.territories), reinforcements(new int(*other.reinforcements)) {
     this->orders = new OrderList(std::move(*other.orders)); // Move the orders
 }
 
@@ -35,12 +36,14 @@ Player& Player::operator=(const Player& other) {
     delete hand;
     delete orders;
     delete territories;
+    delete reinforcements;
 
     // Copy new resources and move orders
     this->name = new std::string(*other.name);
     this->hand = new Hand(*other.hand);
     this->territories = new std::vector<Territory*>(*other.territories);
-    this->orders = new OrderList(std::move(*other.orders)); // Move the orders
+    this->orders = new OrderList(std::move(*other.orders));
+    this->reinforcements = new int(*other.reinforcements); // Move the orders
 
     return *this;
 }
@@ -69,6 +72,18 @@ std::vector<Territory*> Player::toAttack() {
 // Issue an order (with unique_ptr)
 void Player::issueOrder(std::unique_ptr<Order> order) {
     orders->addOrder(std::move(order));
+}
+
+void Player::addTerritory(Territory* t) {
+    territories->push_back(t);
+}
+
+void Player::changeReinforcements(int i) {
+    *reinforcements = i + *reinforcements;
+}
+
+int Player::getReinforcements() const {
+    return *reinforcements;
 }
 
 // Other getters and setters

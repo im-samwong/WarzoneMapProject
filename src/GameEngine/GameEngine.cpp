@@ -1,6 +1,3 @@
-//
-// Created by danielm on 10/20/24.
-//
 #include "GameEngine.h"
 #include <iostream>
 
@@ -8,13 +5,13 @@ std::string mapEnumToString(const TransitionCommand command) {
     std::string enumString;
     switch (command) {
     case TransitionCommand::LOAD_MAP:
-        enumString = "LOAD_MAP";
+        enumString = "loadmap";
         break;
     case TransitionCommand::VALIDATE_MAP:
-        enumString = "VALIDATE_MAP";
+        enumString = "validatemap";
         break;
     case TransitionCommand::ADD_PLAYER:
-        enumString = "ADD_PLAYER";
+        enumString = "addplayer";
         break;
     case TransitionCommand::ASSIGN_COUNTRIES:
         enumString = "ASSIGN_COUNTRIES";
@@ -48,11 +45,11 @@ std::string mapEnumToString(const TransitionCommand command) {
 
 TransitionCommand mapStringToTransitionCommand(const std::string& transitionCommand) {
     TransitionCommand enumValue;
-    if (transitionCommand == "LOAD_MAP") {
+    if (transitionCommand == "loadmap") {
         enumValue = TransitionCommand::LOAD_MAP;
-    } else if (transitionCommand == "VALIDATE_MAP") {
+    } else if (transitionCommand == "validatemap") {
         enumValue = TransitionCommand::VALIDATE_MAP;
-    } else if (transitionCommand == "ADD_PLAYER") {
+    } else if (transitionCommand == "addplayer") {
         enumValue = TransitionCommand::ADD_PLAYER;
     } else if (transitionCommand == "ASSIGN_COUNTRIES") {
         enumValue = TransitionCommand::ASSIGN_COUNTRIES;
@@ -80,19 +77,19 @@ std::string mapEnumToString(const GameStates stateName) {
     std::string enumString;
     switch (stateName) {
     case START:
-        enumString = "START";
+        enumString = "start";
         break;
     case MAP_LOADED:
-        enumString = "MAP_LOADED";
+        enumString = "maploaded";
         break;
     case MAP_VALIDATED:
-        enumString = "MAP_VALIDATED";
+        enumString = "mapvalidated";
         break;
     case PLAYERS_ADDED:
-        enumString = "PLAYERS_ADDED";
+        enumString = "playersadded";
         break;
     case ASSIGN_REINFORCEMENT:
-        enumString = "ASSIGN_REINFORCEMENT";
+        enumString = "assignreinforcement";
         break;
     case ISSUE_ORDERS:
         enumString = "ISSUE_ORDERS";
@@ -126,31 +123,31 @@ std::vector<std::string> getStringTransitionCommands(const std::vector<Transitio
     return commands;
 }
 
-//Abstract Class implementation
+// Abstract Class implementation
 
-GameState::GameState(const GameStateTypes &iStateType,const GameStates &iStateName,const std::vector<TransitionCommand> &iTransitionCommands,
-    const std::vector<GameState *> &iNextStates) {
+GameState::GameState(const GameStateTypes& iStateType, const GameStates& iStateName, const std::vector<TransitionCommand>& iTransitionCommands,
+                     const std::vector<GameState*>& iNextStates) {
     stateType = new GameStateTypes(iStateType);
     stateName = new GameStates(iStateName);
     transitionCommands = new std::vector(iTransitionCommands);
     nextStates = new std::vector(iNextStates);
 }
 
-GameState::GameState(const GameStateTypes &iStateType, const GameStates &iStateName, const std::vector<TransitionCommand> &iTransitionCommands) {
+GameState::GameState(const GameStateTypes& iStateType, const GameStates& iStateName, const std::vector<TransitionCommand>& iTransitionCommands) {
     stateType = new GameStateTypes(iStateType);
     stateName = new GameStates(iStateName);
     transitionCommands = new std::vector(iTransitionCommands);
     nextStates = nullptr;
 }
 
-GameState::GameState(const GameState &otherGameState) {
+GameState::GameState(const GameState& otherGameState) {
     stateType = new GameStateTypes(*otherGameState.stateType);
     stateName = new GameStates(*otherGameState.stateName);
     transitionCommands = new std::vector(*otherGameState.transitionCommands);
     nextStates = new std::vector(*otherGameState.nextStates);
 }
 
-GameState& GameState::operator=(const GameState &otherGameState) {
+GameState& GameState::operator=(const GameState& otherGameState) {
     if (this != &otherGameState) {
         delete stateType;
         delete stateName;
@@ -197,12 +194,12 @@ std::vector<GameState*> GameState::getNextStates() {
     return *this->nextStates;
 }
 
-void GameState::setNextStates(const std::vector<GameState*> &nextStates) {
+void GameState::setNextStates(const std::vector<GameState*>& nextStates) {
     delete this->nextStates;
     this->nextStates = new std::vector(nextStates);
 }
 
-//Derived classes implementation
+// Derived classes implementation
 
 StartState::StartState(
     const GameStateTypes& stateType,
@@ -424,12 +421,20 @@ GameState* WinState::transitionToNextState(const TransitionCommand transitionCom
     return nullptr;
 }
 
-//Game Engine implementation code
+// Game Engine implementation code
 
 GameEngine::~GameEngine() {
+
     delete gameOver;
     delete inputtedCommand;
     delete currentGameState;
+    for (Player* player : *players) {
+        delete player; // Free the memory for each Player object
+    }
+    delete players;
+    delete map;
+    delete cp;
+    delete deck;
 }
 
 GameStates GameEngine::getCurrentGameStateName() const {
@@ -458,7 +463,7 @@ void GameEngine::setGameOverStatus(const bool gameOver) {
     this->gameOver = new bool(gameOver);
 }
 
-void GameEngine::setInputtedCommand(const std::string &inputtedCommand) {
+void GameEngine::setInputtedCommand(const std::string& inputtedCommand) {
     delete this->inputtedCommand;
     this->inputtedCommand = new std::string(inputtedCommand);
 }
@@ -504,6 +509,177 @@ GameEngine* GameEngine::getInstance() {
         game_engine_instance = new GameEngine();
     }
     return game_engine_instance;
+}
+
+void GameEngine::addPlayer(const std::string& playerName) {
+    players->push_back(new Player(playerName));
+}
+
+void GameEngine::readInputFromFile(const std::string& filename) {
+    delete cp;
+    cp = new FileCommandProcessorAdapter(filename);
+}
+
+bool GameEngine::startupPhase() {
+
+    std::cout << "== Entering Startup Phase == \n";
+
+    // set the state to start
+    currentGameState = new StartState(
+        GameStateTypes::STARTUP,
+        GameStates::START,
+        {TransitionCommand::LOAD_MAP});
+    std::string currentStateName = mapEnumToString(currentGameState->getStateName());
+    std::cout << "Currently in 'Start' state, waiting for 'loadmap <filename>' command\n";
+
+    Command* cmd = cp->getCommand(); // get command from user
+
+    if (!(cp->validate(*cmd, currentStateName))) { // validate command (only loadmap should work here)
+        std::cout << "Unable to start game, received unexpected command:" << cmd->getCommand() << std::endl;
+        return false;
+    }
+
+    // load the map file
+    std::cout << "Loading map file: " << cmd->getArgument() << '\n';
+    MapLoader* loader = new MapLoader();
+    map = loader->loadMap(cmd->getArgument());
+    std::cout << "Map loaded \n";
+    cmd->saveEffect("Map file loaded successfully.\n");
+
+    // Transition to maploaded state
+    setCurrentGameState(new MapLoadedState(
+        GameStateTypes::STARTUP,
+        GameStates::MAP_LOADED,
+        {TransitionCommand::LOAD_MAP, TransitionCommand::VALIDATE_MAP}));
+    currentStateName = mapEnumToString(currentGameState->getStateName());
+    std::cout << "Currently in maploaded state, waiting for command...\n";
+
+    // while loop to allow loading another map file or moving to validate
+    while (currentGameState->getStateName() == GameStates::MAP_LOADED) {
+        cmd = cp->getCommand();
+        if (!(cp->validate(*cmd, currentStateName))) { // check if command is valid
+            std::cout << "Unable to start game, received unexpected command:" << cmd->getCommand() << std::endl;
+            return false;
+        }
+        if (cmd->getCommand() == "validatemap") {
+            std::cout << "Validating Map...\n";
+            if (map->validate()) { // validate the loaded map file using the Map object built in method.
+                std::cout << "Map is valid.\n";
+                cmd->saveEffect("Map is validated");
+                delete loader; // no longer needed as the map has been loaded.
+
+                // change the state
+                setCurrentGameState(new MapValidatedState(GameStateTypes::STARTUP, GameStates::MAP_VALIDATED, {TransitionCommand::ADD_PLAYER})); // if map is valid, move to mapvalidated
+                currentStateName = mapEnumToString(currentGameState->getStateName());
+
+            } else { // ask user to try another map if not valid
+                std::cout << "Map is not valid, please try loading another map file with loadmap <filename>\n";
+                cmd->saveEffect("Unable to validate map file."); // otherwise ask the user to load another file.
+            }
+        } else if (cmd->getCommand() == "loadmap") {
+            map = new Map(*(loader->loadMap(cmd->getArgument())));
+            std::cout << "Map loaded \n";
+            cmd->saveEffect("Map file loaded successfully.\n");
+        }
+    }
+
+    std::cout << "Currently in mapvalidated state, you can add players with addplayer <player>\n";
+    cmd = cp->getCommand();
+
+    if (!(cp->validate(*cmd, currentStateName))) {
+        std::cout << "Unable to start game, received unexpected command:" << cmd->getCommand() << std::endl;
+        return false;
+    }
+
+    std::cout << "Adding player " << cmd->getArgument() << "\n";
+    addPlayer(cmd->getArgument());
+    cmd->saveEffect("Player added");
+    std::cout << "Player added successfully.";
+
+    // change game state to playersadded
+    setCurrentGameState(new MapValidatedState(GameStateTypes::STARTUP, GameStates::PLAYERS_ADDED, {TransitionCommand::ADD_PLAYER, TransitionCommand::ASSIGN_COUNTRIES}));
+    currentStateName = mapEnumToString(currentGameState->getStateName());
+
+    // Players added phase loop:
+    while (currentGameState->getStateName() == GameStates::PLAYERS_ADDED) {
+        std::cout << "Currently in playersadded state, you can add players with addplayer <player> or start the game with gamestart (minimum 2 players needed)\n";
+        cmd = cp->getCommand();
+
+        if (!(cp->validate(*cmd, currentStateName))) { // check if command is valid
+            std::cout << "Unable to start game, received unexpected command:" << cmd->getCommand() << std::endl;
+            return false;
+        }
+        if (cmd->getCommand() == "addplayer") {
+            if (players->size() < MAX_PLAYERS) {
+                addPlayer(cmd->getArgument());
+                cmd->saveEffect("Player added");
+            } else {
+                cmd->saveEffect("Couldn't add player, max player count reached");
+            }
+        } else if (cmd->getCommand() == "gamestart") {
+            if (players->size() < MIN_PLAYERS) {
+                std::cout << "Need at least 2 players to start the game.\n";
+                cmd->saveEffect("Couldn't start the game with only 1 player");
+            } else {
+                std::cout << "Starting game\n";
+                cmd->saveEffect("Triggered game start");
+                break; // break out of the loop to start carry on with the startup phase
+            }
+        }
+    }
+
+    std::cout << "Randomly distributing territories to all players...\n";
+    distrubuteTerritories();
+    std::cout << "Randomly determining play order...\n";
+    shufflePlayers(); // shuffle players in the vector to determine playing order.
+    std::cout << "Giving every player 50 reinforcements and drawing 2 cards for them\n";
+    std::cout << "Play order:\n";
+
+    // Print out player's name by play order
+    for (std::size_t i = 0; i < players->size(); i++) {
+        (*players)[i]->changeReinforcements(50); // add 50 reinforcements to each player
+
+        // let each player draw 2 cards:
+        (*players)[i]->getHand().addCard(deck->draw());
+        (*players)[i]->getHand().addCard(deck->draw());
+        std::cout << (*players)[i]->getName() << '\n';
+    }
+
+    std::cout << "Startup phase done. Moving game state to assignreinforcements\n";
+
+    setCurrentGameState(new AssignReinforcementState(
+        GameStateTypes::PLAY,
+        GameStates::ASSIGN_REINFORCEMENT,
+        {TransitionCommand::ISSUE_ORDER}));
+
+    return true;
+}
+
+void GameEngine::distrubuteTerritories() {
+
+    std::vector<Territory*>* territories = new std::vector<Territory*>(map->getTerritories());
+
+    // Shuffle the list of territories to ensure random distribution
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::shuffle(territories->begin(), territories->end(), gen);
+
+    // Assign territories to players in round-robin fashion
+    std::size_t playerCount = players->size();
+    for (std::size_t i = 0; i < territories->size(); ++i) {
+        Player* currentPlayer = (*players)[i % playerCount];
+        currentPlayer->addTerritory((*territories)[i]);
+        (*territories)[i]->setOwner(currentPlayer);
+    }
+}
+
+void GameEngine::shufflePlayers() {
+    // Obtain a random seed based on the system clock
+    std::random_device rd;
+    std::mt19937 gen(rd());
+
+    // Shuffle the vector with the random generator
+    std::shuffle(players->begin(), players->end(), gen);
 }
 
 GameEngine* GameEngine::game_engine_instance = nullptr;

@@ -19,4 +19,8 @@ add_executable(MainDriver src/MainDriver.cpp
         src/Drivers/OrdersDriver.cpp
         src/Drivers/CardsDriver.cpp
         src/Drivers/GameEngineDriver.cpp
+        src/Drivers/CommandProcessingDriver.cpp
+        src/CommandProcessing/CommandProcessing.cpp
+        src/CommandProcessing/CommandProcessing.h
+        src/Drivers/CommandProcessingDriver.cpp
 )

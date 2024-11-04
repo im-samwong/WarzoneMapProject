@@ -1,12 +1,14 @@
-//
-// Created by danielm on 10/20/24.
-//
 #ifndef GAMEENGINE_H
 #define GAMEENGINE_H
 
+#include "../CommandProcessing/CommandProcessing.h"
+#include "../Map/Map.h"
+#include "../Player/Player.h"
 #include <memory>
 #include <string>
 #include <vector>
+#include <algorithm>
+#include <random>
 
 //Enum representing the possible game states of the game i.e. states on the transition diagram
 enum GameStates {
@@ -22,18 +24,18 @@ enum GameStates {
 
 // Enum representing the list of possible transition commands for each state
 enum class TransitionCommand {
-    LOAD_MAP = 1,
-    VALIDATE_MAP = 2,
-    ADD_PLAYER = 3,
-    ASSIGN_COUNTRIES = 4,
-    ISSUE_ORDER = 5,
-    END_ISSUE_ORDERS = 7,
+    LOAD_MAP = 0,
+    VALIDATE_MAP = 1,
+    ADD_PLAYER = 2,
+    ASSIGN_COUNTRIES = 3,
+    ISSUE_ORDER = 4,
+    END_ISSUE_ORDERS = 5,
     EXECUTE_ORDER = 6,
-    END_EXEC_ORDER = 8,
-    WIN_GAME = 9,
-    PLAY_AGAIN = 10,
-    END = 11,
-    INVALID = 12
+    END_EXEC_ORDER = 7,
+    WIN_GAME = 8,
+    PLAY_AGAIN = 9,
+    END = 10,
+    INVALID = 11
 };
 
 // Extra enum for the 2 types of states
@@ -41,6 +43,9 @@ enum class GameStateTypes {
     STARTUP,
     PLAY
 };
+
+const int MAX_PLAYERS = 6;
+const int MIN_PLAYERS = 2;
 
 /*********************** Utility Functions start here ***********************/
 
@@ -242,15 +247,23 @@ public:
     Provides several accessors to get its internal state as well as mutators to update its state and a method to obtain(create as well if non-existent) an instance of this class.
  */
 class GameEngine {
+
     static GameEngine* game_engine_instance;
     bool* gameOver;
     GameState* currentGameState;
     std::string* inputtedCommand;
+    std::vector<Player*>* players; //vector containing pointers to all player object initialized for the game.
+    Map* map; //stores the map for the game
+    CommandProcessor* cp; //to get commands from the command line or a file.
+    Deck* deck; //The main deck which players draw from
 
-    GameEngine() {
+    GameEngine() { //Consturctor
         gameOver = nullptr;
         currentGameState = nullptr;
         inputtedCommand = nullptr;
+        players = new std::vector<Player*>();
+        deck = new Deck();
+        cp = new CommandProcessor();
     };
 
 public:
@@ -284,6 +297,20 @@ public:
     void printCurrentStateCommands(const std::vector<TransitionCommand>& commands, const std::string& gameStateName);
 
     static GameEngine* getInstance();
+
+    //helper method to add player to game
+    void addPlayer(const std::string& playerName);
+
+    //tells the GameEngine to take commands from a file instead
+    void readInputFromFile(const std:: string& filename); 
+
+    bool startupPhase();
+
+    //helper method to distribute territories to players at the start of the game
+    void distrubuteTerritories(); 
+
+    //helper method to randomly determine play order by shuffling the players vector.
+    void shufflePlayers(); 
 
     friend std::ostream& operator<<(std::ostream& os, const GameEngine& gameEngine);
 };

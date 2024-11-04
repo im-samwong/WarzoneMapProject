@@ -85,11 +85,21 @@ std::ostream& operator<<(std::ostream& out, const Card& card) {
 // Deck Class Implementation
 // Constructor
 Deck::Deck() {
-    // Add cards of different types to the deck
+    // Add cards of different types to the deck, 3 of each kind so players have enough to choose from.
+    cards.push_back(new Card(Card::BOMB));
+    cards.push_back(new Card(Card::BOMB));
     cards.push_back(new Card(Card::BOMB));
     cards.push_back(new Card(Card::REINFORCEMENT));
+    cards.push_back(new Card(Card::REINFORCEMENT));
+    cards.push_back(new Card(Card::REINFORCEMENT));
+    cards.push_back(new Card(Card::BLOCKADE));
+    cards.push_back(new Card(Card::BLOCKADE));
     cards.push_back(new Card(Card::BLOCKADE));
     cards.push_back(new Card(Card::AIRLIFT));
+    cards.push_back(new Card(Card::AIRLIFT));
+    cards.push_back(new Card(Card::AIRLIFT));
+    cards.push_back(new Card(Card::DIPLOMACY));
+    cards.push_back(new Card(Card::DIPLOMACY));
     cards.push_back(new Card(Card::DIPLOMACY));
 }
 

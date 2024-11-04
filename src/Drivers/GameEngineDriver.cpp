@@ -5,7 +5,7 @@
 #include "../GameEngine/GameEngine.h"
 #include <iostream>
 
-void testGameStates() {
+/** void testGameStates() {
     std::cout << "Testing GameEngine.GameStates" << std::endl;
 
     std::vector<TransitionCommand> startStateTransitionCommands = {TransitionCommand::LOAD_MAP};
@@ -92,4 +92,16 @@ void testGameStates() {
     }
 
     exit(EXIT_SUCCESS);
+}
+**/
+void testStartupPhase() {
+    GameEngine* ge = GameEngine::getInstance();
+    //Uncomment below line to get input from user.
+   // ge->readInputFromFile("../commands.txt"); 
+
+    if(ge->startupPhase()){
+        std::cout<<"Testing success";
+    }
+
+    delete ge;
 }

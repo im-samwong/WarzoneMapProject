@@ -417,6 +417,14 @@ Continent* Map::getContinent(const std::string& name) const {
     return nullptr;
 }
 
+std::vector<Territory*> Map::getTerritories() const {
+    std::vector<Territory*> t;
+        for (auto& pair : *territories) {
+            t.push_back(pair.second);
+        }
+    return t;
+}
+
 // Find a territory by name (case-insensitive)
 
 // Adds a Territory to the map's territories if it doesn't already exist.
@@ -524,6 +532,7 @@ bool Map::validateTerritories() {
 
         // If the territory has no continent, it's invalid
         if (continent == nullptr) {
+            std::cout << "Territory" << territory->getName() << "is not in any continent \n";
             return false; // Territory is not assigned to any continent
         }
 
@@ -565,7 +574,6 @@ bool Map::validateTerritories() {
 
 // Implementation of the validate method
 bool Map::validate() {
-    std::cout << "Validating map...\n";
     return validateGraph() && validateContinents() && validateTerritories();
 }
 
