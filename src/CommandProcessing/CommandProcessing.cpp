@@ -3,7 +3,7 @@
 #include <string>
 #include <iostream>
 
-Command::Command(std::string& cmd) {
+Command::Command(const std::string& cmd) {
     command = new std::string(cmd);
     argument = nullptr;
     effect = nullptr;
@@ -17,6 +17,9 @@ Command::Command(const std::string& cmd, const std::string& arg) {
 }
 
 Command::Command(const Command& other) {
+    delete command;
+    delete argument;
+    delete effect;
     command = new std::string(*other.command);
     argument = new std::string(*other.argument);
     effect = new std::string(*other.effect);
@@ -41,12 +44,15 @@ std::string Command::getArgument() const {
 }
 
 //CommandProcessor class definition
-CommandProcessor::CommandProcessor() {}
+CommandProcessor::CommandProcessor() {
+    lc = new std::vector<Command*>();
+}
 
 CommandProcessor::~CommandProcessor() {
-    for (Command* cmd : lc) {
+    for (Command* cmd : *lc) {
         delete cmd;
     }
+    delete lc;
 }
 
 Command* CommandProcessor::getCommand() {
@@ -56,7 +62,7 @@ Command* CommandProcessor::getCommand() {
 }
 
 Command* CommandProcessor::getLastCommand() const {
-    return lc.back(); //returns last command
+    return lc->back(); //returns last command
 }
 
 bool CommandProcessor::validate(Command& command, std::string& currentGameState) {
@@ -78,12 +84,7 @@ bool CommandProcessor::validate(Command& command, std::string& currentGameState)
         for (const std::string& validCommand : validCommandsForCurrentState->second) {
             if (command.getCommand() == validCommand) {
                 if ((validCommand == "loadmap" || validCommand == "addplayer") && command.getArgument().empty()) {
-                    if (validCommand == "loadmap") {
-                        std::cout << "The command '"+ validCommand + "' requires a file argument (i.e. loadmap fileName.map)" << std::endl;
-                    } else {
-                        std::cout << "The command '"+ validCommand + "' requires a name argument (i.e. addplayer playerName)" << std::endl;
-                    }
-
+                    std::cout << "The command '"+ validCommand + "' requires an argument" << std::endl;
                     isValid = false;
                     break;
                 } else {
@@ -103,29 +104,28 @@ bool CommandProcessor::validate(Command& command, std::string& currentGameState)
 
 void CommandProcessor::readCommand() {
 
-    std::string* cmd = new std::string();
+    std::string cmd;
     std::cout << "Please enter command:\n";
-    std::cin >> *cmd;
-    std::string* command;
-    std::string* argument;
+    std::getline(std::cin, cmd);
+    std::string command;
+    std::string argument;
 
-    std::size_t space = cmd->find(' ');
+    std::size_t space = cmd.find(' ');
     if (space != std::string::npos) {
-        *command = cmd->substr(0, cmd->find(" "));
-        *argument = cmd->substr(cmd->find(" ") + 1);
+        command = cmd.substr(0, cmd.find(" "));
+        argument = cmd.substr(cmd.find(" ") + 1);
         saveCommand(command,argument);
     } else { // for commands that are not loadmap or addplayer
-        command = cmd;
-        saveCommand(command); 
+        saveCommand(cmd);
     }
 }
 
-void CommandProcessor::saveCommand(std::string* command, std::string* argument) {
+void CommandProcessor::saveCommand(const std::string& command, const std::string& argument) {
 
-    if(argument == nullptr) {
-        lc.push_back(new Command(*command));
+    if(argument.empty()) {
+        lc->push_back(new Command(command));
     } else {
-        lc.push_back(new Command(*command, *argument));
+        lc->push_back(new Command(command, argument));
     }
 }
 
@@ -166,14 +166,14 @@ void FileCommandProcessorAdapter::readCommand() {
     
     std::cout << "Getting command from file\n";
     
-    std::string* cmd = new std::string(flr->readLine());
-    std::string* command;
-    std::string* argument;
+    std::string cmd = flr->readLine();
+    std::string command;
+    std::string argument;
 
-    std::size_t space = cmd->find(' ');
+    std::size_t space = cmd.find(' ');
     if (space != std::string::npos) {
-        *command = cmd->substr(0, cmd->find(" "));
-        *argument = cmd->substr(cmd->find(" ") + 1);
+        command = cmd.substr(0, cmd.find(" "));
+        argument = cmd.substr(cmd.find(" ") + 1);
         saveCommand(command,argument);
     } else { // for commands that are not loadmap or addplayer
         command = cmd;

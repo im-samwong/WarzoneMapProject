@@ -532,6 +532,7 @@ bool Map::validateTerritories() {
 
         // If the territory has no continent, it's invalid
         if (continent == nullptr) {
+            std::cout << "Territory" << territory->getName() << "is not in any continent \n";
             return false; // Territory is not assigned to any continent
         }
 
@@ -573,7 +574,6 @@ bool Map::validateTerritories() {
 
 // Implementation of the validate method
 bool Map::validate() {
-    std::cout << "Validating map...\n";
     return validateGraph() && validateContinents() && validateTerritories();
 }
 

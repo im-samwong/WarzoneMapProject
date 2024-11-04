@@ -424,9 +424,17 @@ GameState* WinState::transitionToNextState(const TransitionCommand transitionCom
 // Game Engine implementation code
 
 GameEngine::~GameEngine() {
+
     delete gameOver;
     delete inputtedCommand;
     delete currentGameState;
+    for (Player* player : *players) {
+        delete player; // Free the memory for each Player object
+    }
+    delete players;
+    delete map;
+    delete cp;
+    delete deck;
 }
 
 GameStates GameEngine::getCurrentGameStateName() const {
@@ -534,16 +542,15 @@ bool GameEngine::startupPhase() {
     // load the map file
     std::cout << "Loading map file: " << cmd->getArgument() << '\n';
     MapLoader* loader = new MapLoader();
-    map = new Map(*(loader->loadMap(cmd->getArgument())));
+    map = loader->loadMap(cmd->getArgument());
     std::cout << "Map loaded \n";
     cmd->saveEffect("Map file loaded successfully.\n");
 
     // Transition to maploaded state
-    delete currentGameState;
-    currentGameState = new MapLoadedState(
+    setCurrentGameState(new MapLoadedState(
         GameStateTypes::STARTUP,
         GameStates::MAP_LOADED,
-        {TransitionCommand::LOAD_MAP, TransitionCommand::VALIDATE_MAP});
+        {TransitionCommand::LOAD_MAP, TransitionCommand::VALIDATE_MAP}));
     currentStateName = mapEnumToString(currentGameState->getStateName());
     std::cout << "Currently in maploaded state, waiting for command...\n";
 
@@ -562,8 +569,7 @@ bool GameEngine::startupPhase() {
                 delete loader; // no longer needed as the map has been loaded.
 
                 // change the state
-                delete currentGameState;
-                currentGameState = new MapValidatedState(GameStateTypes::STARTUP, GameStates::MAP_VALIDATED, {TransitionCommand::ADD_PLAYER}); // if map is valid, move to mapvalidated
+                setCurrentGameState(new MapValidatedState(GameStateTypes::STARTUP, GameStates::MAP_VALIDATED, {TransitionCommand::ADD_PLAYER})); // if map is valid, move to mapvalidated
                 currentStateName = mapEnumToString(currentGameState->getStateName());
 
             } else { // ask user to try another map if not valid
@@ -591,13 +597,12 @@ bool GameEngine::startupPhase() {
     std::cout << "Player added successfully.";
 
     // change game state to playersadded
-    delete currentGameState;
-    currentGameState = new MapValidatedState(GameStateTypes::STARTUP, GameStates::PLAYERS_ADDED, {TransitionCommand::ADD_PLAYER, TransitionCommand::ASSIGN_COUNTRIES});
+    setCurrentGameState(new MapValidatedState(GameStateTypes::STARTUP, GameStates::PLAYERS_ADDED, {TransitionCommand::ADD_PLAYER, TransitionCommand::ASSIGN_COUNTRIES}));
     currentStateName = mapEnumToString(currentGameState->getStateName());
 
     // Players added phase loop:
     while (currentGameState->getStateName() == GameStates::PLAYERS_ADDED) {
-        std::cout << "Currently in playersadded state, you can add players with addplayer <player> or start the game with startgame (minimum 2 players needed)\n";
+        std::cout << "Currently in playersadded state, you can add players with addplayer <player> or start the game with gamestart (minimum 2 players needed)\n";
         cmd = cp->getCommand();
 
         if (!(cp->validate(*cmd, currentStateName))) { // check if command is valid
@@ -611,7 +616,7 @@ bool GameEngine::startupPhase() {
             } else {
                 cmd->saveEffect("Couldn't add player, max player count reached");
             }
-        } else if (cmd->getCommand() == "startgame") {
+        } else if (cmd->getCommand() == "gamestart") {
             if (players->size() < MIN_PLAYERS) {
                 std::cout << "Need at least 2 players to start the game.\n";
                 cmd->saveEffect("Couldn't start the game with only 1 player");
@@ -642,11 +647,10 @@ bool GameEngine::startupPhase() {
 
     std::cout << "Startup phase done. Moving game state to assignreinforcements\n";
 
-    delete currentGameState;
-    currentGameState = new AssignReinforcementState(
+    setCurrentGameState(new AssignReinforcementState(
         GameStateTypes::PLAY,
         GameStates::ASSIGN_REINFORCEMENT,
-        {TransitionCommand::ISSUE_ORDER});
+        {TransitionCommand::ISSUE_ORDER}));
 
     return true;
 }

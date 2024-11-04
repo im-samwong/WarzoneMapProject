@@ -12,7 +12,7 @@
 class Command {
 public:
     //Constructors
-    Command(std::string& cmd);
+    Command(const std::string& cmd);
     Command(const std::string& cmd, const std::string& arg);
     Command(const Command& other);
     //Destructor
@@ -46,13 +46,13 @@ public:
     Command* getLastCommand() const;
 
 protected:
-    void saveCommand(std::string* command, std::string* argument=nullptr);
+    void saveCommand(const std::string& command, const std::string& argument="");
 
 private:
     //Methods
     virtual void readCommand();
     //Attributes
-    std::vector<Command*> lc; //stores collection of command objects
+    std::vector<Command*>* lc; //stores collection of command objects
 };
 
 
