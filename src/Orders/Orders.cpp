@@ -8,7 +8,7 @@ bool DeployOrder::validate(Player* sourcePlayer, Player* targetPlayer, Territory
         std::cout << "DeployOrder Validation Failed: Target territory is not owned by the player." << std::endl;
         return false;
     }
-    if (numUnits > sourcePlayer->getReinforcementPool()) {
+    if (numUnits > sourcePlayer->getReinforcements()) {
         std::cout << "DeployOrder Validation Failed: Not enough units in the reinforcement pool." << std::endl;
         return false;
     }
@@ -18,7 +18,7 @@ bool DeployOrder::validate(Player* sourcePlayer, Player* targetPlayer, Territory
 void DeployOrder::execute(Player* sourcePlayer, Player* targetPlayer, Territory* source, Territory* target, int numUnits) {
     if (validate(sourcePlayer, targetPlayer, source, target, numUnits)) {
         target->modifyArmies(numUnits);
-        sourcePlayer->removeFromReinforcementPool(numUnits);
+        sourcePlayer->changeReinforcements(-numUnits);
         std::cout << "Executed DeployOrder: " << numUnits << " units deployed to " << target->getName() << std::endl;
     }
 }
@@ -104,8 +104,8 @@ void AdvanceOrder::execute(Player* sourcePlayer, Player* targetPlayer, Territory
                 target->modifyArmies(attackingUnits - attackingUnitsLost);  // Survivors occupy the territory
                 std::cout << "Executed AdvanceOrder: " << target->getName() << " has been conquered!" << std::endl;
 
-                // Flag for card reward (this flag would be handled by a larger game context at the end of the turn)
-                sourcePlayer->GameState::setConqueredTerritoryThisTurn(true);
+                // Set conquered territory status for the player
+                GameState::setConqueredTerritory(sourcePlayer, true);
             } else {
                 std::cout << "Executed AdvanceOrder: Attack failed, " << target->getName()
                           << " still belongs to " << target->getOwner()->getName() << std::endl;

@@ -113,28 +113,26 @@ public:
 
     GameState& operator=(const GameState& otherGameState);
 
-    static void addNegotiation(Player* player1, Player* player2) {
-        negotiations.insert(makeClause(player1, player2));
-    }
+    // Methods for negotiations
+    static void addNegotiation(Player* player1, Player* player2);
+    static bool hasNegotiation(Player* player1, Player* player2);
+    static void resetNegotiations();
 
-    static bool hasNegotiation(Player* player1, Player* player2) {
-        return negotiations.find(makeClause(player1, player2)) != negotiations.end();
-    }
-
-    static void resetNegotiations() {
-        negotiations.clear();
-    }
+    // Methods for conquered territory tracking
+    static void setConqueredTerritory(Player* player, bool status);
+    static bool hasConqueredTerritory(Player* player);
+    static void resetConqueredTerritories();
 
 private:
-    static std::set<std::string> negotiations;  // Set of negotiation clauses
+    // Static members for negotiation tracking
+    static std::set<std::string> negotiations;
 
-    static std::string makeClause(Player* player1, Player* player2) {
-        return "negotiate " + player1->getName() + " " + player2->getName();
-    }
+    // Static member for conquered territory tracking
+    static std::unordered_map<Player*, bool> conqueredTerritories;
+
+    // Helper method to create negotiation clause string
+    static std::string makeClause(Player* player1, Player* player2);
 };
-
-// Initialize static member
-std::set<std::string> GameState::negotiations;
 
 class StartState : public GameState {
 public:
