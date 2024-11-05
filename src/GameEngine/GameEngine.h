@@ -280,7 +280,7 @@ class GameEngine {
     Deck* deck; //The main deck which players draw from
 
     GameEngine() { //Consturctor
-        gameOver = nullptr;
+        gameOver = new bool(false);
         currentGameState = nullptr;
         inputtedCommand = nullptr;
         players = new std::vector<Player*>();

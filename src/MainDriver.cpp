@@ -6,6 +6,8 @@ void testLoadMaps();
 void testPlayers();
 void testGameStates();
 void testCommandProcessor();
+void testMainGameLoop();
+void testStartupPhase();
 
 int main() {
     // testOrdersLists();
@@ -24,5 +26,8 @@ int main() {
     //
     // testGameStates();
     // std::cout << std::endl;
+
+    // testStartupPhase();
+    testMainGameLoop();
     return 0;
 }

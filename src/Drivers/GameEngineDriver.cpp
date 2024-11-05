@@ -105,3 +105,12 @@ void testStartupPhase() {
 
     delete ge;
 }
+
+void testMainGameLoop() {
+    GameEngine* ge = GameEngine::getInstance();
+    ge->readInputFromFile("../commands.txt");
+    if(ge->startupPhase()){
+        ge->mainGameLoop();
+    }
+    delete ge;
+}

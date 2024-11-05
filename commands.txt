@@ -1,0 +1,5 @@
+loadmap ../maps/World.map
+validatemap
+addplayer Eve
+addplayer Adam
+gamestart

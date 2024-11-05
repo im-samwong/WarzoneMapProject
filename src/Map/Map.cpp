@@ -769,13 +769,10 @@ int Map::getPlayerContinentBonuses(Player* player) {
         std::string continentName = continent.first;
         std::vector<Territory*> continentTerritories = *continent.second->getTerritories();
         std::vector<std::string> continentTerritoryNames;
-        std::ranges::transform(
-            continentTerritories,
-            std::back_inserter(continentTerritoryNames),
-            [](Territory* territory) {
-                return territory->getName();
-            }
-        );
+
+        for(Territory* territory: continentTerritories) {
+            continentTerritoryNames.push_back(territory->getName());
+        }
 
         if (playerContinentTerritoriesMap[continentName] == continentTerritoryNames) {
             continentBonuses += continent.second->getControlValue();

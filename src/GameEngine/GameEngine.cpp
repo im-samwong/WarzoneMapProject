@@ -733,16 +733,21 @@ std::ostream& operator<<(std::ostream& os, const GameEngine& gameEngine) {
 void GameEngine::reinforcementPhase() {
     for (Player* player : *players) {
         player->changeReinforcements(3);
-        std::size_t player_territory_count = player->toDefend().size();
-        int reinforcements = static_cast<int>(player_territory_count / 3);
-        player->changeReinforcements(reinforcements);
+        const std::size_t player_territory_count = player->toDefend().size();
+        const int owned_territory_bonus_reinforcements = static_cast<int>(player_territory_count / 3);
+        player->changeReinforcements(owned_territory_bonus_reinforcements);
+
+        const int continent_reinforcement_bonus = map->getPlayerContinentBonuses(player);
+        player->changeReinforcements(continent_reinforcement_bonus);
         //Need to figure out how to find Continent control bonus
     }
 }
 
 void GameEngine::mainGameLoop() {
-    while (!*gameOver) {
+    GameEngine instance = *getInstance();
+    while (!instance.getGameOverStatus()) {
         reinforcementPhase();
+        setGameOverStatus(true);
         // issueOrdersPhase();
         // executeOrdersPhase();
         // removeEliminatedPlayers();
