@@ -9,6 +9,13 @@
 #include <string>
 #include <vector>
 
+// Forward declarations to avoid circular dependencies
+class Territory;
+class Order;
+class OrderList;
+class Hand;
+
+
 class Player {
 public:
     // Constructors

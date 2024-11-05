@@ -70,50 +70,65 @@ bool AdvanceOrder::validate(Player* sourcePlayer, Player* targetPlayer, Territor
 void AdvanceOrder::execute(Player* sourcePlayer, Player* targetPlayer, Territory* source, Territory* target, int numUnits) {
     if (validate(sourcePlayer, targetPlayer, source, target, numUnits)) {
         if (target->getOwner() == sourcePlayer) {
-            // Move units between territories
+            // Move units between territories owned by the same player
             target->modifyArmies(numUnits);
             source->modifyArmies(-numUnits);
             std::cout << "Executed AdvanceOrder: Moved " << numUnits << " units from " << source->getName()
-                      << " to " << target->getName() << std::endl;
+                      << " to " << target->getName() << "." << std::endl;
         } else {
-            // Simulate attack
+            // Begin battle simulation if target belongs to another player
             int attackingUnits = numUnits;
             int defendingUnits = target->getArmies();
-            int attackingUnitsLost = 0;
-            int defendingUnitsLost = 0;
 
-            // Battle simulation
-            for (int i = 0; i < attackingUnits; ++i) {
-                if (static_cast<float>(rand()) / RAND_MAX < 0.6) {  // 60% chance to kill a defender
-                    defendingUnitsLost++;
+            // Variables to track remaining units after each round of attacks
+            int survivingAttackers = attackingUnits;
+            int survivingDefenders = defendingUnits;
+
+            // Battle simulation loop
+            while (survivingAttackers > 0 && survivingDefenders > 0) {
+                // Each attacking unit has a 60% chance of killing a defending unit
+                for (int i = 0; i < survivingAttackers; ++i) {
+                    if (static_cast<float>(rand()) / RAND_MAX < 0.6) {
+                        survivingDefenders--;
+                        if (survivingDefenders == 0) {
+                            break;  // Stop if all defenders are killed
+                        }
+                    }
+                }
+
+                // Each defending unit has a 70% chance of killing an attacking unit
+                for (int i = 0; i < survivingDefenders; ++i) {
+                    if (static_cast<float>(rand()) / RAND_MAX < 0.7) {
+                        survivingAttackers--;
+                        if (survivingAttackers == 0) {
+                            break;  // Stop if all attackers are killed
+                        }
+                    }
                 }
             }
-            for (int i = 0; i < defendingUnits; ++i) {
-                if (static_cast<float>(rand()) / RAND_MAX < 0.7) {  // 70% chance to kill an attacker
-                    attackingUnitsLost++;
-                }
-            }
 
-            // Apply losses
-            source->modifyArmies(-attackingUnitsLost);
-            target->modifyArmies(-defendingUnitsLost);
+            // Apply the results of the battle
+            source->modifyArmies(-attackingUnits);  // Remove all units initially sent from the source territory
+            target->modifyArmies(-defendingUnits);  // Remove all units initially in the target territory
 
-            // Check if the attacker wins
-            if (target->getArmies() == 0) {
+            if (survivingDefenders == 0) {
+                // Attacker wins and captures the territory
                 target->setOwner(sourcePlayer);
-                target->modifyArmies(attackingUnits - attackingUnitsLost);  // Survivors occupy the territory
+                target->modifyArmies(survivingAttackers);  // Occupy the territory with surviving attackers
                 std::cout << "Executed AdvanceOrder: " << target->getName() << " has been conquered!" << std::endl;
 
-                // Set conquered territory status for the player
+                // Set conquered territory status for the player to receive a card
                 GameState::setConqueredTerritory(sourcePlayer, true);
             } else {
-                std::cout << "Executed AdvanceOrder: Attack failed, " << target->getName()
-                          << " still belongs to " << target->getOwner()->getName() << std::endl;
+                // Attack failed, so target retains its ownership, and all attacking units are lost
+                std::cout << "Executed AdvanceOrder: Attack failed. " << target->getName()
+                          << " remains under control of " << target->getOwner()->getName() << "." << std::endl;
+                target->modifyArmies(survivingDefenders);  // Restore the surviving defenders in the target territory
             }
 
             // Output the battle result
-            std::cout << "Battle Result: " << attackingUnitsLost << " attacking units lost, "
-                      << defendingUnitsLost << " defending units lost." << std::endl;
+            std::cout << "Battle Result: " << (attackingUnits - survivingAttackers) << " attacking units lost, "
+                      << (defendingUnits - survivingDefenders) << " defending units lost." << std::endl;
         }
     }
 }
@@ -124,18 +139,42 @@ std::string AdvanceOrder::description() const {
 
 // Implementation of BombOrder class
 bool BombOrder::validate(Player* sourcePlayer, Player* targetPlayer, Territory* source, Territory* target, int numUnits) const {
+    // Check if the target territory belongs to the issuing player
     if (target->getOwner() == sourcePlayer) {
         std::cout << "BombOrder Validation Failed: Cannot bomb your own territory." << std::endl;
         return false;
     }
+
+    const std::vector<Territory*>* neighbors = target->getNeighbors();
+    if (!neighbors) {
+        std::cout << "BombOrder Validation Failed: Source territory has no neighbors." << std::endl;
+        return false;
+    }
+
+    // Check if the target territory is adjacent to source player territory
+    bool isAdjacent = false;
+    for (const Territory* neighbor : *neighbors) {
+        if (neighbor->getOwner() == sourcePlayer) {
+            isAdjacent = true;
+            break;
+        }
+    }
+
+    if (!isAdjacent) {
+        std::cout << "BombOrder Validation Failed: Target territory is not adjacent to any territory owned by the player." << std::endl;
+        return false;
+    }
+
+    // If all checks pass, the order is valid
     return true;
 }
 
 void BombOrder::execute(Player* sourcePlayer, Player* targetPlayer, Territory* source, Territory* target, int numUnits) {
     if (validate(sourcePlayer, targetPlayer, source, target, numUnits)) {
-        int unitsToRemove = target->getArmies() - (target->getArmies() / 2);
+        // Calculate units to remove (half of the army units)
+        int unitsToRemove = target->getArmies() / 2;
         target->modifyArmies(-unitsToRemove);
-        std::cout << "Executed BombOrder: Halved the units on " << target->getName() << std::endl;
+        std::cout << "Executed BombOrder: Halved the units on " << target->getName() << ". Remaining units: " << target->getArmies() << std::endl;
     }
 }
 
@@ -155,7 +194,7 @@ bool BlockadeOrder::validate(Player* sourcePlayer, Player* targetPlayer, Territo
 void BlockadeOrder::execute(Player* sourcePlayer, Player* targetPlayer, Territory* source, Territory* target, int numUnits) {
     if (validate(sourcePlayer, targetPlayer, source, target, numUnits)) {
         int currentArmies = target->getArmies();
-        target->modifyArmies(currentArmies * 2);
+        target->modifyArmies(currentArmies);
         target->setOwner(nullptr);  // Assuming nullptr represents neutral ownership
         std::cout << "Executed BlockadeOrder: Doubled units and transferred " << target->getName()
                   << " to neutral ownership." << std::endl;

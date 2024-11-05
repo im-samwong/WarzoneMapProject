@@ -5,6 +5,9 @@
 #include <string>
 #include <vector>
 
+// Forward declaration of OrderList to avoid circular dependencies
+class OrderList;
+
 class Card {
 public:
     enum CardType { BOMB,
