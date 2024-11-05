@@ -92,6 +92,7 @@ void Player::issueOrder() {
 
     while (*this->reinforcements != 0) {
         int unitsToUse = 0;
+        std::cout << "How many units would you like to deploy"
         std::cin >> unitsToUse;
         orders->addOrder(std::make_unique<DeployOrder>());
         *this->reinforcements -= unitsToUse;
@@ -102,6 +103,59 @@ void Player::issueOrder() {
     std::cout << "\nHere are the territories you should attack:" << std::endl;
     for(Territory* territory: toAttack()) {
         std::cout << territory->getName() << std::endl;
+    }
+
+    bool playerHasFinishedIssuingOrders = false;
+    const std::vector<std::string> possibleOrders = {"AdvanceOrder","AirliftOrder","BlockadeOrder","BombOrder","NegotiateOrder"};
+    const std::vector<std::string> stringEnumCards = {"Reinforcement","Airlift","Blockade","Bomb","Diplomacy"};
+
+    const std::vector<Card*> playerHandOrders = this->hand->getHandCards();
+
+    while (!playerHasFinishedIssuingOrders) {
+        std::cout << "Your available orders are:" << std::endl;
+        int chosenOrderIndex = -1;
+        for (const Card* card: playerHandOrders) {
+            std::cout << card->getTypeAsString() << std::endl;
+        }
+
+        std::cout << "Type the order as you see it if you wish to issue it or type endissueorders to stop issuing orders" << std::endl;
+
+        std::string orderInput = "";
+        std::cin >> orderInput;
+
+        if (orderInput == "endissueorders") {
+            playerHasFinishedIssuingOrders = true;
+            break;
+        }
+
+        if (orderInput == stringEnumCards[0]) {
+            this->orders->addOrder(std::make_unique<AdvanceOrder>());
+            chosenOrderIndex = 0;
+        } else if (orderInput == stringEnumCards[1]) {
+            this->orders->addOrder(std::make_unique<AirliftOrder>());
+            chosenOrderIndex = 1;
+        } else if (orderInput == stringEnumCards[2]) {
+            this->orders->addOrder(std::make_unique<BlockadeOrder>());
+            chosenOrderIndex = 2;
+        } else if (orderInput == stringEnumCards[3]) {
+            this->orders->addOrder(std::make_unique<BombOrder>());
+            chosenOrderIndex = 3;
+        } else if (orderInput == stringEnumCards[4]) {
+            this->orders->addOrder(std::make_unique<NegotiateOrder>());
+            chosenOrderIndex = 4;
+        } else {
+            std::cout << "Invalid command. Did nothing please re-issue your order" << std::endl;
+        }
+
+        if (chosenOrderIndex != -1) {
+            for(int i = 0; i < playerHandOrders.size(); i++) {
+                if (playerHandOrders[i]->getTypeAsString() == stringEnumCards[chosenOrderIndex]) {
+                    delete playerHandOrders[i];
+                    playerHandOrders.erase(playerHandOrders.begin() + i);
+                    break;
+                }
+            }
+        }
     }
 }
 
