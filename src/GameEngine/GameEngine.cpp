@@ -731,6 +731,8 @@ std::ostream& operator<<(std::ostream& os, const GameEngine& gameEngine) {
 }
 
 void GameEngine::reinforcementPhase() {
+    std::cout << "In Reinforcement Phase, adding army units to each player. No input needed from users please wait" << std::endl;
+
     for (Player* player : *players) {
         player->changeReinforcements(3);
         const std::size_t player_territory_count = player->toDefend().size();
@@ -739,18 +741,39 @@ void GameEngine::reinforcementPhase() {
 
         const int continent_reinforcement_bonus = map->getPlayerContinentBonuses(player);
         player->changeReinforcements(continent_reinforcement_bonus);
-        //Need to figure out how to find Continent control bonus
     }
+
+    std::cout << "Added army units to players, moving to next state issueorders" << std::endl;
+    setCurrentGameState(new IssueOrdersState(
+        GameStateTypes::PLAY,
+        GameStates::ISSUE_ORDERS,
+        {TransitionCommand::ISSUE_ORDER, TransitionCommand::END_ISSUE_ORDERS})
+    );
 }
 
+void GameEngine::issueOrdersPhase() {
+    std::cout << "In Issue Orders Phase!\n" << std::endl;
+    for (Player* player : *players) {
+        std::cout << "Player " << player->getName() << " it is your turn." << std::endl;
+        player->issueOrder();
+        std::cout << std::endl;
+    }
+    std::cout << "Issue Orders Phase done, moving to next state" << std::endl;
+    setCurrentGameState(new ExecuteOrdersState(
+        GameStateTypes::PLAY,
+        GameStates::EXECUTE_ORDERS,
+        {TransitionCommand::EXECUTE_ORDER, TransitionCommand::END_EXEC_ORDER, TransitionCommand::WIN_GAME})
+    );
+}
+
+
 void GameEngine::mainGameLoop() {
-    GameEngine instance = *getInstance();
-    while (!instance.getGameOverStatus()) {
+    while (!*gameOver) {
         reinforcementPhase();
-        setGameOverStatus(true);
-        // issueOrdersPhase();
+        issueOrdersPhase();
         // executeOrdersPhase();
         // removeEliminatedPlayers();
+        setGameOverStatus(true);
     }
 }
 

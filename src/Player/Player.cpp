@@ -2,6 +2,7 @@
 #include "../Cards/Cards.h"
 #include "../Map/Map.h"
 #include "../Orders/Orders.h"
+#include <set>
 
 // Default constructor
 Player::Player() : name(new std::string("Unknown")), territories(new std::vector<Territory*>()), hand(new Hand()), orders(new OrderList()), reinforcements(new int()) {}
@@ -62,16 +63,46 @@ std::vector<Territory*> Player::toDefend() {
 
 // Return territories to attack
 std::vector<Territory*> Player::toAttack() {
-    Continent* dummyContinent = nullptr;
-    Territory* t = new Territory("Greenland", 140, 240, dummyContinent);
-    std::vector<Territory*> territories = {t};
-    // return std::vector<Territory*>();
-    return territories; // arbitrary list of territories
+    std::set<Territory*> uniqueAtkTargets;
+    for(const Territory* territory: *territories) {
+        for(const std::vector<Territory*> targets = *territory->getNeighbors(); Territory* target: targets) {
+            if(target->getOwner()->getName() != *this->name) {
+                uniqueAtkTargets.insert(target);
+            }
+        }
+    }
+
+    std::vector<Territory*> territoriesToAttack;
+    territoriesToAttack.assign(uniqueAtkTargets.begin(), uniqueAtkTargets.end());
+    return territoriesToAttack;
 }
 
 // Issue an order (with unique_ptr)
 void Player::issueOrder(std::unique_ptr<Order> order) {
     orders->addOrder(std::move(order));
+}
+
+void Player::issueOrder() {
+    std::cout << "Here are the territories you should defend:" << std::endl;
+    for(Territory* territory: toDefend()) {
+        std::cout << territory->getName() << std::endl;
+    }
+
+    std::cout << "For now, use the deploy order until you have no more reinforcements to deploy. Remaining units: " << *this->reinforcements << std::endl;
+
+    while (*this->reinforcements != 0) {
+        int unitsToUse = 0;
+        std::cin >> unitsToUse;
+        orders->addOrder(std::make_unique<DeployOrder>());
+        *this->reinforcements -= unitsToUse;
+    }
+
+    std::cout << "You have now deployed all of your reinforcements units. You can now issue orders other than deploy now." << std::endl;
+    //Once all reinforcements are deployed then show the toAttack stuff
+    std::cout << "\nHere are the territories you should attack:" << std::endl;
+    for(Territory* territory: toAttack()) {
+        std::cout << territory->getName() << std::endl;
+    }
 }
 
 void Player::addTerritory(Territory* t) {
