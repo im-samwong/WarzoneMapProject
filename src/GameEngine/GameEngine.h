@@ -9,6 +9,8 @@
 #include <vector>
 #include <algorithm>
 #include <random>
+#include <set>
+
 
 //Enum representing the possible game states of the game i.e. states on the transition diagram
 enum GameStates {
@@ -110,6 +112,26 @@ public:
     void setNextStates(const std::vector<GameState*> &nextStates);
 
     GameState& operator=(const GameState& otherGameState);
+
+    // Methods for negotiations
+    static void addNegotiation(Player* player1, Player* player2);
+    static bool hasNegotiation(Player* player1, Player* player2);
+    static void resetNegotiations();
+
+    // Methods for conquered territory tracking
+    static void setConqueredTerritory(Player* player, bool status);
+    static bool hasConqueredTerritory(Player* player);
+    static void resetConqueredTerritories();
+
+private:
+    // Static members for negotiation tracking
+    static std::set<std::string> negotiations;
+
+    // Static member for conquered territory tracking
+    static std::unordered_map<Player*, bool> conqueredTerritories;
+
+    // Helper method to create negotiation clause string
+    static std::string makeClause(Player* player1, Player* player2);
 };
 
 class StartState : public GameState {

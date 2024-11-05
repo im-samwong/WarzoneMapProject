@@ -1,6 +1,44 @@
 #include "GameEngine.h"
 #include <iostream>
 
+// Initialize static members
+std::set<std::string> GameState::negotiations;
+std::unordered_map<Player*, bool> GameState::conqueredTerritories;
+
+// Negotiation methods
+void GameState::addNegotiation(Player* player1, Player* player2) {
+    negotiations.insert(makeClause(player1, player2));
+}
+
+bool GameState::hasNegotiation(Player* player1, Player* player2) {
+    return negotiations.find(makeClause(player1, player2)) != negotiations.end();
+}
+
+void GameState::resetNegotiations() {
+    negotiations.clear();
+}
+
+// Helper for negotiation clause creation
+std::string GameState::makeClause(Player* player1, Player* player2) {
+    return player1->getName() < player2->getName() ?
+           player1->getName() + "_" + player2->getName() :
+           player2->getName() + "_" + player1->getName();
+}
+
+// Conquered territory methods
+void GameState::setConqueredTerritory(Player* player, bool status) {
+    conqueredTerritories[player] = status;
+}
+
+bool GameState::hasConqueredTerritory(Player* player) {
+    auto it = conqueredTerritories.find(player);
+    return it != conqueredTerritories.end() && it->second;
+}
+
+void GameState::resetConqueredTerritories() {
+    conqueredTerritories.clear();
+}
+
 std::string mapEnumToString(const TransitionCommand command) {
     std::string enumString;
     switch (command) {

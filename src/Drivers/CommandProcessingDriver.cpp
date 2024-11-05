@@ -21,7 +21,7 @@ void testCommandProcessor() {
             if (command == "quit") {
                 break;
             }
-            consoleProcessor.getCommand(command);
+            // consoleProcessor.getCommand(command);
             std::cout << "Enter a command (or type 'quit' to end the game): " << std::endl;
         }
     }

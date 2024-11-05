@@ -1,3 +1,6 @@
+#ifndef PLAYER_H
+#define PLAYER_H
+
 #include "../Cards/Cards.h"
 #include "../Map/Map.h"
 #include "../Orders/Orders.h"
@@ -5,17 +8,15 @@
 #include <memory>
 #include <string>
 #include <vector>
-#ifndef PLAYER_H
-#define PLAYER_H
+
+// Forward declarations to avoid circular dependencies
+class Territory;
+class Order;
+class OrderList;
+class Hand;
+
 
 class Player {
-private:
-    // std::string name;                      // Player's name
-    std::string* name;
-    std::vector<Territory*>* territories; // Collection of player's territories
-    Hand* hand;                           // Player's hand of cards
-    OrderList* orders;                    // List of orders the player has issued
-    int* reinforcements;
 public:
     // Constructors
     Player();                                                                   // Default constructor
@@ -46,6 +47,14 @@ public:
     // Other getters and setters as needed
     std::string getName() const;
     Hand& getHand();
+
+private:
+    // std::string name;                      // Player's name
+    std::string* name;
+    std::vector<Territory*>* territories; // Collection of player's territories
+    Hand* hand;                           // Player's hand of cards
+    OrderList* orders;                    // List of orders the player has issued
+    int* reinforcements;
 };
 
 #endif // PLAYER_H
