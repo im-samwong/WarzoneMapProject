@@ -88,17 +88,18 @@ void Player::issueOrder() {
         std::cout << territory->getName() << std::endl;
     }
 
-    std::cout << "For now, use the deploy order until you have no more reinforcements to deploy. Remaining units: " << *this->reinforcements << std::endl;
+    std::cout << "\nFor now, use the deploy order until you have no more reinforcements to deploy.\n" << std::endl;
 
     while (*this->reinforcements != 0) {
+        std::cout << "\nRemaining units: " << *this->reinforcements << std::endl;
         int unitsToUse = 0;
-        std::cout << "How many units would you like to deploy"
+        std::cout << "How many units would you like to deploy?" << std::endl;
         std::cin >> unitsToUse;
         orders->addOrder(std::make_unique<DeployOrder>());
         *this->reinforcements -= unitsToUse;
     }
 
-    std::cout << "You have now deployed all of your reinforcements units. You can now issue orders other than deploy now." << std::endl;
+    std::cout << "\nYou have now deployed all of your reinforcements units. You can now issue orders other than deploy now." << std::endl;
     //Once all reinforcements are deployed then show the toAttack stuff
     std::cout << "\nHere are the territories you should attack:" << std::endl;
     for(Territory* territory: toAttack()) {
@@ -109,22 +110,23 @@ void Player::issueOrder() {
     const std::vector<std::string> possibleOrders = {"AdvanceOrder","AirliftOrder","BlockadeOrder","BombOrder","NegotiateOrder"};
     const std::vector<std::string> stringEnumCards = {"Reinforcement","Airlift","Blockade","Bomb","Diplomacy"};
 
-    const std::vector<Card*> playerHandOrders = this->hand->getHandCards();
+    std::vector<Card*> playerHandOrders = this->hand->getHandCards();
 
     while (!playerHasFinishedIssuingOrders) {
-        std::cout << "Your available orders are:" << std::endl;
+        std::cout << "\nYour available orders are:" << std::endl;
         int chosenOrderIndex = -1;
         for (const Card* card: playerHandOrders) {
             std::cout << card->getTypeAsString() << std::endl;
         }
 
-        std::cout << "Type the order as you see it if you wish to issue it or type endissueorders to stop issuing orders" << std::endl;
+        std::cout << "\nType the order as you see it if you wish to issue it or type endissueorders to stop issuing orders" << std::endl;
 
         std::string orderInput = "";
         std::cin >> orderInput;
 
         if (orderInput == "endissueorders") {
             playerHasFinishedIssuingOrders = true;
+            std::cout << "Player has decided to stop issuing orders. Ending issue order turn for this player" << std::endl;
             break;
         }
 
@@ -155,6 +157,12 @@ void Player::issueOrder() {
                     break;
                 }
             }
+        }
+
+        if(playerHandOrders.empty()) {
+            std::cout << "You have no cards in your hand. Your turn for issuing orders is over";
+            playerHasFinishedIssuingOrders = true;
+            break;
         }
     }
 }

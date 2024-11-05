@@ -731,7 +731,7 @@ std::ostream& operator<<(std::ostream& os, const GameEngine& gameEngine) {
 }
 
 void GameEngine::reinforcementPhase() {
-    std::cout << "In Reinforcement Phase, adding army units to each player. No input needed from users please wait" << std::endl;
+    std::cout << "\nIn Reinforcement Phase, adding army units to each player. No input needed from users please wait" << std::endl;
 
     for (Player* player : *players) {
         player->changeReinforcements(3);
@@ -752,13 +752,16 @@ void GameEngine::reinforcementPhase() {
 }
 
 void GameEngine::issueOrdersPhase() {
-    std::cout << "In Issue Orders Phase!\n" << std::endl;
+    std::cout << "\nIn Issue Orders Phase!\n" << std::endl;
+
     for (Player* player : *players) {
-        std::cout << "Player " << player->getName() << " it is your turn." << std::endl;
+        std::cout << "Player " << player->getName() << " it is your turn.\n" << std::endl;
         player->issueOrder();
         std::cout << std::endl;
     }
+
     std::cout << "Issue Orders Phase done, moving to next state" << std::endl;
+
     setCurrentGameState(new ExecuteOrdersState(
         GameStateTypes::PLAY,
         GameStates::EXECUTE_ORDERS,
