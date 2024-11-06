@@ -338,6 +338,7 @@ public:
 
     void removeEliminatedPlayers();
 
+    bool hasGameEnded();
     //helper method to distribute territories to players at the start of the game
     void distrubuteTerritories(); 
 

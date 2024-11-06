@@ -775,25 +775,82 @@ void GameEngine::executeOrdersPhase() {
 
     //Execute all deploy/reinforcement orders
     for(Player* player : *players) {
-        const std::vector<std::unique_ptr<Order>>& playerOrders = player->getOrdersList()->getOrders();
-        //TODO: Convert to indexed for loop and remove it using the orderList
-        // for(const auto & playerOrder : playerOrders) {
-        //     if (auto castedPtr = dynamic_cast<DeployOrder*>(playerOrder.get())) {
-        //         // castedPtr->execute();
-        //         std::cout << castedPtr << std::endl;
-        //     }
-        // }
+        OrderList* playerOrderList = player->getOrdersList();
+        const std::vector<std::unique_ptr<Order>>& playerOrders = playerOrderList->getOrders();
+        std::vector<int> ordersToRemove;
+        for(int i = 0; i < playerOrders.size(); ++i) {
+            if (auto castedPtr = dynamic_cast<DeployOrder*>(playerOrders[i].get())) {
+                // castedPtr->execute();
+                ordersToRemove.push_back(i);
+            }
+        }
+
+        std::sort(ordersToRemove.rbegin(), ordersToRemove.rend());
+        for(const int index: ordersToRemove) {
+            playerOrderList->removeOrder(index);//Should remove them
+        }
+    }
+
+    std::cout << "All Reinforcement/Deploy orders done. Will now execute remaining orders" << std::endl;
+
+    for(Player* player : *players) {
+        OrderList* playerOrderList = player->getOrdersList();
+        const std::vector<std::unique_ptr<Order>>& playerOrders = playerOrderList->getOrders();
+        std::vector<int> ordersToRemove;
+        for(int i = 0; i < playerOrders.size(); ++i) {
+            std::cout << "Player " << player->getName() << ", your next order is: " << *playerOrders[i] << std::endl;
+            // playerOrders[i].get()->execute();
+            // castedPtr->execute();
+            ordersToRemove.push_back(i);
+        }
+
+        std::sort(ordersToRemove.rbegin(), ordersToRemove.rend());
+        for(const int index: ordersToRemove) {
+            playerOrderList->removeOrder(index);//Should remove them
+        }
     }
 }
 
+void GameEngine::removeEliminatedPlayers() {
+    std::vector<int> playersToRemove;
+    for(int i = 0; i < players->size(); ++i) {
+        if (players->at(i)->toDefend().empty()) {//No territories to defend = no more owned territories
+            std::cout << "Player" << players->at(i)->getName() << " has been ELIMINATED and will be removed." << std::endl;
+            playersToRemove.push_back(i);
+        }
+    }
+
+    std::sort(playersToRemove.rbegin(), playersToRemove.rend());
+    for(const int index: playersToRemove) {
+        delete (*players)[index];
+        players->erase(players->begin() + index);
+    }
+}
+
+bool GameEngine::hasGameEnded() {
+    if(players->size() == 1) {
+        std::cout << "Only 1 Player remains, the Game has now ended." << std::endl;
+        std::cout << players->at(0)->getName() << " has won!" << std::endl;
+        std::cout << "Game Over, moving to Win State" << std::endl;
+        setCurrentGameState(new WinState(
+            GameStateTypes::PLAY,
+            GameStates::WIN,
+            {TransitionCommand::PLAY_AGAIN, TransitionCommand::END}
+        ));
+        return true;
+    }
+    return false;
+}
 
 void GameEngine::mainGameLoop() {
     while (!*gameOver) {
         reinforcementPhase();
         issueOrdersPhase();
         executeOrdersPhase();
-        // removeEliminatedPlayers();
-        setGameOverStatus(true);
+        removeEliminatedPlayers();
+        setGameOverStatus(hasGameEnded());
     }
+
+    exit(0);
 }
 

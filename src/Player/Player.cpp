@@ -88,7 +88,7 @@ void Player::issueOrder() {
         std::cout << territory->getName() << std::endl;
     }
 
-    std::cout << "\nFor now, use the deploy order until you have no more reinforcements to deploy.\n" << std::endl;
+    std::cout << "\nFor now, use the deploy order until you have no more reinforcements to deploy." << std::endl;
 
     while (*this->reinforcements != 0) {
         std::cout << "\nRemaining units: " << *this->reinforcements << std::endl;
@@ -101,6 +101,11 @@ void Player::issueOrder() {
             orders->addOrder(std::make_unique<DeployOrder>());
             *this->reinforcements -= unitsToUse;
         }
+    }
+
+    if(this->hand->getHandCards().empty()) {
+        std::cout << "You have no cards in your hand. Your turn for issuing orders is over" << std::endl;
+        return;
     }
 
     std::cout << "\nYou have now deployed all of your reinforcements units. You can now issue orders other than deploy now." << std::endl;
@@ -117,6 +122,11 @@ void Player::issueOrder() {
     std::vector<Card*> playerHandOrders = this->hand->getHandCards();
 
     while (!playerHasFinishedIssuingOrders) {
+        if(this->hand->getHandCards().empty()) {
+            std::cout << "You have no cards in your hand. Your turn for issuing orders is over" << std::endl;
+            playerHasFinishedIssuingOrders = true;
+            break;
+        }
         std::cout << "\nYour available orders are:" << std::endl;
         int chosenOrderIndex = -1;
         for (const Card* card: playerHandOrders) {
@@ -162,12 +172,6 @@ void Player::issueOrder() {
                     break;
                 }
             }
-        }
-
-        if(this->hand->getHandCards().empty()) {
-            std::cout << "You have no cards in your hand. Your turn for issuing orders is over";
-            playerHasFinishedIssuingOrders = true;
-            break;
         }
     }
 }
