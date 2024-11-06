@@ -797,16 +797,20 @@ void GameEngine::executeOrdersPhase() {
         OrderList* playerOrderList = player->getOrdersList();
         const std::vector<std::unique_ptr<Order>>& playerOrders = playerOrderList->getOrders();
         std::vector<int> ordersToRemove;
-        for(int i = 0; i < playerOrders.size(); ++i) {
-            std::cout << "Player " << player->getName() << ", your next order is: " << *playerOrders[i] << std::endl;
-            // playerOrders[i].get()->execute();
-            // castedPtr->execute();
-            ordersToRemove.push_back(i);
-        }
+        if (playerOrders.empty()) {
+            std::cout << "No orders to execute for player " << player->getName() << std::endl;
+        } else {
+            for(int i = 0; i < playerOrders.size(); ++i) {
+                std::cout << "Player " << player->getName() << ", your next order is: " << *playerOrders[i] << std::endl;
+                // playerOrders[i].get()->execute();
+                // castedPtr->execute();
+                ordersToRemove.push_back(i);
+            }
 
-        std::sort(ordersToRemove.rbegin(), ordersToRemove.rend());
-        for(const int index: ordersToRemove) {
-            playerOrderList->removeOrder(index);//Should remove them
+            std::sort(ordersToRemove.rbegin(), ordersToRemove.rend());
+            for(const int index: ordersToRemove) {
+                playerOrderList->removeOrder(index);//Should remove them
+            }
         }
     }
 }
@@ -849,6 +853,7 @@ void GameEngine::mainGameLoop() {
         executeOrdersPhase();
         removeEliminatedPlayers();
         setGameOverStatus(hasGameEnded());
+        setGameOverStatus(true);//Comment this out to try out the full game, this is just for testing to force the game to end
     }
 
     exit(0);
