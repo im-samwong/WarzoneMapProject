@@ -60,6 +60,7 @@ public:
     Hand& operator=(const Hand& other);
 
     std::vector<Card*> getHandCards();                           // Get the cards in the hand
+    void setHandCards(const std::vector<Card*> &newCards);
     void addCard(Card* card);                                    // Add a card to the hand
     void playCard(Card* card, Deck* deck, OrderList* orderList); // Play a card from the hand
 

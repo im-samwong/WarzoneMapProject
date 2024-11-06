@@ -269,8 +269,6 @@ public:
     Provides several accessors to get its internal state as well as mutators to update its state and a method to obtain(create as well if non-existent) an instance of this class.
  */
 class GameEngine {
-
-    static GameEngine* game_engine_instance;
     bool* gameOver;
     GameState* currentGameState;
     std::string* inputtedCommand;
@@ -279,8 +277,9 @@ class GameEngine {
     CommandProcessor* cp; //to get commands from the command line or a file.
     Deck* deck; //The main deck which players draw from
 
-    GameEngine() { //Consturctor
-        gameOver = nullptr;
+public:
+    GameEngine() { //Constructor
+        gameOver = new bool(false);
         currentGameState = nullptr;
         inputtedCommand = nullptr;
         players = new std::vector<Player*>();
@@ -288,7 +287,6 @@ class GameEngine {
         cp = new CommandProcessor();
     };
 
-public:
     ~GameEngine();
 
     // Gets the enum value representing the name of the current game state
@@ -328,6 +326,17 @@ public:
 
     bool startupPhase();
 
+    void mainGameLoop();
+
+    void reinforcementPhase();
+
+    void issueOrdersPhase();
+
+    void executeOrdersPhase();
+
+    void removeEliminatedPlayers();
+
+    bool hasGameEnded();
     //helper method to distribute territories to players at the start of the game
     void distrubuteTerritories(); 
 

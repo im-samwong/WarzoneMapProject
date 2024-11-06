@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <algorithm>
 
 // Territory class implementation:
 
@@ -753,4 +754,29 @@ void MapLoader::processTerritoriesSectionSecondPass(const std::string& line, Map
             }
         }
     }
+}
+
+int Map::getPlayerContinentBonuses(Player* player) {
+    std::unordered_map<std::string, std::vector<std::string>> playerContinentTerritoriesMap;
+
+    for(Territory* territory: player->toDefend()) {
+        playerContinentTerritoriesMap[territory->getContinent()->getName()].push_back(territory->getName());
+    }
+
+    int continentBonuses = 0;
+    for(const std::pair<const std::string,Continent*>& continent: *continents) {
+        //first gives key i.e name, second gives ptr to the actual ptr to a continent
+        std::string continentName = continent.first;
+        std::vector<Territory*> continentTerritories = *continent.second->getTerritories();
+        std::vector<std::string> continentTerritoryNames;
+
+        for(Territory* territory: continentTerritories) {
+            continentTerritoryNames.push_back(territory->getName());
+        }
+
+        if (playerContinentTerritoriesMap[continentName] == continentTerritoryNames) {
+            continentBonuses += continent.second->getControlValue();
+        }
+    }
+    return continentBonuses;
 }

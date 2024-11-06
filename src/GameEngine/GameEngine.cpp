@@ -542,13 +542,6 @@ void GameEngine::printCurrentStateCommands(const std::vector<TransitionCommand>&
     }
 }
 
-GameEngine* GameEngine::getInstance() {
-    if (!game_engine_instance) {
-        game_engine_instance = new GameEngine();
-    }
-    return game_engine_instance;
-}
-
 void GameEngine::addPlayer(const std::string& playerName) {
     players->push_back(new Player(playerName));
 }
@@ -720,8 +713,6 @@ void GameEngine::shufflePlayers() {
     std::shuffle(players->begin(), players->end(), gen);
 }
 
-GameEngine* GameEngine::game_engine_instance = nullptr;
-
 std::ostream& operator<<(std::ostream& os, const GameEngine& gameEngine) {
     std::cout << "Current Game State: " << mapEnumToString(gameEngine.currentGameState->getStateName()) << std::endl;
     std::string gameOverString = *gameEngine.gameOver ? "True" : "False";
@@ -729,3 +720,133 @@ std::ostream& operator<<(std::ostream& os, const GameEngine& gameEngine) {
     std::cout << "Inputted Command: " << *gameEngine.inputtedCommand << std::endl;
     return os;
 }
+
+void GameEngine::reinforcementPhase() {
+    std::cout << "\nIn Reinforcement Phase, adding army units to each player. No input needed from users please wait" << std::endl;
+
+    for (Player* player : *players) {
+        player->changeReinforcements(3);
+        const std::size_t player_territory_count = player->toDefend().size();
+        const int owned_territory_bonus_reinforcements = static_cast<int>(player_territory_count / 3);
+        player->changeReinforcements(owned_territory_bonus_reinforcements);
+
+        const int continent_reinforcement_bonus = map->getPlayerContinentBonuses(player);
+        player->changeReinforcements(continent_reinforcement_bonus);
+    }
+
+    std::cout << "Added army units to players, moving to next state issueorders" << std::endl;
+    setCurrentGameState(new IssueOrdersState(
+        GameStateTypes::PLAY,
+        GameStates::ISSUE_ORDERS,
+        {TransitionCommand::ISSUE_ORDER, TransitionCommand::END_ISSUE_ORDERS})
+    );
+}
+
+void GameEngine::issueOrdersPhase() {
+    std::cout << "\nIn Issue Orders Phase!\n" << std::endl;
+
+    for (Player* player : *players) {
+        std::cout << "Player " << player->getName() << " it is your turn.\n" << std::endl;
+        player->issueOrder();
+        std::cout << std::endl;
+    }
+
+    std::cout << "Issue Orders Phase done, moving to next state" << std::endl;
+
+    setCurrentGameState(new ExecuteOrdersState(
+        GameStateTypes::PLAY,
+        GameStates::EXECUTE_ORDERS,
+        {TransitionCommand::EXECUTE_ORDER, TransitionCommand::END_EXEC_ORDER, TransitionCommand::WIN_GAME})
+    );
+}
+
+void GameEngine::executeOrdersPhase() {
+    std::cout << "\nIn Execute Orders Phase!\n" << std::endl;
+    std::cout << "Will first execute all deploy/reinforcement orders for each player" << std::endl;
+
+    //Execute all deploy/reinforcement orders
+    for(Player* player : *players) {
+        OrderList* playerOrderList = player->getOrdersList();
+        const std::vector<std::unique_ptr<Order>>& playerOrders = playerOrderList->getOrders();
+        std::vector<int> ordersToRemove;
+        for(int i = 0; i < playerOrders.size(); ++i) {
+            if (auto castedPtr = dynamic_cast<DeployOrder*>(playerOrders[i].get())) {
+                // castedPtr->execute();
+                ordersToRemove.push_back(i);
+            }
+        }
+
+        std::sort(ordersToRemove.rbegin(), ordersToRemove.rend());
+        for(const int index: ordersToRemove) {
+            playerOrderList->removeOrder(index);//Should remove them
+        }
+    }
+
+    std::cout << "All Reinforcement/Deploy orders done. Will now execute remaining orders" << std::endl;
+
+    for(Player* player : *players) {
+        OrderList* playerOrderList = player->getOrdersList();
+        const std::vector<std::unique_ptr<Order>>& playerOrders = playerOrderList->getOrders();
+        std::vector<int> ordersToRemove;
+        if (playerOrders.empty()) {
+            std::cout << "No orders to execute for player " << player->getName() << std::endl;
+        } else {
+            for(int i = 0; i < playerOrders.size(); ++i) {
+                std::cout << "Player " << player->getName() << ", your next order is: " << *playerOrders[i] << std::endl;
+                // playerOrders[i].get()->execute();
+                // castedPtr->execute();
+                ordersToRemove.push_back(i);
+            }
+
+            std::sort(ordersToRemove.rbegin(), ordersToRemove.rend());
+            for(const int index: ordersToRemove) {
+                playerOrderList->removeOrder(index);//Should remove them
+            }
+        }
+    }
+}
+
+void GameEngine::removeEliminatedPlayers() {
+    std::vector<int> playersToRemove;
+    for(int i = 0; i < players->size(); ++i) {
+        if (players->at(i)->toDefend().empty()) {//No territories to defend = no more owned territories
+            std::cout << "Player" << players->at(i)->getName() << " has been ELIMINATED and will be removed." << std::endl;
+            playersToRemove.push_back(i);
+        }
+    }
+
+    std::sort(playersToRemove.rbegin(), playersToRemove.rend());
+    for(const int index: playersToRemove) {
+        delete (*players)[index];
+        players->erase(players->begin() + index);
+    }
+}
+
+bool GameEngine::hasGameEnded() {
+    if(players->size() == 1) {
+        std::cout << "Only 1 Player remains, the Game has now ended." << std::endl;
+        std::cout << players->at(0)->getName() << " has won!" << std::endl;
+        std::cout << "Game Over, moving to Win State" << std::endl;
+        setCurrentGameState(new WinState(
+            GameStateTypes::PLAY,
+            GameStates::WIN,
+            {TransitionCommand::PLAY_AGAIN, TransitionCommand::END}
+        ));
+        return true;
+    }
+    return false;
+}
+
+void GameEngine::mainGameLoop() {
+    while (!*gameOver) {
+        reinforcementPhase();
+        issueOrdersPhase();
+        executeOrdersPhase();
+        removeEliminatedPlayers();
+        setGameOverStatus(hasGameEnded());
+        setGameOverStatus(true);//Comment this out to try out the full game, this is just for testing to force the game to end
+    }
+
+    exit(0);
+}
+

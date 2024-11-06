@@ -95,13 +95,29 @@
 }
 **/
 void testStartupPhase() {
-    GameEngine* ge = GameEngine::getInstance();
+    GameEngine* ge = new GameEngine();
     //Uncomment below line to get input from user.
-   // ge->readInputFromFile("../commands.txt"); 
+   ge->readInputFromFile("../commands.txt");
 
     if(ge->startupPhase()){
         std::cout<<"Testing success";
     }
 
+    delete ge;
+    std::cout<<"\n\n" << std::endl;
+
+    ge = new GameEngine();
+    ge->readInputFromFile("../commands.txt");
+    if(ge->startupPhase()){
+        std::cout<<"Testing success";
+    }
+}
+
+void testMainGameLoop() {
+    GameEngine* ge = new GameEngine();
+    ge->readInputFromFile("../commands.txt");
+    if(ge->startupPhase()){
+        ge->mainGameLoop();
+    }
     delete ge;
 }
