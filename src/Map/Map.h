@@ -105,6 +105,8 @@ public:
 
     std::vector<Territory*> getTerritories() const;
 
+    int getPlayerContinentBonuses(Player* player);
+
     // Add links to territories and continents in the map
     void addTerritory(Territory* territory);
     void addContinent(Continent* continent);
