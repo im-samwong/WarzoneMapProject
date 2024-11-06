@@ -2,24 +2,114 @@
 #include "../GameEngine/GameEngine.h"
 #include <cstdlib>
 
-// Implementation of DeployOrder class
-bool DeployOrder::validate(Player* sourcePlayer, Player* targetPlayer, Territory* source, Territory* target, int numUnits) const {
+// clone method implementations
+std::unique_ptr<Order> DeployOrder::clone() const {
+    return std::make_unique<DeployOrder>(*this);
+}
+
+std::unique_ptr<Order> AdvanceOrder::clone() const {
+    return std::make_unique<AdvanceOrder>(*this);
+}
+
+std::unique_ptr<Order> BombOrder::clone() const {
+    return std::make_unique<BombOrder>(*this);
+}
+
+std::unique_ptr<Order> BlockadeOrder::clone() const {
+    return std::make_unique<BlockadeOrder>(*this);
+}
+
+std::unique_ptr<Order> AirliftOrder::clone() const {
+    return std::make_unique<AirliftOrder>(*this);
+}
+
+std::unique_ptr<Order> NegotiateOrder::clone() const {
+    return std::make_unique<NegotiateOrder>(*this);
+}
+
+// Order Base Class
+
+Order::Order()
+    : sourcePlayer(nullptr), targetPlayer(nullptr), source(nullptr), target(nullptr), numUnits(nullptr) {}
+
+Order::Order(Player* sourcePlayer, Player* targetPlayer, Territory* source, Territory* target, int* numUnits)
+    : sourcePlayer(sourcePlayer),
+      targetPlayer(targetPlayer),
+      source(source),
+      target(target),
+      numUnits(numUnits) {}
+
+Order::Order(const Order& other)
+    : sourcePlayer(other.sourcePlayer ? new Player(*other.sourcePlayer) : nullptr),
+      targetPlayer(other.targetPlayer ? new Player(*other.targetPlayer) : nullptr),
+      source(other.source ? new Territory(*other.source) : nullptr),
+      target(other.target ? new Territory(*other.target) : nullptr),
+      numUnits(other.numUnits ? new int(*other.numUnits) : nullptr) {}
+
+Order& Order::operator=(const Order& other) {
+    if (this != &other) {
+        delete sourcePlayer;
+        delete targetPlayer;
+        delete source;
+        delete target;
+        delete numUnits;
+
+        sourcePlayer = other.sourcePlayer ? new Player(*other.sourcePlayer) : nullptr;
+        targetPlayer = other.targetPlayer ? new Player(*other.targetPlayer) : nullptr;
+        source = other.source ? new Territory(*other.source) : nullptr;
+        target = other.target ? new Territory(*other.target) : nullptr;
+        numUnits = other.numUnits ? new int(*other.numUnits) : nullptr;
+    }
+    return *this;
+}
+
+// Stream insertion operator for Order
+std::ostream& operator<<(std::ostream& os, const Order& order) {
+    os << order.description();  // Calls the subclass's description() method
+    return os;
+}
+
+Order::~Order() {
+    delete sourcePlayer;
+    delete targetPlayer;
+    delete source;
+    delete target;
+    delete numUnits;
+}
+
+// DeployOrder Class
+
+DeployOrder::DeployOrder() : Order() {}
+
+DeployOrder::DeployOrder(Player* sourcePlayer, Territory* target, int* numUnits)
+    : Order(sourcePlayer, nullptr, nullptr, target, numUnits) {}
+
+DeployOrder::DeployOrder(const DeployOrder& other) : Order(other) {}
+
+DeployOrder& DeployOrder::operator=(const DeployOrder& other) {
+    if (this != &other) {
+        Order::operator=(other);
+    }
+    return *this;
+}
+
+bool DeployOrder::validate() const {
     if (target->getOwner() != sourcePlayer) {
         std::cout << "DeployOrder Validation Failed: Target territory is not owned by the player." << std::endl;
         return false;
     }
-    if (numUnits > sourcePlayer->getReinforcements()) {
+    if (*numUnits > sourcePlayer->getReinforcements()) {
         std::cout << "DeployOrder Validation Failed: Not enough units in the reinforcement pool." << std::endl;
         return false;
     }
     return true;
 }
 
-void DeployOrder::execute(Player* sourcePlayer, Player* targetPlayer, Territory* source, Territory* target, int numUnits) {
-    if (validate(sourcePlayer, targetPlayer, source, target, numUnits)) {
-        target->modifyArmies(numUnits);
-        sourcePlayer->changeReinforcements(-numUnits);
-        std::cout << "Executed DeployOrder: " << numUnits << " units deployed to " << target->getName() << std::endl;
+void DeployOrder::execute() {
+    if (validate()) {
+        target->modifyArmies(*numUnits);
+        sourcePlayer->changeReinforcements(-(*numUnits));
+        std::cout << "Executed DeployOrder: " << *numUnits << " units deployed to " << target->getName() << std::endl;
     }
 }
 
@@ -27,8 +117,23 @@ std::string DeployOrder::description() const {
     return "Deploy Order";
 }
 
-// Validation function
-bool AdvanceOrder::validate(Player* sourcePlayer, Player* targetPlayer, Territory* source, Territory* target, int numUnits) const {
+// AdvanceOrder Class
+
+AdvanceOrder::AdvanceOrder() : Order() {}
+
+AdvanceOrder::AdvanceOrder(Player* sourcePlayer, Territory* source, Territory* target, int* numUnits)
+    : Order(sourcePlayer, nullptr, source, target, numUnits) {}
+
+AdvanceOrder::AdvanceOrder(const AdvanceOrder& other) : Order(other) {}
+
+AdvanceOrder& AdvanceOrder::operator=(const AdvanceOrder& other) {
+    if (this != &other) {
+        Order::operator=(other);
+    }
+    return *this;
+}
+
+bool AdvanceOrder::validate() const {
     // Check if the source territory is owned by the sourcePlayer
     if (source->getOwner() != sourcePlayer) {
         std::cout << "AdvanceOrder Validation Failed: Source territory is not owned by the player." << std::endl;
@@ -36,7 +141,7 @@ bool AdvanceOrder::validate(Player* sourcePlayer, Player* targetPlayer, Territor
     }
 
     // Check if there are enough units in the source territory
-    if (numUnits > source->getArmies()) {
+    if (*numUnits > source->getArmies()) {
         std::cout << "AdvanceOrder Validation Failed: Not enough units in the source territory." << std::endl;
         return false;
     }
@@ -66,18 +171,17 @@ bool AdvanceOrder::validate(Player* sourcePlayer, Player* targetPlayer, Territor
     return true;
 }
 
-// Execution function
-void AdvanceOrder::execute(Player* sourcePlayer, Player* targetPlayer, Territory* source, Territory* target, int numUnits) {
-    if (validate(sourcePlayer, targetPlayer, source, target, numUnits)) {
+void AdvanceOrder::execute() {
+     if (validate()) {
         if (target->getOwner() == sourcePlayer) {
             // Move units between territories owned by the same player
-            target->modifyArmies(numUnits);
-            source->modifyArmies(-numUnits);
-            std::cout << "Executed AdvanceOrder: Moved " << numUnits << " units from " << source->getName()
+            target->modifyArmies(*numUnits);
+            source->modifyArmies(-*numUnits);
+            std::cout << "Executed AdvanceOrder: Moved " << *numUnits << " units from " << source->getName()
                       << " to " << target->getName() << "." << std::endl;
         } else {
             // Begin battle simulation if target belongs to another player
-            int attackingUnits = numUnits;
+            int attackingUnits = *numUnits;
             int defendingUnits = target->getArmies();
 
             // Variables to track remaining units after each round of attacks
@@ -137,8 +241,23 @@ std::string AdvanceOrder::description() const {
     return "Advance Order";
 }
 
-// Implementation of BombOrder class
-bool BombOrder::validate(Player* sourcePlayer, Player* targetPlayer, Territory* source, Territory* target, int numUnits) const {
+// BombOrder Class
+
+BombOrder::BombOrder() : Order() {}
+
+BombOrder::BombOrder(Player* sourcePlayer, Territory* target)
+    : Order(sourcePlayer, nullptr, nullptr, target, nullptr) {}
+
+BombOrder::BombOrder(const BombOrder& other) : Order(other) {}
+
+BombOrder& BombOrder::operator=(const BombOrder& other) {
+    if (this != &other) {
+        Order::operator=(other);
+    }
+    return *this;
+}
+
+bool BombOrder::validate() const {
     // Check if the target territory belongs to the issuing player
     if (target->getOwner() == sourcePlayer) {
         std::cout << "BombOrder Validation Failed: Cannot bomb your own territory." << std::endl;
@@ -169,8 +288,8 @@ bool BombOrder::validate(Player* sourcePlayer, Player* targetPlayer, Territory* 
     return true;
 }
 
-void BombOrder::execute(Player* sourcePlayer, Player* targetPlayer, Territory* source, Territory* target, int numUnits) {
-    if (validate(sourcePlayer, targetPlayer, source, target, numUnits)) {
+void BombOrder::execute() {
+    if (validate()) {
         // Calculate units to remove (half of the army units)
         int unitsToRemove = target->getArmies() / 2;
         target->modifyArmies(-unitsToRemove);
@@ -182,8 +301,23 @@ std::string BombOrder::description() const {
     return "Bomb Order";
 }
 
-// Implementation of BlockadeOrder class
-bool BlockadeOrder::validate(Player* sourcePlayer, Player* targetPlayer, Territory* source, Territory* target, int numUnits) const {
+// BlockadeOrder Class
+
+BlockadeOrder::BlockadeOrder() : Order() {}
+
+BlockadeOrder::BlockadeOrder(Player* sourcePlayer, Territory* target)
+    : Order(sourcePlayer, nullptr, nullptr, target, nullptr) {}
+
+BlockadeOrder::BlockadeOrder(const BlockadeOrder& other) : Order(other) {}
+
+BlockadeOrder& BlockadeOrder::operator=(const BlockadeOrder& other) {
+    if (this != &other) {
+        Order::operator=(other);
+    }
+    return *this;
+}
+
+bool BlockadeOrder::validate() const {
     if (target->getOwner() != sourcePlayer) {
         std::cout << "BlockadeOrder Validation Failed: Target territory is not owned by the player." << std::endl;
         return false;
@@ -191,8 +325,8 @@ bool BlockadeOrder::validate(Player* sourcePlayer, Player* targetPlayer, Territo
     return true;
 }
 
-void BlockadeOrder::execute(Player* sourcePlayer, Player* targetPlayer, Territory* source, Territory* target, int numUnits) {
-    if (validate(sourcePlayer, targetPlayer, source, target, numUnits)) {
+void BlockadeOrder::execute() {
+    if (validate()) {
         int currentArmies = target->getArmies();
         target->modifyArmies(currentArmies);
         target->setOwner(nullptr);  // Assuming nullptr represents neutral ownership
@@ -205,24 +339,39 @@ std::string BlockadeOrder::description() const {
     return "Blockade Order";
 }
 
-// Implementation of AirliftOrder class
-bool AirliftOrder::validate(Player* sourcePlayer, Player* targetPlayer, Territory* source, Territory* target, int numUnits) const {
+// AirliftOrder Class
+
+AirliftOrder::AirliftOrder() : Order() {}
+
+AirliftOrder::AirliftOrder(Player* sourcePlayer, Territory* source, Territory* target, int* numUnits)
+    : Order(sourcePlayer, nullptr, source, target, numUnits) {}
+
+AirliftOrder::AirliftOrder(const AirliftOrder& other) : Order(other) {}
+
+AirliftOrder& AirliftOrder::operator=(const AirliftOrder& other) {
+    if (this != &other) {
+        Order::operator=(other);
+    }
+    return *this;
+}
+
+bool AirliftOrder::validate() const {
     if (source->getOwner() != sourcePlayer || target->getOwner() != sourcePlayer) {
         std::cout << "AirliftOrder Validation Failed: Both source and target must be owned by the player." << std::endl;
         return false;
     }
-    if (numUnits > source->getArmies()) {
+    if (*numUnits > source->getArmies()) {
         std::cout << "AirliftOrder Validation Failed: Not enough units in the source territory." << std::endl;
         return false;
     }
     return true;
 }
 
-void AirliftOrder::execute(Player* sourcePlayer, Player* targetPlayer, Territory* source, Territory* target, int numUnits) {
-    if (validate(sourcePlayer, targetPlayer, source, target, numUnits)) {
-        target->modifyArmies(numUnits);
-        source->modifyArmies(-numUnits);
-        std::cout << "Executed AirliftOrder: Moved " << numUnits << " units from " << source->getName()
+void AirliftOrder::execute() {
+    if (validate()) {
+        target->modifyArmies(*numUnits);
+        source->modifyArmies(-*numUnits);
+        std::cout << "Executed AirliftOrder: Moved " << *numUnits << " units from " << source->getName()
                   << " to " << target->getName() << std::endl;
     }
 }
@@ -231,8 +380,23 @@ std::string AirliftOrder::description() const {
     return "Airlift Order";
 }
 
-// Implementation of NegotiateOrder class
-bool NegotiateOrder::validate(Player* sourcePlayer, Player* targetPlayer, Territory* source, Territory* target, int numUnits) const {
+// NegotiateOrder Class
+
+NegotiateOrder::NegotiateOrder() : Order() {}
+
+NegotiateOrder::NegotiateOrder(Player* sourcePlayer, Player* targetPlayer)
+    : Order(sourcePlayer, targetPlayer, nullptr, nullptr, nullptr) {}
+
+NegotiateOrder::NegotiateOrder(const NegotiateOrder& other) : Order(other) {}
+
+NegotiateOrder& NegotiateOrder::operator=(const NegotiateOrder& other) {
+    if (this != &other) {
+        Order::operator=(other);
+    }
+    return *this;
+}
+
+bool NegotiateOrder::validate() const {
     if (targetPlayer == sourcePlayer) {
         std::cout << "NegotiateOrder Validation Failed: Cannot negotiate with yourself." << std::endl;
         return false;
@@ -240,44 +404,44 @@ bool NegotiateOrder::validate(Player* sourcePlayer, Player* targetPlayer, Territ
     return true;
 }
 
-void NegotiateOrder::execute(Player* sourcePlayer, Player* targetPlayer, Territory* source, Territory* target, int numUnits) {
-    if (validate(sourcePlayer, targetPlayer, source, target, numUnits)) {
+void NegotiateOrder::execute() {
+    if (validate()) {
         GameState::addNegotiation(sourcePlayer, targetPlayer);
         std::cout << "Executed NegotiateOrder: " << sourcePlayer->getName() << " and " << targetPlayer->getName()
                   << " will not attack each other this turn." << std::endl;
     }
 }
 
-
 std::string NegotiateOrder::description() const {
     return "Negotiate Order";
 }
 
-// Implementation of OrderList class
-// Copy constructor for OrderList
+// OrderList Class
+
+OrderList::OrderList() = default;
+
 OrderList::OrderList(const OrderList& other) {
     for (const auto& order : other.orders) {
-        orders.push_back(order->clone());  // Use the clone method for deep copy
+        orders.push_back(order->clone());
     }
 }
 
-// Assignment operator for OrderList
 OrderList& OrderList::operator=(const OrderList& other) {
-    if (this == &other) return *this;
-
-    orders.clear();
-    for (const auto& order : other.orders) {
-        orders.push_back(order->clone());  // Use the clone method for deep copy
+    if (this != &other) {
+        orders.clear();
+        for (const auto& order : other.orders) {
+            orders.push_back(order->clone());
+        }
     }
     return *this;
 }
 
-// Add an order
+OrderList::~OrderList() = default;
+
 void OrderList::addOrder(std::unique_ptr<Order> order) {
     orders.push_back(std::move(order));
 }
 
-// Remove an order by index
 void OrderList::removeOrder(int index) {
     if (index >= 0 && index < orders.size()) {
         orders.erase(orders.begin() + index);
@@ -286,7 +450,6 @@ void OrderList::removeOrder(int index) {
     }
 }
 
-// Move an order in the list
 void OrderList::moveOrder(int fromIndex, int toIndex) {
     if (fromIndex >= 0 && fromIndex < orders.size() && toIndex >= 0 && toIndex < orders.size()) {
         auto order = std::move(orders[fromIndex]);
@@ -297,20 +460,16 @@ void OrderList::moveOrder(int fromIndex, int toIndex) {
     }
 }
 
-// Print the list of orders
 void OrderList::printOrders() const {
     for (std::size_t i = 0; i < orders.size(); ++i) {
         std::cout << "Order at index " << i << ": " << *orders[i] << std::endl;
     }
 }
 
-// Get the number of orders
 std::size_t OrderList::getSize() const {
     return orders.size();
 }
 
-// Get the list of orders
 const std::vector<std::unique_ptr<Order>>& OrderList::getOrders() const {
     return orders;
 }
-
