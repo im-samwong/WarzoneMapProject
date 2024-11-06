@@ -334,6 +334,8 @@ public:
 
     void executeOrdersPhase();
 
+    void refreshPlayerConstraints();
+
     void removeEliminatedPlayers();
 
     bool hasGameEnded();

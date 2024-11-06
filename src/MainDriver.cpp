@@ -1,6 +1,6 @@
 #include <iostream>
 
-void testOrdersLists();
+void testOrderExecution();
 void testCards();
 void testLoadMaps();
 void testPlayers();
@@ -10,8 +10,8 @@ void testMainGameLoop();
 void testStartupPhase();
 
 int main() {
-    // testOrdersLists();
-    // std::cout << std::endl;
+    testOrderExecution();
+    std::cout << std::endl;
     //
     // testCards();
     // std::cout << std::endl;
@@ -27,7 +27,7 @@ int main() {
     // testGameStates();
     // std::cout << std::endl;
 
-    testStartupPhase();
-    // testMainGameLoop();
+    // testStartupPhase();
+    testMainGameLoop();
     return 0;
 }

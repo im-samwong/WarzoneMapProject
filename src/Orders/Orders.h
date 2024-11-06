@@ -11,41 +11,52 @@
 // Abstract Order class
 class Order {
 public:
-    Order() = default;
-    Order(const Order& other) = default;
-    Order& operator=(const Order& other) = default;
-    virtual ~Order() = default;  // Virtual destructor for polymorphic deletion
+    // Constructors
+    Order();
+    Order(Player* sourcePlayer, Player* targetPlayer, Territory* source, Territory* target, int* numUnits);
+    Order(const Order& other);
+
+    // Assignment operator
+    Order& operator=(const Order& other);
+
+    // Destructor
+    virtual ~Order();
 
     // Pure virtual methods to be implemented by subclasses
-    virtual bool validate(Player* sourcePlayer, Player* targetPlayer, Territory* source, Territory* target, int numUnits) const = 0;
-    virtual void execute(Player* sourcePlayer, Player* targetPlayer, Territory* source, Territory* target, int numUnits) = 0;
+    virtual bool validate() const = 0;
+    virtual void execute() = 0;
 
     // Virtual clone method for deep copying
     virtual std::unique_ptr<Order> clone() const = 0;
 
     // Stream insertion operator to describe the order
-    friend std::ostream& operator<<(std::ostream& os, const Order& order) {
-        return os << "Order: " << order.description();
-    }
+    friend std::ostream& operator<<(std::ostream& os, const Order& order);
 
 protected:
+    Player* sourcePlayer;
+    Player* targetPlayer;
+    Territory* source;
+    Territory* target;
+    int* numUnits;
+
     virtual std::string description() const = 0;  // For printing the order description
 };
 
 // Subclass: DeployOrder
 class DeployOrder : public Order {
 public:
-    DeployOrder() = default;
-    DeployOrder(const DeployOrder& other) = default;
-    DeployOrder& operator=(const DeployOrder& other) = default;
+    // Constructors
+    DeployOrder();
+    DeployOrder(Player* sourcePlayer, Territory* source, int* numUnits);
+    DeployOrder(const DeployOrder& other);
 
-    bool validate(Player* sourcePlayer, Player* targetPlayer, Territory* source, Territory* target, int numUnits) const override;
-    void execute(Player* sourcePlayer, Player* targetPlayer, Territory* source, Territory* target, int numUnits) override;
+    // Assignment operator
+    DeployOrder& operator=(const DeployOrder& other);
 
-    // Override clone to create a deep copy of DeployOrder
-    std::unique_ptr<Order> clone() const override {
-        return std::make_unique<DeployOrder>(*this);
-    }
+    // Override methods
+    bool validate() const override;
+    void execute() override;
+    std::unique_ptr<Order> clone() const override;
 
 protected:
     std::string description() const override;
@@ -54,16 +65,18 @@ protected:
 // Subclass: AdvanceOrder
 class AdvanceOrder : public Order {
 public:
-    AdvanceOrder() = default;
-    AdvanceOrder(const AdvanceOrder& other) = default;
-    AdvanceOrder& operator=(const AdvanceOrder& other) = default;
+    // Constructors
+    AdvanceOrder();
+    AdvanceOrder(Player* sourcePlayer, Territory* source, Territory* target, int* numUnits);
+    AdvanceOrder(const AdvanceOrder& other);
 
-    bool validate(Player* sourcePlayer, Player* targetPlayer, Territory* source, Territory* target, int numUnits) const override;
-    void execute(Player* sourcePlayer, Player* targetPlayer, Territory* source, Territory* target, int numUnits) override;
+    // Assignment operator
+    AdvanceOrder& operator=(const AdvanceOrder& other);
 
-    std::unique_ptr<Order> clone() const override {
-        return std::make_unique<AdvanceOrder>(*this);
-    }
+    // Override methods
+    bool validate() const override;
+    void execute() override;
+    std::unique_ptr<Order> clone() const override;
 
 protected:
     std::string description() const override;
@@ -72,16 +85,18 @@ protected:
 // Subclass: BombOrder
 class BombOrder : public Order {
 public:
-    BombOrder() = default;
-    BombOrder(const BombOrder& other) = default;
-    BombOrder& operator=(const BombOrder& other) = default;
+    // Constructors
+    BombOrder();
+    BombOrder(Player* sourcePlayer, Territory* target);
+    BombOrder(const BombOrder& other);
 
-    bool validate(Player* sourcePlayer, Player* targetPlayer, Territory* source, Territory* target, int numUnits) const override;
-    void execute(Player* sourcePlayer, Player* targetPlayer, Territory* source, Territory* target, int numUnits) override;
+    // Assignment operator
+    BombOrder& operator=(const BombOrder& other);
 
-    std::unique_ptr<Order> clone() const override {
-        return std::make_unique<BombOrder>(*this);
-    }
+    // Override methods
+    bool validate() const override;
+    void execute() override;
+    std::unique_ptr<Order> clone() const override;
 
 protected:
     std::string description() const override;
@@ -90,16 +105,18 @@ protected:
 // Subclass: BlockadeOrder
 class BlockadeOrder : public Order {
 public:
-    BlockadeOrder() = default;
-    BlockadeOrder(const BlockadeOrder& other) = default;
-    BlockadeOrder& operator=(const BlockadeOrder& other) = default;
+    // Constructors
+    BlockadeOrder();
+    BlockadeOrder(Player* sourcePlayer, Territory* target);
+    BlockadeOrder(const BlockadeOrder& other);
 
-    bool validate(Player* sourcePlayer, Player* targetPlayer, Territory* source, Territory* target, int numUnits) const override;
-    void execute(Player* sourcePlayer, Player* targetPlayer, Territory* source, Territory* target, int numUnits) override;
+    // Assignment operator
+    BlockadeOrder& operator=(const BlockadeOrder& other);
 
-    std::unique_ptr<Order> clone() const override {
-        return std::make_unique<BlockadeOrder>(*this);
-    }
+    // Override methods
+    bool validate() const override;
+    void execute() override;
+    std::unique_ptr<Order> clone() const override;
 
 protected:
     std::string description() const override;
@@ -108,16 +125,18 @@ protected:
 // Subclass: AirliftOrder
 class AirliftOrder : public Order {
 public:
-    AirliftOrder() = default;
-    AirliftOrder(const AirliftOrder& other) = default;
-    AirliftOrder& operator=(const AirliftOrder& other) = default;
+    // Constructors
+    AirliftOrder();
+    AirliftOrder(Player* sourcePlayer, Territory* source, Territory* target, int* numUnits);
+    AirliftOrder(const AirliftOrder& other);
 
-    bool validate(Player* sourcePlayer, Player* targetPlayer, Territory* source, Territory* target, int numUnits) const override;
-    void execute(Player* sourcePlayer, Player* targetPlayer, Territory* source, Territory* target, int numUnits) override;
+    // Assignment operator
+    AirliftOrder& operator=(const AirliftOrder& other);
 
-    std::unique_ptr<Order> clone() const override {
-        return std::make_unique<AirliftOrder>(*this);
-    }
+    // Override methods
+    bool validate() const override;
+    void execute() override;
+    std::unique_ptr<Order> clone() const override;
 
 protected:
     std::string description() const override;
@@ -126,16 +145,18 @@ protected:
 // Subclass: NegotiateOrder
 class NegotiateOrder : public Order {
 public:
-    NegotiateOrder() = default;
-    NegotiateOrder(const NegotiateOrder& other) = default;
-    NegotiateOrder& operator=(const NegotiateOrder& other) = default;
+    // Constructors
+    NegotiateOrder();
+    NegotiateOrder(Player* sourcePlayer, Player* targetPlayer);
+    NegotiateOrder(const NegotiateOrder& other);
 
-    bool validate(Player* sourcePlayer, Player* targetPlayer, Territory* source, Territory* target, int numUnits) const override;
-    void execute(Player* sourcePlayer, Player* targetPlayer, Territory* source, Territory* target, int numUnits) override;
+    // Assignment operator
+    NegotiateOrder& operator=(const NegotiateOrder& other);
 
-    std::unique_ptr<Order> clone() const override {
-        return std::make_unique<NegotiateOrder>(*this);
-    }
+    // Override methods
+    bool validate() const override;
+    void execute() override;
+    std::unique_ptr<Order> clone() const override;
 
 protected:
     std::string description() const override;
@@ -144,17 +165,21 @@ protected:
 // OrderList class to manage a list of orders
 class OrderList {
 public:
-    void addOrder(std::unique_ptr<Order> order);  // Add an order
-    void removeOrder(int index);                  // Remove an order by index
-    void moveOrder(int fromIndex, int toIndex);   // Move an order in the list
-    void printOrders() const;                     // Print the list of orders
-
-    OrderList() = default;  // Default constructor
-
-    // Copy constructor and assignment operator to ensure deep copy of OrderList
+    // Constructors
+    OrderList();
     OrderList(const OrderList& other);
 
+    // Assignment operator
     OrderList& operator=(const OrderList& other);
+
+    // Destructor
+    ~OrderList();
+
+    // Methods to manage orders
+    void addOrder(std::unique_ptr<Order> order);
+    void removeOrder(int index);
+    void moveOrder(int fromIndex, int toIndex);
+    void printOrders() const;
 
     // Getters
     std::size_t getSize() const;

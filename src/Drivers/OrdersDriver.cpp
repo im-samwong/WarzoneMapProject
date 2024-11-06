@@ -50,57 +50,62 @@ void testOrderExecution() {
 
     // 1. DeployOrder
     std::cout << "\nTesting DeployOrder:\n";
-    DeployOrder deployOrder;
-    deployOrder.execute(&player1, nullptr, nullptr, &territory1, 5);
+    DeployOrder* deployOrder = new DeployOrder(&player1, &territory1, new int(5));
+    deployOrder->execute();
     std::cout << "Territory 1 (Player 1): " << territory1.getArmies() << " units after deploy.\n";
 
     // 2. AdvanceOrder (Move units within the same player's territories)
     std::cout << "\nTesting AdvanceOrder (Same Player):\n";
-    AdvanceOrder advanceOrder;
-    advanceOrder.execute(&player1, nullptr, &territory1, &territory2, 3);
+    AdvanceOrder* advanceOrder = new AdvanceOrder(&player1, &territory1, &territory2, new int(3));
+    advanceOrder->execute();
     std::cout << "Territory 1 (Player 1): " << territory1.getArmies() << " units after move.\n";
     std::cout << "Territory 2 (Player 1): " << territory2.getArmies() << " units after move.\n";
 
     // 3. BombOrder (Bombing enemy territory)
     std::cout << "\nTesting BombOrder:\n";
-    BombOrder bombOrder;
-    bombOrder.execute(&player1, &player2, nullptr, &enemyTerritory1, 0);  // Source is set to Player 1's territory for context
+    BombOrder* bombOrder = new BombOrder(&player1, &enemyTerritory1);
+    bombOrder->execute();  // Source is set to Player 1's territory for context
     std::cout << "Enemy Territory 1 (Player 2): " << enemyTerritory1.getArmies() << " units after bombing.\n";
 
     // 4. AdvanceOrder (Attack enemy territory)
     std::cout << "\nTesting AdvanceOrder (Attack Enemy):\n";
-    advanceOrder.execute(&player1, &player2, &territory2, &enemyTerritory1, 5);
+    AdvanceOrder* advanceOrder2 = new AdvanceOrder(&player1, &territory2, &enemyTerritory1, new int(5));
+    advanceOrder2->execute();
     std::cout << "Territory 2 (Player 1): " << territory2.getArmies() << " units after attack.\n";
     std::cout << "Enemy Territory 1 (Player 2): " << enemyTerritory1.getArmies() << " units after attack.\n";
 
     // 5. AirliftOrder (Move units between non-adjacent territories)
     std::cout << "\nTesting AirliftOrder:\n";
-    AirliftOrder airliftOrder;
-    airliftOrder.execute(&player1, nullptr, &territory1, &enemyTerritory1, 2);
+    AirliftOrder* airliftOrder = new AirliftOrder(&player1, &territory1, &enemyTerritory1, new int(2));
+    airliftOrder->execute();
     std::cout << "Territory 1 (Player 1): " << territory1.getArmies() << " units after airlift.\n";
     std::cout << "Enemy Territory 1 (Conquored by Player 1): " << enemyTerritory1.getArmies() << " units after airlift.\n";
 
     // 6. BlockadeOrder (Transfer ownership to Neutral - nullptr)
     std::cout << "\nTesting BlockadeOrder:\n";
-    BlockadeOrder blockadeOrder;
-    blockadeOrder.execute(&player1, nullptr, &territory1, &territory1, 0);  // Source and target both set to territory1
+    BlockadeOrder* blockadeOrder = new BlockadeOrder(&player1, &territory1);
+    blockadeOrder->execute(); // Source and target both set to territory1
     std::cout << "Territory 1 ownership transferred to Neutral (nullptr) with " << territory1.getArmies() << " units after blockade.\n";
 
     // 7. NegotiateOrder (Player 1 and Player 2 cannot attack each other)
     std::cout << "\nTesting NegotiateOrder:\n";
-    NegotiateOrder negotiateOrder;
-    negotiateOrder.execute(&player1, &player2, nullptr, nullptr, 0);
+    NegotiateOrder* negotiateOrder = new NegotiateOrder(&player1, &player2);
+    negotiateOrder->execute();
 
     // Attempt another attack between Player 1 and Player 2 to test negotiation
     std::cout << "\nTesting AdvanceOrder after NegotiateOrder (should be prevented):\n";
-    advanceOrder.execute(&player1, &player2, &territory2, &enemyTerritory2, 3);
+    AdvanceOrder* advanceOrder3 = new AdvanceOrder(&player1, &territory2, &enemyTerritory2, new int(3));
+    advanceOrder3->execute();
 
     // Check for card reward
+    Deck* deck = new Deck();
     if (GameState::hasConqueredTerritory(&player1)) {
-        std::cout << "Player 1 receives a card for conquering a territory this turn.\n";
-        GameState::resetConqueredTerritories();  // Reset the conquest status for the next turn
-        GameState::resetNegotiations();
+        player1.getHand().addCard(deck->draw());
+        std::cout << player1.getName() << " receives a card for conquering a territory this turn.\n";
     }
+
+    GameState::resetConqueredTerritories();  // Reset the conquest status for the next turn
+    GameState::resetNegotiations();
 
     // Display final setup
     std::cout << "\nFinal Setup:\n";

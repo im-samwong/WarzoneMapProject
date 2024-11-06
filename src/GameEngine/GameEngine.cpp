@@ -837,11 +837,28 @@ bool GameEngine::hasGameEnded() {
     return false;
 }
 
+void GameEngine::refreshPlayerConstraints() {
+    std::cout << "Refreshing player constraints." << std::endl;
+    for(Player* player : *players) {
+        // Check for card reward
+        if (GameState::hasConqueredTerritory(player)) {
+            player->getHand().addCard(deck->draw());
+            std::cout << player->getName() << " receives a card for conquering a territory this turn.\n";
+        }
+    }
+    GameState::resetConqueredTerritories();  // Reset the conquest status for the next turn
+    GameState::resetNegotiations();          // Reset the negotiation status for the next turn
+}
+
 void GameEngine::mainGameLoop() {
     while (!*gameOver) {
         reinforcementPhase();
         issueOrdersPhase();
         executeOrdersPhase();
+
+        // Card bonus check and reset player constraint status
+        refreshPlayerConstraints();
+
         removeEliminatedPlayers();
         setGameOverStatus(hasGameEnded());
         setGameOverStatus(true);//Comment this out to try out the full game, this is just for testing to force the game to end
