@@ -542,13 +542,6 @@ void GameEngine::printCurrentStateCommands(const std::vector<TransitionCommand>&
     }
 }
 
-GameEngine* GameEngine::getInstance() {
-    if (!game_engine_instance) {
-        game_engine_instance = new GameEngine();
-    }
-    return game_engine_instance;
-}
-
 void GameEngine::addPlayer(const std::string& playerName) {
     players->push_back(new Player(playerName));
 }
@@ -719,8 +712,6 @@ void GameEngine::shufflePlayers() {
     // Shuffle the vector with the random generator
     std::shuffle(players->begin(), players->end(), gen);
 }
-
-GameEngine* GameEngine::game_engine_instance = nullptr;
 
 std::ostream& operator<<(std::ostream& os, const GameEngine& gameEngine) {
     std::cout << "Current Game State: " << mapEnumToString(gameEngine.currentGameState->getStateName()) << std::endl;

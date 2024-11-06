@@ -14,12 +14,12 @@ add_executable(MainDriver src/MainDriver.cpp
         src/Cards/Cards.h
         src/GameEngine/GameEngine.h
         src/GameEngine/GameEngine.cpp
-#        src/Drivers/MapDriver.cpp
-#        src/Drivers/PlayerDriver.cpp
-#        src/Drivers/OrdersDriver.cpp
-#        src/Drivers/CardsDriver.cpp
+        src/Drivers/MapDriver.cpp
+        src/Drivers/PlayerDriver.cpp
+        src/Drivers/OrdersDriver.cpp
+        src/Drivers/CardsDriver.cpp
         src/Drivers/GameEngineDriver.cpp
         src/CommandProcessing/CommandProcessing.cpp
         src/CommandProcessing/CommandProcessing.h
-#        src/Drivers/CommandProcessingDriver.cpp
+        src/Drivers/CommandProcessingDriver.cpp
 )
