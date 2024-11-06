@@ -98,11 +98,14 @@ void testOrderExecution() {
     advanceOrder3->execute();
 
     // Check for card reward
+    Deck* deck = new Deck();
     if (GameState::hasConqueredTerritory(&player1)) {
-        std::cout << "Player 1 receives a card for conquering a territory this turn.\n";
-        GameState::resetConqueredTerritories();  // Reset the conquest status for the next turn
-        GameState::resetNegotiations();
+        player1.getHand().addCard(deck->draw());
+        std::cout << player1.getName() << " receives a card for conquering a territory this turn.\n";
     }
+
+    GameState::resetConqueredTerritories();  // Reset the conquest status for the next turn
+    GameState::resetNegotiations();
 
     // Display final setup
     std::cout << "\nFinal Setup:\n";
