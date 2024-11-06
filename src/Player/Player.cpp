@@ -95,8 +95,12 @@ void Player::issueOrder() {
         int unitsToUse = 0;
         std::cout << "How many units would you like to deploy?" << std::endl;
         std::cin >> unitsToUse;
-        orders->addOrder(std::make_unique<DeployOrder>());
-        *this->reinforcements -= unitsToUse;
+        if(*this->reinforcements - unitsToUse < 0) {
+            std::cout << "You cannot deploy more units than what you have. No units deployed, try again" << std::endl;
+        } else {
+            orders->addOrder(std::make_unique<DeployOrder>());
+            *this->reinforcements -= unitsToUse;
+        }
     }
 
     std::cout << "\nYou have now deployed all of your reinforcements units. You can now issue orders other than deploy now." << std::endl;
@@ -146,7 +150,7 @@ void Player::issueOrder() {
             this->orders->addOrder(std::make_unique<NegotiateOrder>());
             chosenOrderIndex = 4;
         } else {
-            std::cout << "Invalid command. Did nothing please re-issue your order" << std::endl;
+            std::cout << "Invalid command. Did nothing, please re-issue your order" << std::endl;
         }
 
         if (chosenOrderIndex != -1) {
@@ -188,3 +192,13 @@ std::string Player::getName() const {
 Hand& Player::getHand() {
     return *hand;
 }
+
+OrderList* Player::getOrdersList() {
+    return orders;
+}
+
+void Player::setOrdersList(const OrderList& ol) {
+    delete orders;
+    orders = new OrderList(ol);
+}
+

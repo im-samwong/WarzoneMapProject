@@ -48,6 +48,8 @@ public:
     // Other getters and setters as needed
     std::string getName() const;
     Hand& getHand();
+    OrderList* getOrdersList();
+    void setOrdersList(const OrderList& ol);
 
 private:
     // std::string name;                      // Player's name

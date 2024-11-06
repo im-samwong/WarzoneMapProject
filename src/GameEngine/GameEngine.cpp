@@ -769,12 +769,29 @@ void GameEngine::issueOrdersPhase() {
     );
 }
 
+void GameEngine::executeOrdersPhase() {
+    std::cout << "\nIn Execute Orders Phase!\n" << std::endl;
+    std::cout << "Will first execute all deploy/reinforcement orders for each player" << std::endl;
+
+    //Execute all deploy/reinforcement orders
+    for(Player* player : *players) {
+        const std::vector<std::unique_ptr<Order>>& playerOrders = player->getOrdersList()->getOrders();
+        //TODO: Convert to indexed for loop and remove it using the orderList
+        // for(const auto & playerOrder : playerOrders) {
+        //     if (auto castedPtr = dynamic_cast<DeployOrder*>(playerOrder.get())) {
+        //         // castedPtr->execute();
+        //         std::cout << castedPtr << std::endl;
+        //     }
+        // }
+    }
+}
+
 
 void GameEngine::mainGameLoop() {
     while (!*gameOver) {
         reinforcementPhase();
         issueOrdersPhase();
-        // executeOrdersPhase();
+        executeOrdersPhase();
         // removeEliminatedPlayers();
         setGameOverStatus(true);
     }
