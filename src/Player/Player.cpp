@@ -121,7 +121,7 @@ void Player::issueOrder() {
 
         std::cout << "\nType the order as you see it if you wish to issue it or type endissueorders to stop issuing orders" << std::endl;
 
-        std::string orderInput = "";
+        std::string orderInput;
         std::cin >> orderInput;
 
         if (orderInput == "endissueorders") {
@@ -154,12 +154,13 @@ void Player::issueOrder() {
                 if (playerHandOrders[i]->getTypeAsString() == stringEnumCards[chosenOrderIndex]) {
                     delete playerHandOrders[i];
                     playerHandOrders.erase(playerHandOrders.begin() + i);
+                    this->hand->setHandCards(playerHandOrders);//Update the player hand
                     break;
                 }
             }
         }
 
-        if(playerHandOrders.empty()) {
+        if(this->hand->getHandCards().empty()) {
             std::cout << "You have no cards in your hand. Your turn for issuing orders is over";
             playerHasFinishedIssuingOrders = true;
             break;

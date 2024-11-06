@@ -197,6 +197,11 @@ std::vector<Card*> Hand::getHandCards() {
     return handCards;
 }
 
+void Hand::setHandCards(const std::vector<Card *>& newCards) {
+    this->handCards = newCards;
+}
+
+
 // Add a card to the hand
 void Hand::addCard(Card* card) {
     handCards.push_back(card);
