@@ -8,8 +8,9 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include "../LoggingObserver/LoggingObserver.h"
 
-class Command {
+class Command : public Subject, public ILoggable{
 public:
     //Constructors
     Command(const std::string& cmd);
@@ -19,6 +20,7 @@ public:
     ~Command();
     // Methods
     void saveEffect(const std::string& effect);
+    std::string stringToLog() const override;
     std::string getCommand() const {return *command;}
     std::string getEffect() const;
     std::string getArgument() const;
@@ -31,7 +33,7 @@ private:
 };
 
 
-class CommandProcessor {
+class CommandProcessor : public Subject, public ILoggable{
 public:
     //Constructor
     CommandProcessor();
@@ -39,6 +41,7 @@ public:
     ~CommandProcessor();
     //Methods
     Command* getCommand();
+    std::string stringToLog() const override;
     
     //check if command is valid given the current state of the program
     bool validate(Command& command, std::string& currentGameState);

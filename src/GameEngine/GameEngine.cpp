@@ -513,6 +513,7 @@ bool GameEngine::transitionToNextState(TransitionCommand transitionCommand) {
 
     if (transitionCommand == TransitionCommand::END && nextState == nullptr && currentGameState == GameStates::WIN) {
         std::cout << "Issued command is END and current state is WIN. Game is over \n";
+        notify(this);
         return true;
     }
 
@@ -531,7 +532,13 @@ bool GameEngine::transitionToNextState(TransitionCommand transitionCommand) {
 
     this->currentGameState = nextState;
 
+    notify(this);
     return true;
+}
+
+std::string GameEngine::stringToLog() const {
+    GameStates currentGameState = this->getCurrentGameState()->getStateName();
+    return mapEnumToString(currentGameState);
 }
 
 void GameEngine::printCurrentStateCommands(const std::vector<TransitionCommand>& commands, const std::string& gameStateName) {

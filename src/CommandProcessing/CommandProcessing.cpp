@@ -33,6 +33,11 @@ Command::~Command() {
 
 void Command::saveEffect(const std::string& eff) {
     effect = new std::string(eff);
+    notify(this);
+}
+
+std::string Command::stringToLog() const {
+    return this->getEffect();
 }
 
 std::string Command::getArgument() const {
@@ -40,6 +45,14 @@ std::string Command::getArgument() const {
         return "";
     } else {
         return *argument;
+    }
+}
+
+std::string Command::getEffect() const {
+    if(effect==nullptr) {
+        return "This command has no effect.";
+    } else {
+        return *effect;
     }
 }
 
@@ -127,8 +140,19 @@ void CommandProcessor::saveCommand(const std::string& command, const std::string
     } else {
         lc->push_back(new Command(command, argument));
     }
+
+    notify(this);
 }
 
+std::string CommandProcessor::stringToLog() const {
+    Command* toLog = this->getLastCommand();
+    if (toLog != nullptr) {
+        std::string log = "Current Command: " + toLog->getCommand() + "-----Argument: "
+                          + toLog->getArgument() + "-----Effect: " + toLog->getEffect() + ".";
+        return log;
+    }
+    return "No Command.";
+}
 
 //FileLineReader class definition
 FileLineReader::FileLineReader(const std::string& fileName) {

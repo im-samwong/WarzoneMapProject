@@ -2,6 +2,7 @@
 #define ORDERS_H
 
 #include "../Map/Map.h"
+#include "../LoggingObserver/LoggingObserver.h"
 #include "../Player/Player.h"
 #include <iostream>
 #include <memory>
@@ -9,7 +10,7 @@
 #include <vector>
 
 // Abstract Order class
-class Order {
+class Order: public Subject, public ILoggable{
 public:
     // Constructors
     Order();
@@ -25,12 +26,14 @@ public:
     // Pure virtual methods to be implemented by subclasses
     virtual bool validate() const = 0;
     virtual void execute() = 0;
+    std::string stringToLog() const override = 0;
 
     // Virtual clone method for deep copying
     virtual std::unique_ptr<Order> clone() const = 0;
 
     // Stream insertion operator to describe the order
     friend std::ostream& operator<<(std::ostream& os, const Order& order);
+    virtual std::string description() const = 0;  // For printing the order description
 
 protected:
     Player* sourcePlayer;
@@ -38,8 +41,6 @@ protected:
     Territory* source;
     Territory* target;
     int* numUnits;
-
-    virtual std::string description() const = 0;  // For printing the order description
 };
 
 // Subclass: DeployOrder
@@ -57,8 +58,8 @@ public:
     bool validate() const override;
     void execute() override;
     std::unique_ptr<Order> clone() const override;
+    std::string stringToLog() const override;
 
-protected:
     std::string description() const override;
 };
 
@@ -77,9 +78,12 @@ public:
     bool validate() const override;
     void execute() override;
     std::unique_ptr<Order> clone() const override;
+    std::string stringToLog() const override;
 
-protected:
     std::string description() const override;
+
+private:
+    std::string* effects = nullptr;
 };
 
 // Subclass: BombOrder
@@ -97,8 +101,8 @@ public:
     bool validate() const override;
     void execute() override;
     std::unique_ptr<Order> clone() const override;
+    std::string stringToLog() const override;
 
-protected:
     std::string description() const override;
 };
 
@@ -117,8 +121,8 @@ public:
     bool validate() const override;
     void execute() override;
     std::unique_ptr<Order> clone() const override;
+    std::string stringToLog() const override;
 
-protected:
     std::string description() const override;
 };
 
@@ -137,8 +141,8 @@ public:
     bool validate() const override;
     void execute() override;
     std::unique_ptr<Order> clone() const override;
+    std::string stringToLog() const override;
 
-protected:
     std::string description() const override;
 };
 
@@ -157,13 +161,13 @@ public:
     bool validate() const override;
     void execute() override;
     std::unique_ptr<Order> clone() const override;
+    std::string stringToLog() const override;
 
-protected:
     std::string description() const override;
 };
 
 // OrderList class to manage a list of orders
-class OrderList {
+class OrderList: public Subject, public ILoggable{
 public:
     // Constructors
     OrderList();
@@ -180,6 +184,8 @@ public:
     void removeOrder(int index);
     void moveOrder(int fromIndex, int toIndex);
     void printOrders() const;
+
+    std::string stringToLog() const override;
 
     // Getters
     std::size_t getSize() const;

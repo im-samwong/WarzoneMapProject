@@ -268,7 +268,7 @@ public:
     GameEngine class implemented following the Singleton design pattern since logically it makes sense to only have 1 GameEngine object
     Provides several accessors to get its internal state as well as mutators to update its state and a method to obtain(create as well if non-existent) an instance of this class.
  */
-class GameEngine {
+class GameEngine: public Subject, public ILoggable{
     bool* gameOver;
     GameState* currentGameState;
     std::string* inputtedCommand;
@@ -343,7 +343,9 @@ public:
     void distrubuteTerritories(); 
 
     //helper method to randomly determine play order by shuffling the players vector.
-    void shufflePlayers(); 
+    void shufflePlayers();
+
+    std::string stringToLog() const override;
 
     friend std::ostream& operator<<(std::ostream& os, const GameEngine& gameEngine);
 };
