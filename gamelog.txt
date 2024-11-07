@@ -14,4 +14,11 @@ Executed BlockadeOrder: Doubled units and transferred Territory 1 to neutral own
 Executed NegotiateOrder: Player 1 and Player 2 will not attack each other this turn.
 
 
-Bomb Order
+Order added to list: Bomb Order
+start
+maploaded
+mapvalidated
+playersadded
+assignreinforcement
+ISSUE_ORDERS
+EXECUTE_ORDERS

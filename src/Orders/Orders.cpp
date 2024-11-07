@@ -501,7 +501,9 @@ void OrderList::addOrder(std::unique_ptr<Order> order) {
 
 std::string OrderList::stringToLog() const {
     Order* order = orders.back().get();
-    return order->description();
+    std::string toLog = "Order added to list: " + order->description();
+    order = nullptr;
+    return toLog;
 }
 
 

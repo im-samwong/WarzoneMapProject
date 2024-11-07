@@ -26,7 +26,7 @@ void testLoggingObserver() {
     delete engine;
 
     // Create a LogObserver
-    LogObserver* logObserver = new LogObserver("../gamelog.txt");
+    logObserver = new LogObserver("../gamelog.txt");
 
     std::cout << std::endl;
 
@@ -261,6 +261,12 @@ void testLoggingObserver() {
     orderList->attach(logObserver);
     orderList->addOrder(std::unique_ptr<Order>(bombOrder));
 
+    std::cout << "Testing main game loop:" << std::endl;
+    GameEngine* ge = new GameEngine();
+    ge->readInputFromFile("../commands.txt");
+    if(ge->startupPhase()){
+        ge->mainGameLoop();
+    }
 
     logObserver->closeFile();
 
@@ -289,4 +295,5 @@ void testLoggingObserver() {
     **/
     delete deck;
     //delete orderList;
+    delete ge;
 }

@@ -1,6 +1,8 @@
 #include "GameEngine.h"
 #include <iostream>
 
+LogObserver* logObserver = nullptr;
+
 // Initialize static members
 std::set<std::string> GameState::negotiations;
 std::unordered_map<Player*, bool> GameState::conqueredTerritories;
@@ -169,6 +171,9 @@ GameState::GameState(const GameStateTypes& iStateType, const GameStates& iStateN
     stateName = new GameStates(iStateName);
     transitionCommands = new std::vector(iTransitionCommands);
     nextStates = new std::vector(iNextStates);
+
+    this->attach(logObserver);
+    notify(this);
 }
 
 GameState::GameState(const GameStateTypes& iStateType, const GameStates& iStateName, const std::vector<TransitionCommand>& iTransitionCommands) {
@@ -176,6 +181,9 @@ GameState::GameState(const GameStateTypes& iStateType, const GameStates& iStateN
     stateName = new GameStates(iStateName);
     transitionCommands = new std::vector(iTransitionCommands);
     nextStates = nullptr;
+
+    this->attach(logObserver);
+    notify(this);
 }
 
 GameState::GameState(const GameState& otherGameState) {
@@ -183,7 +191,16 @@ GameState::GameState(const GameState& otherGameState) {
     stateName = new GameStates(*otherGameState.stateName);
     transitionCommands = new std::vector(*otherGameState.transitionCommands);
     nextStates = new std::vector(*otherGameState.nextStates);
+
+    this->attach(logObserver);
+    notify(this);
 }
+
+std::string GameState::stringToLog() const {
+    std::string state = mapEnumToString(*this->stateName);
+    return state;
+}
+
 
 GameState& GameState::operator=(const GameState& otherGameState) {
     if (this != &otherGameState) {
@@ -460,7 +477,6 @@ GameState* WinState::transitionToNextState(const TransitionCommand transitionCom
 }
 
 // Game Engine implementation code
-
 GameEngine::~GameEngine() {
 
     delete gameOver;
