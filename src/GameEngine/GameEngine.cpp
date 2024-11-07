@@ -172,8 +172,10 @@ GameState::GameState(const GameStateTypes& iStateType, const GameStates& iStateN
     transitionCommands = new std::vector(iTransitionCommands);
     nextStates = new std::vector(iNextStates);
 
-    this->attach(logObserver);
-    notify(this);
+    if (logObserver) {
+        this->attach(logObserver);
+        notify(this);
+    }
 }
 
 GameState::GameState(const GameStateTypes& iStateType, const GameStates& iStateName, const std::vector<TransitionCommand>& iTransitionCommands) {
@@ -182,8 +184,10 @@ GameState::GameState(const GameStateTypes& iStateType, const GameStates& iStateN
     transitionCommands = new std::vector(iTransitionCommands);
     nextStates = nullptr;
 
-    this->attach(logObserver);
-    notify(this);
+    if (logObserver) {
+        this->attach(logObserver);
+        notify(this);
+    }
 }
 
 GameState::GameState(const GameState& otherGameState) {
@@ -192,8 +196,10 @@ GameState::GameState(const GameState& otherGameState) {
     transitionCommands = new std::vector(*otherGameState.transitionCommands);
     nextStates = new std::vector(*otherGameState.nextStates);
 
-    this->attach(logObserver);
-    notify(this);
+    if (logObserver) {
+        this->attach(logObserver);
+        notify(this);
+    }
 }
 
 std::string GameState::stringToLog() const {
@@ -566,12 +572,20 @@ void GameEngine::printCurrentStateCommands(const std::vector<TransitionCommand>&
 }
 
 void GameEngine::addPlayer(const std::string& playerName) {
-    players->push_back(new Player(playerName));
+    Player* player = new Player(playerName);
+    players->push_back(player);
+    if (logObserver) {
+        player->getOrdersList()->attach(logObserver);
+    }
+    delete player;
 }
 
 void GameEngine::readInputFromFile(const std::string& filename) {
     delete cp;
     cp = new FileCommandProcessorAdapter(filename);
+    if (logObserver) {
+        cp->attach(logObserver);
+    }
 }
 
 bool GameEngine::startupPhase() {
@@ -587,6 +601,9 @@ bool GameEngine::startupPhase() {
     std::cout << "Currently in 'Start' state, waiting for 'loadmap <filename>' command\n";
 
     Command* cmd = cp->getCommand(); // get command from user
+    if (logObserver) {
+        cmd->attach(logObserver);
+    }
 
     if (!(cp->validate(*cmd, currentStateName))) { // validate command (only loadmap should work here)
         std::cout << "Unable to start game, received unexpected command:" << cmd->getCommand() << std::endl;
@@ -611,6 +628,9 @@ bool GameEngine::startupPhase() {
     // while loop to allow loading another map file or moving to validate
     while (currentGameState->getStateName() == GameStates::MAP_LOADED) {
         cmd = cp->getCommand();
+        if (logObserver) {
+            cmd->attach(logObserver);
+        }
         if (!(cp->validate(*cmd, currentStateName))) { // check if command is valid
             std::cout << "Unable to start game, received unexpected command:" << cmd->getCommand() << std::endl;
             return false;
@@ -639,6 +659,9 @@ bool GameEngine::startupPhase() {
 
     std::cout << "Currently in mapvalidated state, you can add players with addplayer <player>\n";
     cmd = cp->getCommand();
+    if (logObserver) {
+        cmd->attach(logObserver);
+    }
 
     if (!(cp->validate(*cmd, currentStateName))) {
         std::cout << "Unable to start game, received unexpected command:" << cmd->getCommand() << std::endl;
@@ -658,6 +681,9 @@ bool GameEngine::startupPhase() {
     while (currentGameState->getStateName() == GameStates::PLAYERS_ADDED) {
         std::cout << "Currently in playersadded state, you can add players with addplayer <player> or start the game with gamestart (minimum 2 players needed)\n";
         cmd = cp->getCommand();
+        if (logObserver) {
+            cmd->attach(logObserver);
+        }
 
         if (!(cp->validate(*cmd, currentStateName))) { // check if command is valid
             std::cout << "Unable to start game, received unexpected command:" << cmd->getCommand() << std::endl;

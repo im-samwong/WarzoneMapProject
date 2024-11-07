@@ -496,7 +496,10 @@ OrderList::~OrderList() = default;
 void OrderList::addOrder(std::unique_ptr<Order> order) {
     orders.push_back(std::move(order));
 
-    notify(this);
+   if (logObserver) {
+       order->attach(logObserver);
+       notify(this);
+   }
 }
 
 std::string OrderList::stringToLog() const {
