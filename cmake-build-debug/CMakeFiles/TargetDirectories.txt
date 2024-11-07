@@ -1,3 +1,0 @@
-/Users/USER/CLionProjects/WarzoneMapProject-LoggingObserver/cmake-build-debug/CMakeFiles/MainDriver.dir
-/Users/USER/CLionProjects/WarzoneMapProject-LoggingObserver/cmake-build-debug/CMakeFiles/edit_cache.dir
-/Users/USER/CLionProjects/WarzoneMapProject-LoggingObserver/cmake-build-debug/CMakeFiles/rebuild_cache.dir
