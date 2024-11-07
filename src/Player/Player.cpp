@@ -85,7 +85,7 @@ void Player::issueOrder(std::unique_ptr<Order> order) {
     orders->addOrder(std::move(order));
 }
 
-void Player::issueOrder() {
+void Player::issueOrder(std::vector<Player*>* players) {
     std::cout << "Here are the territories you should defend:" << std::endl;
     std::vector<Territory*> playerTerritories = toDefend();
     for(Territory* territory: playerTerritories) {
@@ -211,19 +211,36 @@ void Player::issueOrder() {
             chosenOrderIndex = 1;
         } else if (orderInput == stringEnumCards[2]) {
             std::string targetTerritory;
-
-            std::cout << "What territory do you want to attack?" << std::endl;
+            std::cout << "What territory do you want to blockade?" << std::endl;
             std::getline(std::cin,targetTerritory);
-            auto target = std::ranges::find_if(territoriesToAttack, [&targetTerritory](Territory* territory) {
+            auto target = std::ranges::find_if(playerTerritories, [&targetTerritory](Territory* territory) {
                 return territory->getName() == targetTerritory;
             });
             this->orders->addOrder(std::make_unique<BlockadeOrder>(this, *target));
             chosenOrderIndex = 2;
         } else if (orderInput == stringEnumCards[3]) {
-            this->orders->addOrder(std::make_unique<BombOrder>());
+            std::string targetTerritory;
+            std::cout << "What territory do you want to bomb?" << std::endl;
+            std::getline(std::cin,targetTerritory);
+            auto target = std::ranges::find_if(territoriesToAttack, [&targetTerritory](Territory* territory) {
+                return territory->getName() == targetTerritory;
+            });
+            this->orders->addOrder(std::make_unique<BombOrder>(this, *target));
             chosenOrderIndex = 3;
         } else if (orderInput == stringEnumCards[4]) {
-            this->orders->addOrder(std::make_unique<NegotiateOrder>());
+            std::string targetPlayer;
+            std::cout << "With who do you want to negotiate with? Type their name as it appears:" << std::endl;
+            for(Player* player: *players) {
+                std::cout << player->getName() << std::endl;
+            }
+
+            std::getline(std::cin, targetPlayer);
+
+            auto target = std::ranges::find_if(*players, [&targetPlayer](Player* player) {
+                return player->getName() == targetPlayer;
+            });
+
+            this->orders->addOrder(std::make_unique<NegotiateOrder>(this,*target));
             chosenOrderIndex = 4;
         } else {
             std::cout << "Invalid command. Did nothing, please re-issue your order" << std::endl;

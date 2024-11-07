@@ -39,7 +39,7 @@ public:
     std::vector<Territory*> toDefend();            // Return list of territories to defend
     std::vector<Territory*> toAttack();            // Return list of territories to attack
     void issueOrder(std::unique_ptr<Order> order); // Issue an order
-    void issueOrder();
+    void issueOrder(std::vector<Player*>* players);
     void addTerritory(Territory* t);
 
     void changeReinforcements(int i);
