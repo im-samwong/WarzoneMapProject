@@ -35,6 +35,14 @@ void Command::saveEffect(const std::string& eff) {
     effect = new std::string(eff);
 }
 
+std::string Command::getEffect() const {
+    if(effect==nullptr){
+        return "";
+    } else {
+        return *effect;
+    }
+}
+
 std::string Command::getArgument() const {
     if(argument==nullptr){
         return "";
@@ -57,7 +65,7 @@ CommandProcessor::~CommandProcessor() {
 
 Command* CommandProcessor::getCommand() {
 
-    readCommand(); //reads a command from user input and stores it in the list of commmands.
+    readCommand(); //reads a command from user input and stores it in the list of commmands
     return getLastCommand();
 }
 
@@ -103,7 +111,6 @@ bool CommandProcessor::validate(Command& command, std::string& currentGameState)
 }
 
 void CommandProcessor::readCommand() {
-
     std::string cmd;
     std::cout << "Please enter command:\n";
     std::getline(std::cin, cmd);
@@ -163,9 +170,7 @@ FileCommandProcessorAdapter::~FileCommandProcessorAdapter() {
 }
 
 void FileCommandProcessorAdapter::readCommand() {
-    
     std::cout << "Getting command from file\n";
-    
     std::string cmd = flr->readLine();
     std::string command;
     std::string argument;
@@ -175,7 +180,7 @@ void FileCommandProcessorAdapter::readCommand() {
         command = cmd.substr(0, cmd.find(" "));
         argument = cmd.substr(cmd.find(" ") + 1);
         saveCommand(command,argument);
-    } else { // for commands that are not loadmap or addplayer
+    } else { //for commands that are not loadmap or addplayer
         command = cmd;
         saveCommand(command); 
     }
