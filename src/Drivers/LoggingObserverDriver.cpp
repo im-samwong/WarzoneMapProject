@@ -266,7 +266,6 @@ void testLoggingObserver() {
 
     // Detach observer
     consoleProcessor.detach(logObserver);
-    cmd->detach(logObserver);
     deployOrder->detach(logObserver);
     advanceOrder->detach(logObserver);
     bombOrder->detach(logObserver);
@@ -277,9 +276,9 @@ void testLoggingObserver() {
     advanceOrder3->detach(logObserver);
     orderList->detach(logObserver);
 
-    // Clean up
+     // Clean up
     delete logObserver;
-    delete deployOrder;
+    /**delete deployOrder;
     delete advanceOrder;
     delete bombOrder;
     delete advanceOrder2;
@@ -287,6 +286,7 @@ void testLoggingObserver() {
     delete blockadeOrder;
     delete negotiateOrder;
     delete advanceOrder3;
+    **/
     delete deck;
-    delete orderList;
+    //delete orderList;
 }

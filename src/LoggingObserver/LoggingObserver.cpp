@@ -110,14 +110,13 @@ void Subject::attach(Observer* obs) {
 
 // Detach an observer
 void Subject::detach(Observer* obs) {
-    std::cout << "Detaching from Subject " << typeid(*obs).name() << std::endl;
+    std::cout << "Detaching from Subject: " << typeid(*obs).name() << std::endl;
     observers->remove(obs);
 }
 
 // Notify all observers with a loggable event
 void Subject::notify(ILoggable* loggable) {
     std::cout << "---------------Calling notify------------------" << std::endl;
-    std::cout << observers->size() << std::endl;
     std::list<Observer*>::iterator i = observers->begin();
     for (; i != observers->end(); ++i)
         (*i)->update(loggable);
