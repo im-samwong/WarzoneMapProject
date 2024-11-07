@@ -111,7 +111,6 @@ bool CommandProcessor::validate(Command& command, std::string& currentGameState)
     if (!isValid) {
         command.saveEffect("For the current game state '" + currentGameState + "' the command '" + command.getCommand() + "' is invalid!");
     }
-
     return isValid;
 }
 

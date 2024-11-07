@@ -1,0 +1,17 @@
+Current Command: quit-----Argument: -----Effect: This command has no effect..
+Executed DeployOrder: 5 units deployed to Territory 1
+Executed AdvanceOrder: Moved 3 units from Territory 1 to Territory 2.
+
+Executed BombOrder: Halved the units on Enemy Territory 1. Remaining units: 3.
+
+Executed AdvanceOrder: Enemy Territory 1 has been conquered!
+Battle Result: 0 attacking units lost, 3 defending units lost.
+
+Executed AirliftOrder: Moved 2 units from Territory 1 to Enemy Territory 1.
+
+Executed BlockadeOrder: Doubled units and transferred Territory 1 to neutral ownership.
+
+Executed NegotiateOrder: Player 1 and Player 2 will not attack each other this turn.
+
+
+Bomb Order
