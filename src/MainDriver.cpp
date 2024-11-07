@@ -29,7 +29,7 @@ int main() {
     // std::cout << std::endl;
     //
     testLoggingObserver();
-    std::cout << std::endl;
+    //std::cout << std::endl;
     //
     // testStartupPhase();
     //testMainGameLoop();

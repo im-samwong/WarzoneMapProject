@@ -17,6 +17,7 @@ public:
 class Observer {
     public:
         virtual void update(ILoggable* loggable) = 0;
+        virtual void closeFile() = 0;
         virtual ~Observer() = default;
 };
 
@@ -29,6 +30,7 @@ class LogObserver : public Observer {
         ~LogObserver() override;  // Destructor
 
         void update(ILoggable* loggable) override;
+        void closeFile() override;
 
     private:
         std::string* fileName;

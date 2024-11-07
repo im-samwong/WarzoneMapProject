@@ -21,9 +21,26 @@ void testLoggingObserver() {
     // Create a LogObserver
     LogObserver* logObserver = new LogObserver("../gamelog.txt");
 
-    //
-    // Demonstrate functionality
-    //
+    // Attach observer
+    cmd->attach(logObserver);
+    proc->attach(logObserver);
+    order->attach(logObserver);
+    olist->attach(logObserver);
+    engine->attach(logObserver);
+
+    engine->readInputFromFile("../commands.txt");
+    if(engine->startupPhase()){
+        engine->mainGameLoop();
+    }
+
+    logObserver->closeFile();
+
+    // Detach observer
+    cmd->detach(logObserver);
+    proc->detach(logObserver);
+    order->detach(logObserver);
+    olist->detach(logObserver);
+    engine->detach(logObserver);
     
     // Clean up
     delete logObserver;

@@ -8,13 +8,13 @@ std::string ILoggable::nameI() const {
 
 // Constructor to open the log file
 LogObserver::LogObserver(const std::string& filename): fileName(new std::string(filename)) {
-    logfile = new std::ofstream(filename, std::ios::out | std::ios::app);
+    logfile = new std::ofstream(filename, std::ios::out | std::ios::trunc);
 }
 
 // Copy constructor (deep copy)
 LogObserver::LogObserver(const LogObserver& other): fileName(new std::string(*other.fileName)) {
     if (other.logfile && other.logfile->is_open()) {
-        logfile = new std::ofstream(*other.fileName, std::ios::out | std::ios::app);
+        logfile = new std::ofstream(*other.fileName, std::ios::out | std::ios::trunc);
     } else {
         logfile = nullptr;
     }
@@ -26,7 +26,7 @@ LogObserver& LogObserver::operator=(const LogObserver& other) {
         delete logfile;  // Free existing memory
 
         if (other.logfile && other.logfile->is_open()) {
-            logfile = new std::ofstream(*other.fileName, std::ios::out | std::ios::app);
+            logfile = new std::ofstream(*other.fileName, std::ios::out | std::ios::trunc);
         } else {
             logfile = nullptr;
         }
@@ -52,6 +52,10 @@ void LogObserver::update(ILoggable* loggable) {
     if (logfile && logfile->is_open()) {
         *logfile << loggable->stringToLog() << std::endl;
     }
+}
+
+void LogObserver::closeFile() {
+    this->logfile->close();
 }
 
 // Subject constructor
