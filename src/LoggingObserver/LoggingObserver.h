@@ -2,7 +2,7 @@
 #define LOGGING_OBSERVER_H
 
 #include <string>
-#include <vector>
+#include <list>
 #include <fstream>
 
 // ILoggable Interface
@@ -53,7 +53,7 @@ class Subject {
         void notify(ILoggable* loggable);
 
     private:
-        std::vector<Observer*>* observers;
+        std::list<Observer*>* observers;
 };
 
 #endif // LOGGING_OBSERVER_H

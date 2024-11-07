@@ -32,6 +32,6 @@ int main() {
     //std::cout << std::endl;
     //
     // testStartupPhase();
-    //testMainGameLoop();
+    // testMainGameLoop();
     return 0;
 }

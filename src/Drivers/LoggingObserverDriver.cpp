@@ -27,6 +27,7 @@ void testLoggingObserver() {
     order->attach(logObserver);
     olist->attach(logObserver);
     engine->attach(logObserver);
+    std::cout << std::endl;
 
     engine->readInputFromFile("../commands.txt");
     if(engine->startupPhase()){
