@@ -3,6 +3,8 @@
 #include <string>
 #include <iostream>
 
+#include "../GameEngine/GameEngine.h"
+
 Command::Command(const std::string& cmd) {
     command = new std::string(cmd);
     argument = nullptr;
@@ -33,14 +35,14 @@ Command::~Command() {
 
 void Command::saveEffect(const std::string& eff) {
     effect = new std::string(eff);
+
+    if (logObserver != nullptr) {
+        notify(this);
+    }
 }
 
-std::string Command::getEffect() const {
-    if(effect==nullptr){
-        return "";
-    } else {
-        return *effect;
-    }
+std::string Command::stringToLog() const {
+    return this->getEffect();
 }
 
 std::string Command::getArgument() const {
@@ -48,6 +50,14 @@ std::string Command::getArgument() const {
         return "";
     } else {
         return *argument;
+    }
+}
+
+std::string Command::getEffect() const {
+    if(effect==nullptr) {
+        return "This command has no effect.";
+    } else {
+        return *effect;
     }
 }
 
@@ -65,7 +75,7 @@ CommandProcessor::~CommandProcessor() {
 
 Command* CommandProcessor::getCommand() {
 
-    readCommand(); //reads a command from user input and stores it in the list of commmands
+    readCommand(); //reads a command from user input and stores it in the list of commmands.
     return getLastCommand();
 }
 
@@ -106,11 +116,11 @@ bool CommandProcessor::validate(Command& command, std::string& currentGameState)
     if (!isValid) {
         command.saveEffect("For the current game state '" + currentGameState + "' the command '" + command.getCommand() + "' is invalid!");
     }
-
     return isValid;
 }
 
 void CommandProcessor::readCommand() {
+
     std::string cmd;
     std::cout << "Please enter command:\n";
     std::getline(std::cin, cmd);
@@ -134,8 +144,22 @@ void CommandProcessor::saveCommand(const std::string& command, const std::string
     } else {
         lc->push_back(new Command(command, argument));
     }
+
+    if (logObserver != nullptr) {
+        notify(this);
+    }
+
 }
 
+std::string CommandProcessor::stringToLog() const {
+    Command* toLog = this->getLastCommand();
+    if (toLog != nullptr) {
+        std::string log = "Current Command: " + toLog->getCommand() + "-----Argument: "
+                          + toLog->getArgument() + "-----Effect: " + toLog->getEffect() + ".";
+        return log;
+    }
+    return "No Command.";
+}
 
 //FileLineReader class definition
 FileLineReader::FileLineReader(const std::string& fileName) {
@@ -170,7 +194,9 @@ FileCommandProcessorAdapter::~FileCommandProcessorAdapter() {
 }
 
 void FileCommandProcessorAdapter::readCommand() {
+    
     std::cout << "Getting command from file\n";
+    
     std::string cmd = flr->readLine();
     std::string command;
     std::string argument;
@@ -180,7 +206,7 @@ void FileCommandProcessorAdapter::readCommand() {
         command = cmd.substr(0, cmd.find(" "));
         argument = cmd.substr(cmd.find(" ") + 1);
         saveCommand(command,argument);
-    } else { //for commands that are not loadmap or addplayer
+    } else { // for commands that are not loadmap or addplayer
         command = cmd;
         saveCommand(command); 
     }

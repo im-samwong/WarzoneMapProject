@@ -1,6 +1,8 @@
 #include "GameEngine.h"
 #include <iostream>
 
+LogObserver* logObserver = nullptr;
+
 // Initialize static members
 std::set<std::string> GameState::negotiations;
 std::unordered_map<Player*, bool> GameState::conqueredTerritories;
@@ -169,6 +171,12 @@ GameState::GameState(const GameStateTypes& iStateType, const GameStates& iStateN
     stateName = new GameStates(iStateName);
     transitionCommands = new std::vector(iTransitionCommands);
     nextStates = new std::vector(iNextStates);
+
+    if (logObserver != nullptr) {
+        this->attach(logObserver);
+        notify(this);
+    }
+
 }
 
 GameState::GameState(const GameStateTypes& iStateType, const GameStates& iStateName, const std::vector<TransitionCommand>& iTransitionCommands) {
@@ -176,6 +184,12 @@ GameState::GameState(const GameStateTypes& iStateType, const GameStates& iStateN
     stateName = new GameStates(iStateName);
     transitionCommands = new std::vector(iTransitionCommands);
     nextStates = nullptr;
+
+    if (logObserver != nullptr) {
+        this->attach(logObserver);
+        notify(this);
+    }
+
 }
 
 GameState::GameState(const GameState& otherGameState) {
@@ -183,7 +197,19 @@ GameState::GameState(const GameState& otherGameState) {
     stateName = new GameStates(*otherGameState.stateName);
     transitionCommands = new std::vector(*otherGameState.transitionCommands);
     nextStates = new std::vector(*otherGameState.nextStates);
+
+    if (logObserver != nullptr) {
+            this->attach(logObserver);
+        notify(this);
+    }
+
 }
+
+std::string GameState::stringToLog() const {
+    std::string state = mapEnumToString(*this->stateName);
+    return state;
+}
+
 
 GameState& GameState::operator=(const GameState& otherGameState) {
     if (this != &otherGameState) {
@@ -460,7 +486,6 @@ GameState* WinState::transitionToNextState(const TransitionCommand transitionCom
 }
 
 // Game Engine implementation code
-
 GameEngine::~GameEngine() {
 
     delete gameOver;
@@ -513,6 +538,11 @@ bool GameEngine::transitionToNextState(TransitionCommand transitionCommand) {
 
     if (transitionCommand == TransitionCommand::END && nextState == nullptr && currentGameState == GameStates::WIN) {
         std::cout << "Issued command is END and current state is WIN. Game is over \n";
+
+        if (logObserver != nullptr){
+            notify(this);
+        }
+
         return true;
     }
 
@@ -531,7 +561,16 @@ bool GameEngine::transitionToNextState(TransitionCommand transitionCommand) {
 
     this->currentGameState = nextState;
 
+    if (logObserver != nullptr) {
+        notify(this);
+    }
+
     return true;
+}
+
+std::string GameEngine::stringToLog() const {
+    GameStates currentGameState = this->getCurrentGameState()->getStateName();
+    return mapEnumToString(currentGameState);
 }
 
 void GameEngine::printCurrentStateCommands(const std::vector<TransitionCommand>& commands, const std::string& gameStateName) {
@@ -866,4 +905,3 @@ void GameEngine::mainGameLoop() {
 
     exit(0);
 }
-
