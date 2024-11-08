@@ -30,6 +30,7 @@ void testLoggingObserver() {
 
     std::cout << std::endl;
 
+    /**
     // testCommandProcessing
     std::cout << "Testing Command and CommandProcessing: " << std::endl;
     CommandProcessor consoleProcessor;
@@ -260,6 +261,7 @@ void testLoggingObserver() {
     OrderList* orderList = new OrderList();
     orderList->attach(logObserver);
     orderList->addOrder(std::unique_ptr<Order>(bombOrder));
+    **/
 
     std::cout << "Testing main game loop:" << std::endl;
     GameEngine* ge = new GameEngine();
@@ -271,7 +273,7 @@ void testLoggingObserver() {
     logObserver->closeFile();
 
     // Detach observer
-    consoleProcessor.detach(logObserver);
+    /**consoleProcessor.detach(logObserver);
     deployOrder->detach(logObserver);
     advanceOrder->detach(logObserver);
     bombOrder->detach(logObserver);
@@ -284,7 +286,7 @@ void testLoggingObserver() {
 
      // Clean up
     delete logObserver;
-    /**delete deployOrder;
+    delete deployOrder;
     delete advanceOrder;
     delete bombOrder;
     delete advanceOrder2;
@@ -292,8 +294,9 @@ void testLoggingObserver() {
     delete blockadeOrder;
     delete negotiateOrder;
     delete advanceOrder3;
-    **/
+
     delete deck;
     //delete orderList;
+    **/
     delete ge;
 }

@@ -747,10 +747,14 @@ void GameEngine::distrubuteTerritories() {
     // Assign territories to players in round-robin fashion
     std::size_t playerCount = players->size();
     for (std::size_t i = 0; i < territories->size(); ++i) {
+        std::cout << "DEBUG\n";
         Player* currentPlayer = (*players)[i % playerCount];
+        std::cout << "DEBUG\n";
         currentPlayer->addTerritory((*territories)[i]);
+        std::cout << "DEBUG\n";
         (*territories)[i]->setOwner(currentPlayer);
     }
+
 }
 
 void GameEngine::shufflePlayers() {
