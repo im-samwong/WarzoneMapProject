@@ -52,7 +52,6 @@ public:
     void setOrdersList(const OrderList& ol);
 
 private:
-    // std::string name;                      // Player's name
     std::string* name;
     std::vector<Territory*>* territories; // Collection of player's territories
     Hand* hand;                           // Player's hand of cards
