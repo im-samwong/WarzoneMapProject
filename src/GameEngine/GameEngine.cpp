@@ -772,10 +772,8 @@ void GameEngine::executeOrdersPhase() {
         for(int i = 0; i < playerOrders.size(); ++i) {
             if (auto castedPtr = dynamic_cast<DeployOrder*>(playerOrders[i].get())) {
                 castedPtr->execute();
-            } else {
-                playerOrders[i].get()->execute();
+                ordersToRemove.push_back(i);
             }
-            ordersToRemove.push_back(i);
         }
 
         std::sort(ordersToRemove.rbegin(), ordersToRemove.rend());
@@ -784,7 +782,7 @@ void GameEngine::executeOrdersPhase() {
         }
     }
 
-    std::cout << "All Reinforcement/Deploy orders done. Will now execute remaining orders" << std::endl;
+    std::cout << "\nAll Reinforcement/Deploy orders done. Will now execute remaining orders\n" << std::endl;
 
     for(Player* player : *players) {
         OrderList* playerOrderList = player->getOrdersList();
@@ -797,6 +795,7 @@ void GameEngine::executeOrdersPhase() {
                 std::cout << "Player " << player->getName() << ", your next order is: " << *playerOrders[i] << std::endl;
                 playerOrders[i].get()->execute();
                 ordersToRemove.push_back(i);
+                std::cout << std::endl;
             }
 
             std::sort(ordersToRemove.rbegin(), ordersToRemove.rend());
@@ -805,6 +804,7 @@ void GameEngine::executeOrdersPhase() {
             }
         }
     }
+    std::cout << std::endl;
 }
 
 void GameEngine::removeEliminatedPlayers() {

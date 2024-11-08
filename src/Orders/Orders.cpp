@@ -70,10 +70,11 @@ std::ostream& operator<<(std::ostream& os, const Order& order) {
 }
 
 Order::~Order() {
-    delete sourcePlayer;
-    delete targetPlayer;
-    delete source;
-    delete target;
+    //Don't delete these because we're actually passing them and not copies --> Very risky
+    // delete sourcePlayer;
+    // delete targetPlayer;
+    // delete source;
+    // delete target;
     delete numUnits;
 }
 
@@ -94,7 +95,7 @@ DeployOrder& DeployOrder::operator=(const DeployOrder& other) {
 }
 
 bool DeployOrder::validate() const {
-    if (target->getOwner() != sourcePlayer) {
+    if (target == nullptr || target->getOwner() != sourcePlayer) {
         std::cout << "DeployOrder Validation Failed: Target territory is not owned by the player." << std::endl;
         return false;
     }
@@ -292,6 +293,9 @@ void BombOrder::execute() {
     if (validate()) {
         // Calculate units to remove (half of the army units)
         int unitsToRemove = target->getArmies() / 2;
+        if (unitsToRemove == 0) {
+            unitsToRemove += 1;
+        }
         target->modifyArmies(-unitsToRemove);
         std::cout << "Executed BombOrder: Halved the units on " << target->getName() << ". Remaining units: " << target->getArmies() << std::endl;
     }

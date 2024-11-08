@@ -109,7 +109,6 @@ void Player::issueOrder(std::vector<Player*>* players) {
 
         std::cout << "How many units would you like to deploy?" << std::endl;
         std::cin >> unitsToUse;
-        //Ignore the leftover characters to avoid an issue where getline will read in an empty string
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
         std::cout << "To which territory do you want to deploy these " << unitsToUse << "? Type the name of the territory as you see it." << std::endl;
@@ -120,11 +119,11 @@ void Player::issueOrder(std::vector<Player*>* players) {
                 return territory->getName() == territoryName;
         });
 
+        reinforcements -= unitsToUse;
         if(target != playerTerritories.end()) {
-            reinforcements -= unitsToUse;
             orders->addOrder(std::make_unique<DeployOrder>(this,*target,new int(unitsToUse)));
         } else {
-            std::cout << "\nYou inputted an invalid territory name, try again." << std::endl;
+            orders->addOrder(std::make_unique<DeployOrder>(this,nullptr,new int(unitsToUse)));
         }
     }
 
@@ -188,8 +187,9 @@ void Player::issueOrder(std::vector<Player*>* players) {
                 return territory->getName() == targetTerritory;
             });
 
-            std::cout << "Lastly, how many units do you want to move. Source territory has "<< (*source)->getArmies() << " units you can move" << std::endl;
+            std::cout << "Lastly, how many units do you want to move." << std::endl;
             std::cin >> numOfUnits;
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
             if (source != allTerritories.end() && target != allTerritories.end()) {
                 this->orders->addOrder(std::make_unique<AdvanceOrder>(this, *source, *target, new int(numOfUnits)));
@@ -216,6 +216,7 @@ void Player::issueOrder(std::vector<Player*>* players) {
 
             std::cout << "Lastly, how many units do you want to airlift. Source territory has "<< (*source)->getArmies() << " units you can move" << std::endl;
             std::cin >> numOfUnits;
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
             if (source != allTerritories.end() && target != allTerritories.end()) {
                 this->orders->addOrder(std::make_unique<AirliftOrder>(this,  *source, *target, new int(numOfUnits)));
@@ -274,19 +275,6 @@ void Player::issueOrder(std::vector<Player*>* players) {
             }
         } else {
             std::cout << "Invalid command. Did nothing, please re-issue your order" << std::endl;
-        }
-
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-
-        if (chosenOrderIndex != -1) {
-            for(int i = 0; i < playerHandOrders.size(); i++) {
-                if (playerHandOrders[i]->getTypeAsString() == stringEnumCards[chosenOrderIndex]) {
-                    delete playerHandOrders[i];
-                    playerHandOrders.erase(playerHandOrders.begin() + i);
-                    this->hand->setHandCards(playerHandOrders);//Update the player hand
-                    break;
-                }
-            }
         }
     }
 }
