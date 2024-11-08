@@ -862,7 +862,7 @@ void GameEngine::mainGameLoop() {
 
         removeEliminatedPlayers();
         setGameOverStatus(hasGameEnded());
-        setGameOverStatus(true);//Comment this out to try out the full game, this is just for testing to force the game to end
+        //setGameOverStatus(true);//Comment this out to try out the full game, this is just for testing to force the game to end
     }
 
     exit(0);
