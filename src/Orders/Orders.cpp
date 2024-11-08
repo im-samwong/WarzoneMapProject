@@ -110,7 +110,10 @@ void DeployOrder::execute() {
         target->modifyArmies(*numUnits);
         sourcePlayer->changeReinforcements(-(*numUnits));
         std::cout << "Executed DeployOrder: " << *numUnits << " units deployed to " << target->getName() << std::endl;
-        notify(this);
+
+        if (logObserver) {
+            notify(this);
+        }
     }
 }
 
@@ -251,7 +254,11 @@ void AdvanceOrder::execute() {
                       << (defendingUnits - survivingDefenders) << " defending units lost." << std::endl;
         }
     }
-    notify(this);
+
+    if (logObserver) {
+        notify(this);
+    }
+
     delete effects;
     effects = nullptr;
 }
@@ -320,7 +327,9 @@ void BombOrder::execute() {
         std::cout << "Executed BombOrder: Halved the units on " << target->getName() << ". Remaining units: " << target->getArmies() << std::endl;
     }
 
-    notify(this);
+    if (logObserver) {
+        notify(this);
+    }
 }
 
 std::string BombOrder::stringToLog() const {
@@ -365,7 +374,9 @@ void BlockadeOrder::execute() {
                   << " to neutral ownership." << std::endl;
     }
 
-    notify(this);
+    if (logObserver) {
+        notify(this);
+    }
 }
 
 std::string BlockadeOrder::stringToLog() const {
@@ -414,7 +425,9 @@ void AirliftOrder::execute() {
                   << " to " << target->getName() << std::endl;
     }
 
-    notify(this);
+    if (logObserver) {
+        notify(this);
+    }
 }
 
 std::string AirliftOrder::stringToLog() const {
@@ -457,8 +470,9 @@ void NegotiateOrder::execute() {
         std::cout << "Executed NegotiateOrder: " << sourcePlayer->getName() << " and " << targetPlayer->getName()
                   << " will not attack each other this turn." << std::endl;
     }
-
-    notify(this);
+    if (logObserver) {
+        notify(this);
+    };
 }
 
 std::string NegotiateOrder::stringToLog() const {

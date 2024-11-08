@@ -3,6 +3,8 @@
 #include <string>
 #include <iostream>
 
+#include "../GameEngine/GameEngine.h"
+
 Command::Command(const std::string& cmd) {
     command = new std::string(cmd);
     argument = nullptr;
@@ -33,7 +35,10 @@ Command::~Command() {
 
 void Command::saveEffect(const std::string& eff) {
     effect = new std::string(eff);
-    notify(this);
+
+    if (logObserver) {
+        notify(this);
+    }
 }
 
 std::string Command::stringToLog() const {
@@ -140,7 +145,10 @@ void CommandProcessor::saveCommand(const std::string& command, const std::string
         lc->push_back(new Command(command, argument));
     }
 
-    notify(this);
+    if (logObserver) {
+        notify(this);
+    }
+
 }
 
 std::string CommandProcessor::stringToLog() const {

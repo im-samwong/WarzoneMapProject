@@ -1,5 +1,7 @@
 #include <iostream>
 
+#include "GameEngine/GameEngine.h"
+
 void testOrderExecution();
 void testCards();
 void testLoadMaps();
@@ -28,10 +30,11 @@ int main() {
     // testGameStates();
     // std::cout << std::endl;
     //
-    testLoggingObserver();
+    // testLoggingObserver();
     //std::cout << std::endl;
     //
     // testStartupPhase();
-    // testMainGameLoop();
+     testMainGameLoop();
+
     return 0;
 }

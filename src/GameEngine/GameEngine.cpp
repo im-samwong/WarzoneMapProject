@@ -535,7 +535,11 @@ bool GameEngine::transitionToNextState(TransitionCommand transitionCommand) {
 
     if (transitionCommand == TransitionCommand::END && nextState == nullptr && currentGameState == GameStates::WIN) {
         std::cout << "Issued command is END and current state is WIN. Game is over \n";
-        notify(this);
+
+        if (logObserver) {
+            notify(this);
+        }
+
         return true;
     }
 
@@ -554,7 +558,10 @@ bool GameEngine::transitionToNextState(TransitionCommand transitionCommand) {
 
     this->currentGameState = nextState;
 
-    notify(this);
+    if (logObserver) {
+        notify(this);
+    }
+
     return true;
 }
 
