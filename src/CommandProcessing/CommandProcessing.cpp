@@ -16,19 +16,40 @@ Command::Command(const std::string& cmd, const std::string& arg) {
     effect = nullptr;
 }
 
+//copy constructor
 Command::Command(const Command& other) {
-    delete command;
-    delete argument;
-    delete effect;
     command = new std::string(*other.command);
-    argument = new std::string(*other.argument);
-    effect = new std::string(*other.effect);
+    argument = other.argument ? new std::string(*other.argument) : nullptr;
+    effect = other.effect ? new std::string(*other.effect) : nullptr;
 }
 
+//destructor
 Command::~Command() {
     delete command;
     delete argument;
     delete effect;
+}
+
+//assignment operator
+Command& Command::operator=(const Command& other) {
+    if (this == &other) {
+        return *this;
+    }
+
+    delete command;
+    delete argument;
+    delete effect;
+    command = new std::string(*other.command);
+    argument = other.argument ? new std::string(*other.argument) : nullptr;
+    effect = other.effect ? new std::string(*other.effect) : nullptr;
+
+    return *this;
+}
+
+//stream insertion operator
+std::ostream& operator<<(std::ostream& out, const Command& cmd) {
+    out << "Command: " << *cmd.command << "\n Its argument: " << *cmd.argument << "\n Its effect: " << *cmd.effect << std::endl;
+    return out;
 }
 
 void Command::saveEffect(const std::string& eff) {
@@ -56,6 +77,15 @@ CommandProcessor::CommandProcessor() {
     lc = new std::vector<Command*>();
 }
 
+//copy constructor
+CommandProcessor::CommandProcessor(const CommandProcessor& other) {
+    lc = new std::vector<Command*>(); //empty vector
+    for (Command* cmd : *other.lc) {
+        lc->push_back(new Command(*cmd));
+    }
+}
+
+//destructor
 CommandProcessor::~CommandProcessor() {
     for (Command* cmd : *lc) {
         delete cmd;
@@ -63,8 +93,33 @@ CommandProcessor::~CommandProcessor() {
     delete lc;
 }
 
-Command* CommandProcessor::getCommand() {
+//assignment operator
+CommandProcessor& CommandProcessor::operator=(const CommandProcessor& other) {
+    if (this == &other) {
+        return *this;
+    }
 
+    for (Command* cmd : *lc) {
+        delete cmd;
+    }
+    lc->clear(); //making it an empty vector
+    for (Command* cmd : *other.lc) {
+        lc->push_back(new Command(*cmd));
+    }
+
+    return *this;
+}
+
+//stream insertion operator
+std::ostream& operator<<(std::ostream& out, const CommandProcessor& cmdProcessor) {
+    out << "CommandProcessor has the following commands:\n";
+    for (const Command* cmd : *cmdProcessor.lc) {
+        out << *cmd << std::endl;
+    }
+    return out;
+}
+
+Command* CommandProcessor::getCommand() {
     readCommand(); //reads a command from user input and stores it in the list of commmands
     return getLastCommand();
 }
@@ -128,7 +183,6 @@ void CommandProcessor::readCommand() {
 }
 
 void CommandProcessor::saveCommand(const std::string& command, const std::string& argument) {
-
     if(argument.empty()) {
         lc->push_back(new Command(command));
     } else {
@@ -145,11 +199,47 @@ FileLineReader::FileLineReader(const std::string& fileName) {
     }
 }
 
+//copy constructor
+FileLineReader::FileLineReader(const FileLineReader& other) {
+    filename = new std::string(*other.filename);
+    file = new std::ifstream(*filename);
+    if (!file->is_open()) {
+        throw std::runtime_error("Error! The file '" + *filename + "' could not be opened in the copy constructor");
+    }
+}
+
+//destructor
 FileLineReader::~FileLineReader() {
     if (file->is_open()) {
         file->close();
     }
     delete file;
+}
+
+//assignment operator
+FileLineReader& FileLineReader::operator=(const FileLineReader& other) {
+    if (this == &other) {
+        return *this;
+    }
+
+    if (file->is_open()) {
+        file->close();
+    }
+    delete file;
+
+    filename = new std::string(*other.filename);
+    file = new std::ifstream(*filename);
+    if (!file->is_open()) {
+        throw std::runtime_error("Error! The file '" + *filename + "' could not be opened in the assignment operator");
+    }
+
+    return *this;
+}
+
+//stream insertion operator
+std::ostream& operator<<(std::ostream& out, const FileLineReader& fileLR) {
+    out << "The file is " << (fileLR.file->is_open() ? "open!" : "closed!") << std::endl;
+    return out;
 }
 
 std::string FileLineReader::readLine() {
@@ -165,9 +255,36 @@ FileCommandProcessorAdapter::FileCommandProcessorAdapter(const std::string& file
     flr = new FileLineReader(fileName);
 }
 
+//copy constructor
+FileCommandProcessorAdapter::FileCommandProcessorAdapter(const FileCommandProcessorAdapter& other)
+    : CommandProcessor(other) {
+    flr = new FileLineReader(*other.flr);
+}
+
+//destructor
 FileCommandProcessorAdapter::~FileCommandProcessorAdapter() {
     delete flr;
 }
+
+//assignment operator
+FileCommandProcessorAdapter& FileCommandProcessorAdapter::operator=(const FileCommandProcessorAdapter& other) {
+    if (this == &other) {
+        return *this;
+    }
+
+    CommandProcessor::operator=(other);
+    delete flr;
+    flr = new FileLineReader(*other.flr);
+
+    return *this;
+}
+
+//stream insertion operator
+std::ostream& operator<<(std::ostream& out, const FileCommandProcessorAdapter& fileCmdPA) {
+    out << "FileLineReader: " << *fileCmdPA.flr << std::endl;
+    return out;
+}
+
 
 void FileCommandProcessorAdapter::readCommand() {
     std::cout << "Getting command from file\n";
