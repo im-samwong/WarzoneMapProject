@@ -11,8 +11,8 @@ void testStartupPhase();
 void testLoggingObserver();
 
 int main() {
-    testOrderExecution();
-    std::cout << std::endl;
+    //testOrderExecution();
+    //std::cout << std::endl;
     //
     // testCards();
     // std::cout << std::endl;
@@ -27,7 +27,7 @@ int main() {
     //
     // testGameStates();
     // std::cout << std::endl;
-    testLoggingObserver();
+     testLoggingObserver();
     // testStartupPhase();
     // testMainGameLoop();
     return 0;

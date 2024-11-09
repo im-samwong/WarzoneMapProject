@@ -900,7 +900,7 @@ void GameEngine::mainGameLoop() {
         setGameOverStatus(hasGameEnded());
     }
 
-    exit(0);
+    //exit(0);
 }
 
 void GameEngine::endGame() {

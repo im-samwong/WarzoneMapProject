@@ -288,19 +288,18 @@ void testLoggingObserver() {
      advanceOrder3->detach(logObserver);
      orderList->detach(logObserver);
 
-      // Clean up
-     // delete deployOrder;
-     // delete advanceOrder;
-     // delete bombOrder;
-     // delete advanceOrder2;
-     // delete airliftOrder;
-     // delete blockadeOrder;
-     // delete negotiateOrder;
-     // delete advanceOrder3;
+    // Clean up
+    // delete deployOrder;
+    // delete advanceOrder;
+    // delete bombOrder;
+    // delete advanceOrder2;
+    // delete airliftOrder;
+    // delete blockadeOrder;
+    // delete negotiateOrder;
+    // delete advanceOrder3;
+    // delete deck;
+    // delete orderList;
 
-     delete deck;
-     delete orderList;
-
-    delete logObserver;
-    delete ge;
+     delete logObserver;
+    // delete ge;
 }

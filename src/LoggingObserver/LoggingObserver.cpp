@@ -69,6 +69,7 @@ void LogObserver::update(ILoggable* loggable) {
 
 void LogObserver::closeFile() {
     this->logfile->close();
+    std::cout << std::endl << "Loggable closed" << std::endl;
 }
 
 // Subject constructor

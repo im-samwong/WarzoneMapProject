@@ -112,5 +112,5 @@ void testMainGameLoop() {
     if(ge->startupPhase()){
         ge->mainGameLoop();
     }
-    delete ge;
+    //delete ge;
 }
