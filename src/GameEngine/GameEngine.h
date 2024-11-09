@@ -316,8 +316,6 @@ public:
     // Helper function for printing out the possible commands of the current state
     void printCurrentStateCommands(const std::vector<TransitionCommand>& commands, const std::string& gameStateName);
 
-    static GameEngine* getInstance();
-
     //helper method to add player to game
     void addPlayer(const std::string& playerName);
 
@@ -337,6 +335,8 @@ public:
     void refreshPlayerConstraints();
 
     void removeEliminatedPlayers();
+
+    void endGame();
 
     bool hasGameEnded();
     //helper method to distribute territories to players at the start of the game

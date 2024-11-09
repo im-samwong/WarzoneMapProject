@@ -64,6 +64,13 @@ std::vector<Territory*> Player::toDefend() {
     return *territories;
 }
 
+void Player::emptyToDefend() {
+    for (Territory* territory : *territories) {
+        delete territory;
+    }
+    this->territories->clear();
+}
+
 // Return territories to attack
 std::vector<Territory*> Player::toAttack() {
     std::set<Territory*> uniqueAtkTargets;

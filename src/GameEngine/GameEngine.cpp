@@ -811,7 +811,7 @@ void GameEngine::removeEliminatedPlayers() {
     std::vector<int> playersToRemove;
     for(int i = 0; i < players->size(); ++i) {
         if (players->at(i)->toDefend().empty()) {//No territories to defend = no more owned territories
-            std::cout << "Player" << players->at(i)->getName() << " has been ELIMINATED and will be removed." << std::endl;
+            std::cout << "Player " << players->at(i)->getName() << " has been ELIMINATED and will be removed." << std::endl;
             playersToRemove.push_back(i);
         }
     }
@@ -860,11 +860,20 @@ void GameEngine::mainGameLoop() {
         // Card bonus check and reset player constraint status
         refreshPlayerConstraints();
 
+        endGame();//Will move all territories from player 1 to player 2 leaving player 1 without territories --> win condition
         removeEliminatedPlayers();
         setGameOverStatus(hasGameEnded());
-        //setGameOverStatus(true);//Comment this out to try out the full game, this is just for testing to force the game to end
+        //setGameOverStatus(true);//Comment out the previous line and uncomment this one to see 1 turn
     }
 
     exit(0);
 }
 
+void GameEngine::endGame() {
+    for(Territory* territory : (*players)[0]->toDefend()) {
+        territory->setOwner((*players)[1]);
+        (*players)[1]->addTerritory(new Territory(*territory));
+    }
+
+    (*players)[0]->emptyToDefend();
+}

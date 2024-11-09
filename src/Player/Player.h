@@ -42,6 +42,7 @@ public:
     void issueOrder(std::vector<Player*>* players);
     void addTerritory(Territory* t);
 
+    void emptyToDefend();
     void changeReinforcements(int i);
     int getReinforcements() const;
 

@@ -104,13 +104,6 @@ void testStartupPhase() {
     }
 
     delete ge;
-    std::cout<<"\n\n" << std::endl;
-
-    ge = new GameEngine();
-    ge->readInputFromFile("../commands.txt");
-    if(ge->startupPhase()){
-        std::cout<<"Testing success";
-    }
 }
 
 void testMainGameLoop() {
