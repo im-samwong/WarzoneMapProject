@@ -747,7 +747,7 @@ void GameEngine::issueOrdersPhase() {
 
     for (Player* player : *players) {
         std::cout << "Player " << player->getName() << " it is your turn.\n" << std::endl;
-        player->issueOrder();
+        player->issueOrder(players);
         std::cout << std::endl;
     }
 
@@ -771,7 +771,7 @@ void GameEngine::executeOrdersPhase() {
         std::vector<int> ordersToRemove;
         for(int i = 0; i < playerOrders.size(); ++i) {
             if (auto castedPtr = dynamic_cast<DeployOrder*>(playerOrders[i].get())) {
-                // castedPtr->execute();
+                castedPtr->execute();
                 ordersToRemove.push_back(i);
             }
         }
@@ -782,7 +782,7 @@ void GameEngine::executeOrdersPhase() {
         }
     }
 
-    std::cout << "All Reinforcement/Deploy orders done. Will now execute remaining orders" << std::endl;
+    std::cout << "\nAll Reinforcement/Deploy orders done. Will now execute remaining orders\n" << std::endl;
 
     for(Player* player : *players) {
         OrderList* playerOrderList = player->getOrdersList();
@@ -793,9 +793,9 @@ void GameEngine::executeOrdersPhase() {
         } else {
             for(int i = 0; i < playerOrders.size(); ++i) {
                 std::cout << "Player " << player->getName() << ", your next order is: " << *playerOrders[i] << std::endl;
-                // playerOrders[i].get()->execute();
-                // castedPtr->execute();
+                playerOrders[i].get()->execute();
                 ordersToRemove.push_back(i);
+                std::cout << std::endl;
             }
 
             std::sort(ordersToRemove.rbegin(), ordersToRemove.rend());
@@ -804,13 +804,14 @@ void GameEngine::executeOrdersPhase() {
             }
         }
     }
+    std::cout << std::endl;
 }
 
 void GameEngine::removeEliminatedPlayers() {
     std::vector<int> playersToRemove;
     for(int i = 0; i < players->size(); ++i) {
         if (players->at(i)->toDefend().empty()) {//No territories to defend = no more owned territories
-            std::cout << "Player" << players->at(i)->getName() << " has been ELIMINATED and will be removed." << std::endl;
+            std::cout << "Player " << players->at(i)->getName() << " has been ELIMINATED and will be removed." << std::endl;
             playersToRemove.push_back(i);
         }
     }
@@ -859,11 +860,22 @@ void GameEngine::mainGameLoop() {
         // Card bonus check and reset player constraint status
         refreshPlayerConstraints();
 
+        endGame();//Will make player 1 win automatically ONLY FOR DEMO PURPOSES
         removeEliminatedPlayers();
         setGameOverStatus(hasGameEnded());
-        setGameOverStatus(true);//Comment this out to try out the full game, this is just for testing to force the game to end
     }
 
     exit(0);
 }
 
+void GameEngine::endGame() {
+    std::cout << "\n\nFORCING END OF GAME FOR TESTING PURPOSES\n\n" << std::endl;
+    for (int i = 1; i < players->size(); ++i) {
+        for(Territory* territory : (*players)[i]->toDefend()) {
+            territory->setOwner((*players)[0]);
+            (*players)[i]->addTerritory(new Territory(*territory));
+        }
+
+        (*players)[i]->emptyToDefend();
+    }
+}

@@ -27,7 +27,7 @@ int main() {
     // testGameStates();
     // std::cout << std::endl;
 
-    // testStartupPhase();
+    testStartupPhase();
     testMainGameLoop();
     return 0;
 }
