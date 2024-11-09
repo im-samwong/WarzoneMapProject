@@ -8,6 +8,7 @@ void testGameStates();
 void testCommandProcessor();
 void testMainGameLoop();
 void testStartupPhase();
+void testLoggingObserver();
 
 int main() {
     testOrderExecution();
@@ -26,8 +27,8 @@ int main() {
     //
     // testGameStates();
     // std::cout << std::endl;
-
-    testStartupPhase();
-    testMainGameLoop();
+    testLoggingObserver();
+    // testStartupPhase();
+    // testMainGameLoop();
     return 0;
 }
