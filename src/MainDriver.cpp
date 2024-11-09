@@ -11,7 +11,7 @@ void testStartupPhase();
 void testLoggingObserver();
 
 int main() {
-
+    testLoggingObserver();
     testOrderExecution();
     //std::cout << std::endl;
     //
@@ -30,6 +30,6 @@ int main() {
     // std::cout << std::endl;
      testStartupPhase();
      testMainGameLoop();
-     testLoggingObserver();
+
     return 0;
 }

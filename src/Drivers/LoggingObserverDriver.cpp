@@ -298,8 +298,10 @@ void testLoggingObserver() {
     // delete negotiateOrder;
     // delete advanceOrder3;
      delete deck;
+    deck = nullptr;
     // delete orderList;
 
-     delete logObserver;
+    delete logObserver;
+    logObserver = nullptr;
     // delete ge;
 }
