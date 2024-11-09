@@ -11,24 +11,24 @@ void testStartupPhase();
 void testLoggingObserver();
 
 int main() {
-    //testOrderExecution();
+    testOrderExecution();
     //std::cout << std::endl;
     //
-    // testCards();
+     testCards();
     // std::cout << std::endl;
     //
-    // testPlayers();
+     testPlayers();
     // std::cout << std::endl;
     //
-    // testCommandProcessor();
+     testCommandProcessor();
     // std::cout << std::endl;
     //
-    // testLoadMaps();
+     testLoadMaps();
     //
     // testGameStates();
     // std::cout << std::endl;
+     testStartupPhase();
+     testMainGameLoop();
      testLoggingObserver();
-    // testStartupPhase();
-    // testMainGameLoop();
     return 0;
 }

@@ -113,4 +113,5 @@ void testMainGameLoop() {
         ge->mainGameLoop();
     }
     //delete ge;
+    std::cout<<"\nTesting success\n\n" << std::endl;
 }
