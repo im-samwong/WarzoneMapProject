@@ -297,7 +297,7 @@ void testLoggingObserver() {
     // delete blockadeOrder;
     // delete negotiateOrder;
     // delete advanceOrder3;
-    // delete deck;
+     delete deck;
     // delete orderList;
 
      delete logObserver;
