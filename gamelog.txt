@@ -1,4 +1,3 @@
-Current Command: quit-----Argument: -----Effect: This command has no effect..
 Executed DeployOrder: 5 units deployed to Territory 1
 Executed AdvanceOrder: Moved 3 units from Territory 1 to Territory 2.
 
