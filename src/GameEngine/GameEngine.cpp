@@ -860,20 +860,22 @@ void GameEngine::mainGameLoop() {
         // Card bonus check and reset player constraint status
         refreshPlayerConstraints();
 
-        endGame();//Will move all territories from player 1 to player 2 leaving player 1 without territories --> win condition
+        endGame();//Will make player 1 win automatically ONLY FOR DEMO PURPOSES
         removeEliminatedPlayers();
         setGameOverStatus(hasGameEnded());
-        //setGameOverStatus(true);//Comment out the previous line and uncomment this one to see 1 turn
     }
 
     exit(0);
 }
 
 void GameEngine::endGame() {
-    for(Territory* territory : (*players)[0]->toDefend()) {
-        territory->setOwner((*players)[1]);
-        (*players)[1]->addTerritory(new Territory(*territory));
-    }
+    std::cout << "\n\nFORCING END OF GAME FOR TESTING PURPOSES\n\n" << std::endl;
+    for (int i = 1; i < players->size(); ++i) {
+        for(Territory* territory : (*players)[i]->toDefend()) {
+            territory->setOwner((*players)[0]);
+            (*players)[i]->addTerritory(new Territory(*territory));
+        }
 
-    (*players)[0]->emptyToDefend();
+        (*players)[i]->emptyToDefend();
+    }
 }

@@ -100,7 +100,7 @@ void testStartupPhase() {
    ge->readInputFromFile("../commands.txt");
 
     if(ge->startupPhase()){
-        std::cout<<"Testing success";
+        std::cout<<"\nTesting success\n\n" << std::endl;
     }
 
     delete ge;
