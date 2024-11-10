@@ -12,22 +12,23 @@ void testLoggingObserver() {
     CommandProcessor* proc = new CommandProcessor();
     DeployOrder* order = new DeployOrder();
     OrderList* olist = new OrderList();
-    GameEngine* engine = new GameEngine();
 
     std::cout << "Demonstrating Base classes:" << std::endl;
     std::cout << "Calling name() in Subject and ILoggable through Command: " << cmd->nameS() << ", " << cmd->nameI() << std::endl;
     std::cout << "Calling name() in Subject and ILoggable through CommandProcessor: " << proc->nameS() << ", " << proc->nameI() << std::endl;
     std::cout << "Calling name() in Subject and ILoggable through Order: " << order->nameS() << ", " << order->nameI() << std::endl;
     std::cout << "Calling name() in Subject and ILoggable through OrderList: " << olist->nameS() << ", " << olist->nameI() << std::endl;
-    std::cout << "Calling name() in Subject and ILoggable through GameEngine: " << engine->nameS() << ", " << engine->nameI() << std::endl;
     std::cout << std::endl;
 
     // Clean up
     delete cmd;
+    cmd = nullptr;
     delete proc;
+    proc = nullptr;
     delete order;
+    order = nullptr;
     delete olist;
-    delete engine;
+    olist = nullptr;
 
     // Create a LogObserver
     logObserver = new LogObserver("../gamelog.txt");
@@ -289,19 +290,9 @@ void testLoggingObserver() {
      orderList->detach(logObserver);
 
     // Clean up
-    // delete deployOrder;
-    // delete advanceOrder;
-    // delete bombOrder;
-    // delete advanceOrder2;
-    // delete airliftOrder;
-    // delete blockadeOrder;
-    // delete negotiateOrder;
-    // delete advanceOrder3;
-     delete deck;
+    delete deck;
     deck = nullptr;
-    // delete orderList;
 
     delete logObserver;
     logObserver = nullptr;
-    // delete ge;
 }
