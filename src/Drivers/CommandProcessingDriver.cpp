@@ -63,7 +63,7 @@ void testCommandProcessor() {
     } else if (inputType == "1") { //reading from file
         std::cout << "INPUT 1 CHOSEN: Reading from file" << "\n" << std::endl;
 
-            FileCommandProcessorAdapter fileProcessor("commands.txt");
+            FileCommandProcessorAdapter fileProcessor("../commands.txt");
             currentGameState = "start";
             //reading commands from file
             while (true) {

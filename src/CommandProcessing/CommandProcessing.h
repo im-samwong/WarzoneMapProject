@@ -4,12 +4,13 @@
 #ifndef COMMANDPROCESSING_H
 #define COMMANDPROCESSING_H
 
+# include "../LoggingObserver/LoggingObserver.h"
 #include <fstream>
 #include <string>
 #include <unordered_map>
 #include <vector>
 
-class Command {
+class Command: public Subject, public ILoggable {
 public:
     //Constructors
     Command(const std::string& cmd);
@@ -26,6 +27,7 @@ public:
 
     //Methods
     void saveEffect(const std::string& effect);
+    std::string stringToLog() const override;
     std::string getCommand() const {return *command;}
     std::string getEffect() const;
     std::string getArgument() const;
@@ -38,7 +40,7 @@ private:
 };
 
 
-class CommandProcessor {
+class CommandProcessor: public Subject, public ILoggable {
 public:
     //Constructor
     CommandProcessor();
@@ -54,6 +56,7 @@ public:
 
     //Methods
     Command* getCommand();
+    std::string stringToLog() const override;
     bool validate(Command& command, std::string& currentGameState); //checks if command is valid given current state of program
     Command* getLastCommand() const;
 

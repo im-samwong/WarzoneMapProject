@@ -112,5 +112,6 @@ void testMainGameLoop() {
     if(ge->startupPhase()){
         ge->mainGameLoop();
     }
-    delete ge;
+    //delete ge;
+    std::cout<<"\nTesting success\n\n" << std::endl;
 }

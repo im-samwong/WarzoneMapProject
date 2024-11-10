@@ -4,6 +4,7 @@
 #include "../CommandProcessing/CommandProcessing.h"
 #include "../Map/Map.h"
 #include "../Player/Player.h"
+#include "../LoggingObserver/LoggingObserver.h"
 #include <memory>
 #include <string>
 #include <vector>
@@ -71,7 +72,7 @@ std::string mapEnumToString(GameStates stateName);
     Each possible state of the game is derived from this class with each specific state implementing their own
     transition logic
  */
-class GameState {
+class GameState: public Subject, public ILoggable {
 protected:
     GameStateTypes* stateType;
     GameStates* stateName;
@@ -122,6 +123,8 @@ public:
     static void setConqueredTerritory(Player* player, bool status);
     static bool hasConqueredTerritory(Player* player);
     static void resetConqueredTerritories();
+
+    std::string stringToLog() const override;
 
 private:
     // Static members for negotiation tracking
@@ -268,7 +271,7 @@ public:
     GameEngine class implemented following the Singleton design pattern since logically it makes sense to only have 1 GameEngine object
     Provides several accessors to get its internal state as well as mutators to update its state and a method to obtain(create as well if non-existent) an instance of this class.
  */
-class GameEngine {
+class GameEngine: public Subject, public ILoggable {
     bool* gameOver;
     GameState* currentGameState;
     std::string* inputtedCommand;
@@ -343,7 +346,9 @@ public:
     void distrubuteTerritories(); 
 
     //helper method to randomly determine play order by shuffling the players vector.
-    void shufflePlayers(); 
+    void shufflePlayers();
+
+    std::string stringToLog() const override;
 
     friend std::ostream& operator<<(std::ostream& os, const GameEngine& gameEngine);
 };

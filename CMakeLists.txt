@@ -22,4 +22,9 @@ add_executable(MainDriver src/MainDriver.cpp
         src/CommandProcessing/CommandProcessing.cpp
         src/CommandProcessing/CommandProcessing.h
         src/Drivers/CommandProcessingDriver.cpp
+        src/LoggingObserver/LoggingObserver.h
+        src/LoggingObserver/LoggingObserver.cpp
+        src/Drivers/LoggingObserverDriver.cpp
+        src/LoggingObserver/LoggingObserver.cpp
+        src/Drivers/LoggingObserverDriver.cpp
 )

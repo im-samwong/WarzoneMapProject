@@ -8,26 +8,29 @@ void testGameStates();
 void testCommandProcessor();
 void testMainGameLoop();
 void testStartupPhase();
+void testLoggingObserver();
 
 int main() {
-    testOrderExecution();
-    std::cout << std::endl;
-    //
+
     // testCards();
     // std::cout << std::endl;
     //
     // testPlayers();
     // std::cout << std::endl;
     //
-    // testCommandProcessor();
+    //
     // std::cout << std::endl;
     //
     // testLoadMaps();
+    //std::cout << std::endl;
     //
     // testGameStates();
     // std::cout << std::endl;
+     testOrderExecution();
+     testCommandProcessor();
+     testStartupPhase();
+     testMainGameLoop();
+     testLoggingObserver();
 
-    testStartupPhase();
-    testMainGameLoop();
     return 0;
 }
