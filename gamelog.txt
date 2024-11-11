@@ -20,5 +20,15 @@ Effect: Triggered game start
 
 Current state: assignreinforcement
 Current state: ISSUE_ORDERS
+Order added to list: Deploy Order
+Order added to list: Bomb Order
+Order added to list: Deploy Order
+Order added to list: Blockade Order
 Current state: EXECUTE_ORDERS
+Executed DeployOrder: 60 units deployed to China
+Executed DeployOrder: 60 units deployed to Scandinavia
+Executed BombOrder: Halved the units on Irkutsk. Remaining units: -1.
+
+Executed BlockadeOrder: Doubled units and transferred Indonesia to neutral ownership.
+
 Current state: WIN

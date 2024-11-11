@@ -803,6 +803,9 @@ void GameEngine::issueOrdersPhase() {
     std::cout << "\nIn Issue Orders Phase!\n" << std::endl;
 
     for (Player* player : *players) {
+        if (logObserver != nullptr) {
+            player->getOrdersList()->attach(logObserver);
+        }
         std::cout << "Player " << player->getName() << " it is your turn.\n" << std::endl;
         player->issueOrder(players);
         std::cout << std::endl;
@@ -828,6 +831,9 @@ void GameEngine::executeOrdersPhase() {
         std::vector<int> ordersToRemove;
         for(int i = 0; i < playerOrders.size(); ++i) {
             if (auto castedPtr = dynamic_cast<DeployOrder*>(playerOrders[i].get())) {
+                if (logObserver != nullptr) {
+                    castedPtr->attach(logObserver);
+                }
                 castedPtr->execute();
                 ordersToRemove.push_back(i);
             }
@@ -850,6 +856,9 @@ void GameEngine::executeOrdersPhase() {
         } else {
             for(int i = 0; i < playerOrders.size(); ++i) {
                 std::cout << "Player " << player->getName() << ", your next order is: " << *playerOrders[i] << std::endl;
+                if (logObserver != nullptr) {
+                    playerOrders[i].get()->attach(logObserver);
+                }
                 playerOrders[i].get()->execute();
                 ordersToRemove.push_back(i);
                 std::cout << std::endl;
