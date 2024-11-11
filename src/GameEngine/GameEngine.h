@@ -12,7 +12,6 @@
 #include <random>
 #include <set>
 
-extern LogObserver* logObserver;
 
 //Enum representing the possible game states of the game i.e. states on the transition diagram
 enum GameStates {
@@ -272,7 +271,7 @@ public:
     GameEngine class implemented following the Singleton design pattern since logically it makes sense to only have 1 GameEngine object
     Provides several accessors to get its internal state as well as mutators to update its state and a method to obtain(create as well if non-existent) an instance of this class.
  */
-class GameEngine: public Subject, public ILoggable{
+class GameEngine: public Subject, public ILoggable {
     bool* gameOver;
     GameState* currentGameState;
     std::string* inputtedCommand;
@@ -282,7 +281,7 @@ class GameEngine: public Subject, public ILoggable{
     Deck* deck; //The main deck which players draw from
 
 public:
-    GameEngine(){ //Constructor
+    GameEngine() { //Constructor
         gameOver = new bool(false);
         currentGameState = nullptr;
         inputtedCommand = nullptr;
@@ -320,8 +319,6 @@ public:
     // Helper function for printing out the possible commands of the current state
     void printCurrentStateCommands(const std::vector<TransitionCommand>& commands, const std::string& gameStateName);
 
-    static GameEngine* getInstance();
-
     //helper method to add player to game
     void addPlayer(const std::string& playerName);
 
@@ -341,6 +338,8 @@ public:
     void refreshPlayerConstraints();
 
     void removeEliminatedPlayers();
+
+    void endGame();
 
     bool hasGameEnded();
     //helper method to distribute territories to players at the start of the game

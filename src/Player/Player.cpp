@@ -1,8 +1,11 @@
 #include "Player.h"
+
 #include "../Cards/Cards.h"
 #include "../Map/Map.h"
 #include "../Orders/Orders.h"
 #include <set>
+#include <algorithm>
+#include <limits>
 
 // Default constructor
 Player::Player() : name(new std::string("Unknown")), territories(new std::vector<Territory*>()), hand(new Hand()), orders(new OrderList()), reinforcements(new int()) {}
@@ -61,6 +64,13 @@ std::vector<Territory*> Player::toDefend() {
     return *territories;
 }
 
+void Player::emptyToDefend() {
+    for (Territory* territory : *territories) {
+        delete territory;
+    }
+    this->territories->clear();
+}
+
 // Return territories to attack
 std::vector<Territory*> Player::toAttack() {
     std::set<Territory*> uniqueAtkTargets;
@@ -82,24 +92,45 @@ void Player::issueOrder(std::unique_ptr<Order> order) {
     orders->addOrder(std::move(order));
 }
 
-void Player::issueOrder() {
+void Player::issueOrder(std::vector<Player*>* players) {
     std::cout << "Here are the territories you should defend:" << std::endl;
-    for(Territory* territory: toDefend()) {
+    std::vector<Territory*> playerTerritories = toDefend();
+    std::vector<Territory*> territoriesToAttack = toAttack();
+    std::vector<Territory*> allTerritories;
+
+    allTerritories.reserve(playerTerritories.size() + territoriesToAttack.size());
+    allTerritories.insert(allTerritories.end(),playerTerritories.begin(),playerTerritories.end());
+    allTerritories.insert(allTerritories.end(), territoriesToAttack.begin(),territoriesToAttack.end());
+
+    for(Territory* territory: playerTerritories) {
         std::cout << territory->getName() << std::endl;
     }
 
     std::cout << "\nFor now, use the deploy order until you have no more reinforcements to deploy." << std::endl;
 
-    while (*this->reinforcements != 0) {
-        std::cout << "\nRemaining units: " << *this->reinforcements << std::endl;
+    int reinforcements = this->getReinforcements();
+    while (reinforcements != 0) {
+        std::cout << "\nRemaining units: " << reinforcements << std::endl;
+
         int unitsToUse = 0;
+
         std::cout << "How many units would you like to deploy?" << std::endl;
         std::cin >> unitsToUse;
-        if(*this->reinforcements - unitsToUse < 0) {
-            std::cout << "You cannot deploy more units than what you have. No units deployed, try again" << std::endl;
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+        std::cout << "To which territory do you want to deploy these " << unitsToUse << "? Type the name of the territory as you see it." << std::endl;
+        std::string territoryName;
+        std::getline(std::cin,territoryName);
+
+        auto target = std::ranges::find_if(playerTerritories, [&territoryName](Territory* territory) {
+                return territory->getName() == territoryName;
+        });
+
+        reinforcements -= unitsToUse;
+        if(target != playerTerritories.end()) {
+            orders->addOrder(std::make_unique<DeployOrder>(this,*target,new int(unitsToUse)));
         } else {
-            orders->addOrder(std::make_unique<DeployOrder>());
-            *this->reinforcements -= unitsToUse;
+            orders->addOrder(std::make_unique<DeployOrder>(this,nullptr,new int(unitsToUse)));
         }
     }
 
@@ -108,10 +139,10 @@ void Player::issueOrder() {
         return;
     }
 
-    std::cout << "\nYou have now deployed all of your reinforcements units. You can now issue orders other than deploy now." << std::endl;
+    std::cout << "\nYou have now issue deployment orders for all of your reinforcements units. You can now issue orders other than deploy now." << std::endl;
     //Once all reinforcements are deployed then show the toAttack stuff
     std::cout << "\nHere are the territories you should attack:" << std::endl;
-    for(Territory* territory: toAttack()) {
+    for(Territory* territory: territoriesToAttack) {
         std::cout << territory->getName() << std::endl;
     }
 
@@ -137,6 +168,7 @@ void Player::issueOrder() {
 
         std::string orderInput;
         std::cin >> orderInput;
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
         if (orderInput == "endissueorders") {
             playerHasFinishedIssuingOrders = true;
@@ -145,33 +177,111 @@ void Player::issueOrder() {
         }
 
         if (orderInput == stringEnumCards[0]) {
-            this->orders->addOrder(std::make_unique<AdvanceOrder>());
-            chosenOrderIndex = 0;
+            std::string sourceTerritory;
+            std::string targetTerritory;
+            int numOfUnits = 0;
+
+            std::cout << "From which territory do you wish to move units from?" << std::endl;
+            std::getline(std::cin,sourceTerritory);
+            auto source = std::ranges::find_if(allTerritories, [&sourceTerritory](Territory* territory) {
+                return territory->getName() == sourceTerritory;
+            });
+
+
+            std::cout << "To what territory should these units be deployed?" << std::endl;
+            std::getline(std::cin,targetTerritory);
+            auto target = std::ranges::find_if(allTerritories, [&targetTerritory](Territory* territory) {
+                return territory->getName() == targetTerritory;
+            });
+
+            std::cout << "Lastly, how many units do you want to move." << std::endl;
+            std::cin >> numOfUnits;
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+            if (source != allTerritories.end() && target != allTerritories.end()) {
+                this->orders->addOrder(std::make_unique<AdvanceOrder>(this, *source, *target, new int(numOfUnits)));
+                chosenOrderIndex = 0;
+            } else {
+                std::cout << "The target or source territory is not in the list of territories to defend or attack. Try again" << std::endl;
+            }
         } else if (orderInput == stringEnumCards[1]) {
-            this->orders->addOrder(std::make_unique<AirliftOrder>());
-            chosenOrderIndex = 1;
+            std::string sourceTerritory;
+            std::string targetTerritory;
+            int numOfUnits = 0;
+
+            std::cout << "From which territory do you wish to airlift units from?" << std::endl;
+            std::getline(std::cin,sourceTerritory);
+            auto source = std::ranges::find_if(allTerritories, [&sourceTerritory](Territory* territory) {
+                return territory->getName() == sourceTerritory;
+            });
+
+            std::cout << "To what territory should these units be deployed?" << std::endl;
+            std::getline(std::cin,targetTerritory);
+            auto target = std::ranges::find_if(allTerritories, [&targetTerritory](Territory* territory) {
+                return territory->getName() == targetTerritory;
+            });
+
+            std::cout << "Lastly, how many units do you want to airlift. Source territory has "<< (*source)->getArmies() << " units you can move" << std::endl;
+            std::cin >> numOfUnits;
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+            if (source != allTerritories.end() && target != allTerritories.end()) {
+                this->orders->addOrder(std::make_unique<AirliftOrder>(this,  *source, *target, new int(numOfUnits)));
+                chosenOrderIndex = 1;
+            } else {
+                std::cout << "The target or source territory is not in the list of territories to defend or attack. Try again" << std::endl;
+            }
         } else if (orderInput == stringEnumCards[2]) {
-            this->orders->addOrder(std::make_unique<BlockadeOrder>());
-            chosenOrderIndex = 2;
+            std::string targetTerritory;
+            std::cout << "What territory do you want to blockade?" << std::endl;
+            std::getline(std::cin,targetTerritory);
+
+            auto target = std::ranges::find_if(allTerritories, [&targetTerritory](Territory* territory) {
+                return territory->getName() == targetTerritory;
+            });
+
+            if (target != playerTerritories.end()) {
+                this->orders->addOrder(std::make_unique<BlockadeOrder>(this, *target));
+                chosenOrderIndex = 2;
+            } else {
+                std::cout << "The target territory was not found. Try again" << std::endl;
+            }
         } else if (orderInput == stringEnumCards[3]) {
-            this->orders->addOrder(std::make_unique<BombOrder>());
-            chosenOrderIndex = 3;
+            std::string targetTerritory;
+            std::cout << "What territory do you want to bomb?" << std::endl;
+            std::getline(std::cin,targetTerritory);
+
+            auto target = std::ranges::find_if(allTerritories, [&targetTerritory](Territory* territory) {
+                return territory->getName() == targetTerritory;
+            });
+
+            if (target != playerTerritories.end()) {
+                this->orders->addOrder(std::make_unique<BombOrder>(this, *target));
+                chosenOrderIndex = 3;
+            } else {
+                std::cout << "The target territory was not found. Try again" << std::endl;
+            }
         } else if (orderInput == stringEnumCards[4]) {
-            this->orders->addOrder(std::make_unique<NegotiateOrder>());
-            chosenOrderIndex = 4;
+            std::string targetPlayer;
+            std::cout << "With who do you want to negotiate with? Type their name as it appears:" << std::endl;
+            for(Player* player: *players) {
+                std::cout << player->getName() << std::endl;
+            }
+
+            std::getline(std::cin, targetPlayer);
+
+            auto target = std::ranges::find_if(*players, [&targetPlayer](Player* player) {
+                return player->getName() == targetPlayer;
+            });
+
+            if (target != players->end()) {
+                this->orders->addOrder(std::make_unique<NegotiateOrder>(this,*target));
+                chosenOrderIndex = 4;
+            } else {
+                std::cout << "The target player was not found. Try again" << std::endl;
+            }
         } else {
             std::cout << "Invalid command. Did nothing, please re-issue your order" << std::endl;
-        }
-
-        if (chosenOrderIndex != -1) {
-            for(int i = 0; i < playerHandOrders.size(); i++) {
-                if (playerHandOrders[i]->getTypeAsString() == stringEnumCards[chosenOrderIndex]) {
-                    delete playerHandOrders[i];
-                    playerHandOrders.erase(playerHandOrders.begin() + i);
-                    this->hand->setHandCards(playerHandOrders);//Update the player hand
-                    break;
-                }
-            }
         }
     }
 }

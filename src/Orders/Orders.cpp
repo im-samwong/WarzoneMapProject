@@ -70,10 +70,11 @@ std::ostream& operator<<(std::ostream& os, const Order& order) {
 }
 
 Order::~Order() {
-    delete sourcePlayer;
-    delete targetPlayer;
-    delete source;
-    delete target;
+    //Don't delete these because we're actually passing them and not copies --> Very risky
+    // delete sourcePlayer;
+    // delete targetPlayer;
+    // delete source;
+    // delete target;
     delete numUnits;
 }
 
@@ -94,7 +95,7 @@ DeployOrder& DeployOrder::operator=(const DeployOrder& other) {
 }
 
 bool DeployOrder::validate() const {
-    if (target->getOwner() != sourcePlayer) {
+    if (target == nullptr || target->getOwner() != sourcePlayer) {
         std::cout << "DeployOrder Validation Failed: Target territory is not owned by the player." << std::endl;
         return false;
     }
@@ -110,17 +111,16 @@ void DeployOrder::execute() {
         target->modifyArmies(*numUnits);
         sourcePlayer->changeReinforcements(-(*numUnits));
         std::cout << "Executed DeployOrder: " << *numUnits << " units deployed to " << target->getName() << std::endl;
+    }
 
-        if (logObserver) {
-            notify(this);
-        }
+    if (logObserver != nullptr) {
+        notify(this);
     }
 }
 
 std::string DeployOrder::stringToLog() const {
     return "Executed DeployOrder: " + std::to_string(*numUnits) + " units deployed to " + target->getName();
 }
-
 
 std::string DeployOrder::description() const {
     return "Deploy Order";
@@ -232,30 +232,29 @@ void AdvanceOrder::execute() {
                 // Attacker wins and captures the territory
                 target->setOwner(sourcePlayer);
                 target->modifyArmies(survivingAttackers);  // Occupy the territory with surviving attackers
-
                 *effects += "Executed AdvanceOrder: " + target->getName() + " has been conquered!\n";
                 std::cout << "Executed AdvanceOrder: " << target->getName() << " has been conquered!" << std::endl;
 
                 // Set conquered territory status for the player to receive a card
                 GameState::setConqueredTerritory(sourcePlayer, true);
             } else {
+                // Attack failed, so target retains its ownership, and all attacking units are lost
                 *effects += "Executed AdvanceOrder: Attack failed. " + target->getName()
                           + " remains under control of " + target->getOwner()->getName() + ".\n";
-                // Attack failed, so target retains its ownership, and all attacking units are lost
                 std::cout << "Executed AdvanceOrder: Attack failed. " << target->getName()
                           << " remains under control of " << target->getOwner()->getName() << "." << std::endl;
                 target->modifyArmies(survivingDefenders);  // Restore the surviving defenders in the target territory
             }
 
+            // Output the battle result
             *effects += "Battle Result: " + std::to_string(attackingUnits - survivingAttackers) + " attacking units lost, "
                       + std::to_string(defendingUnits - survivingDefenders) + " defending units lost.\n";
-            // Output the battle result
             std::cout << "Battle Result: " << (attackingUnits - survivingAttackers) << " attacking units lost, "
                       << (defendingUnits - survivingDefenders) << " defending units lost." << std::endl;
         }
     }
 
-    if (logObserver) {
+    if (logObserver != nullptr) {
         notify(this);
     }
 
@@ -266,7 +265,6 @@ void AdvanceOrder::execute() {
 std::string AdvanceOrder::stringToLog() const {
     return *effects;
 }
-
 
 std::string AdvanceOrder::description() const {
     return "Advance Order";
@@ -323,11 +321,14 @@ void BombOrder::execute() {
     if (validate()) {
         // Calculate units to remove (half of the army units)
         int unitsToRemove = target->getArmies() / 2;
+        if (unitsToRemove == 0) {
+            unitsToRemove += 1;
+        }
         target->modifyArmies(-unitsToRemove);
         std::cout << "Executed BombOrder: Halved the units on " << target->getName() << ". Remaining units: " << target->getArmies() << std::endl;
     }
 
-    if (logObserver) {
+    if (logObserver != nullptr) {
         notify(this);
     }
 }
@@ -335,7 +336,6 @@ void BombOrder::execute() {
 std::string BombOrder::stringToLog() const {
     return "Executed BombOrder: Halved the units on " + target->getName() + ". Remaining units: " + std::to_string(target->getArmies()) + ".\n";
 }
-
 
 std::string BombOrder::description() const {
     return "Bomb Order";
@@ -374,7 +374,7 @@ void BlockadeOrder::execute() {
                   << " to neutral ownership." << std::endl;
     }
 
-    if (logObserver) {
+    if (logObserver != nullptr) {
         notify(this);
     }
 }
@@ -383,7 +383,6 @@ std::string BlockadeOrder::stringToLog() const {
     return "Executed BlockadeOrder: Doubled units and transferred " + target->getName()
                   + " to neutral ownership.\n";
 }
-
 
 std::string BlockadeOrder::description() const {
     return "Blockade Order";
@@ -425,7 +424,7 @@ void AirliftOrder::execute() {
                   << " to " << target->getName() << std::endl;
     }
 
-    if (logObserver) {
+    if (logObserver != nullptr) {
         notify(this);
     }
 }
@@ -434,7 +433,6 @@ std::string AirliftOrder::stringToLog() const {
     return "Executed AirliftOrder: Moved " + std::to_string(*numUnits) + " units from " + source->getName()
                   + " to " + target->getName() + ".\n";
 }
-
 
 std::string AirliftOrder::description() const {
     return "Airlift Order";
@@ -470,16 +468,16 @@ void NegotiateOrder::execute() {
         std::cout << "Executed NegotiateOrder: " << sourcePlayer->getName() << " and " << targetPlayer->getName()
                   << " will not attack each other this turn." << std::endl;
     }
-    if (logObserver) {
+
+    if (logObserver != nullptr) {
         notify(this);
-    };
+    }
 }
 
 std::string NegotiateOrder::stringToLog() const {
     return "Executed NegotiateOrder: " + sourcePlayer->getName() + " and " + targetPlayer->getName()
                   + " will not attack each other this turn.\n";
 }
-
 
 std::string NegotiateOrder::description() const {
     return "Negotiate Order";
@@ -510,10 +508,9 @@ OrderList::~OrderList() = default;
 void OrderList::addOrder(std::unique_ptr<Order> order) {
     orders.push_back(std::move(order));
 
-   if (logObserver) {
-       order->attach(logObserver);
-       notify(this);
-   }
+    if (logObserver != nullptr) {
+        notify(this);
+    }
 }
 
 std::string OrderList::stringToLog() const {
@@ -522,7 +519,6 @@ std::string OrderList::stringToLog() const {
     order = nullptr;
     return toLog;
 }
-
 
 void OrderList::removeOrder(int index) {
     if (index >= 0 && index < orders.size()) {

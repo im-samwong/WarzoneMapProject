@@ -1,8 +1,6 @@
 #include "GameEngine.h"
 #include <iostream>
 
-LogObserver* logObserver = nullptr;
-
 // Initialize static members
 std::set<std::string> GameState::negotiations;
 std::unordered_map<Player*, bool> GameState::conqueredTerritories;
@@ -172,7 +170,7 @@ GameState::GameState(const GameStateTypes& iStateType, const GameStates& iStateN
     transitionCommands = new std::vector(iTransitionCommands);
     nextStates = new std::vector(iNextStates);
 
-    if (logObserver) {
+    if (logObserver != nullptr) {
         this->attach(logObserver);
         notify(this);
     }
@@ -184,7 +182,7 @@ GameState::GameState(const GameStateTypes& iStateType, const GameStates& iStateN
     transitionCommands = new std::vector(iTransitionCommands);
     nextStates = nullptr;
 
-    if (logObserver) {
+    if (logObserver != nullptr) {
         this->attach(logObserver);
         notify(this);
     }
@@ -196,7 +194,7 @@ GameState::GameState(const GameState& otherGameState) {
     transitionCommands = new std::vector(*otherGameState.transitionCommands);
     nextStates = new std::vector(*otherGameState.nextStates);
 
-    if (logObserver) {
+    if (logObserver != nullptr) {
         this->attach(logObserver);
         notify(this);
     }
@@ -204,9 +202,8 @@ GameState::GameState(const GameState& otherGameState) {
 
 std::string GameState::stringToLog() const {
     std::string state = mapEnumToString(*this->stateName);
-    return state;
+    return "Current state: " + state;
 }
-
 
 GameState& GameState::operator=(const GameState& otherGameState) {
     if (this != &otherGameState) {
@@ -483,6 +480,7 @@ GameState* WinState::transitionToNextState(const TransitionCommand transitionCom
 }
 
 // Game Engine implementation code
+
 GameEngine::~GameEngine() {
 
     delete gameOver;
@@ -536,7 +534,7 @@ bool GameEngine::transitionToNextState(TransitionCommand transitionCommand) {
     if (transitionCommand == TransitionCommand::END && nextState == nullptr && currentGameState == GameStates::WIN) {
         std::cout << "Issued command is END and current state is WIN. Game is over \n";
 
-        if (logObserver) {
+        if (logObserver != nullptr){
             notify(this);
         }
 
@@ -558,7 +556,8 @@ bool GameEngine::transitionToNextState(TransitionCommand transitionCommand) {
 
     this->currentGameState = nextState;
 
-    if (logObserver) {
+
+    if (logObserver != nullptr){
         notify(this);
     }
 
@@ -567,7 +566,7 @@ bool GameEngine::transitionToNextState(TransitionCommand transitionCommand) {
 
 std::string GameEngine::stringToLog() const {
     GameStates currentGameState = this->getCurrentGameState()->getStateName();
-    return mapEnumToString(currentGameState);
+    return "Current state: " + mapEnumToString(currentGameState);
 }
 
 void GameEngine::printCurrentStateCommands(const std::vector<TransitionCommand>& commands, const std::string& gameStateName) {
@@ -579,20 +578,12 @@ void GameEngine::printCurrentStateCommands(const std::vector<TransitionCommand>&
 }
 
 void GameEngine::addPlayer(const std::string& playerName) {
-    Player* player = new Player(playerName);
-    players->push_back(player);
-    if (logObserver) {
-        player->getOrdersList()->attach(logObserver);
-    }
-    delete player;
+    players->push_back(new Player(playerName));
 }
 
 void GameEngine::readInputFromFile(const std::string& filename) {
     delete cp;
     cp = new FileCommandProcessorAdapter(filename);
-    if (logObserver) {
-        cp->attach(logObserver);
-    }
 }
 
 bool GameEngine::startupPhase() {
@@ -607,14 +598,19 @@ bool GameEngine::startupPhase() {
     std::string currentStateName = mapEnumToString(currentGameState->getStateName());
     std::cout << "Currently in 'Start' state, waiting for 'loadmap <filename>' command\n";
 
-    Command* cmd = cp->getCommand(); // get command from user
-    if (logObserver) {
-        cmd->attach(logObserver);
+    if (logObserver != nullptr) {
+        cp->attach(logObserver);
     }
+
+    Command* cmd = cp->getCommand(); // get command from user
 
     if (!(cp->validate(*cmd, currentStateName))) { // validate command (only loadmap should work here)
         std::cout << "Unable to start game, received unexpected command:" << cmd->getCommand() << std::endl;
         return false;
+    }
+
+    if (logObserver != nullptr) {
+        cmd->attach(logObserver);
     }
 
     // load the map file
@@ -635,13 +631,15 @@ bool GameEngine::startupPhase() {
     // while loop to allow loading another map file or moving to validate
     while (currentGameState->getStateName() == GameStates::MAP_LOADED) {
         cmd = cp->getCommand();
-        if (logObserver) {
-            cmd->attach(logObserver);
-        }
         if (!(cp->validate(*cmd, currentStateName))) { // check if command is valid
             std::cout << "Unable to start game, received unexpected command:" << cmd->getCommand() << std::endl;
             return false;
         }
+
+        if (logObserver != nullptr) {
+            cmd->attach(logObserver);
+        }
+
         if (cmd->getCommand() == "validatemap") {
             std::cout << "Validating Map...\n";
             if (map->validate()) { // validate the loaded map file using the Map object built in method.
@@ -666,13 +664,14 @@ bool GameEngine::startupPhase() {
 
     std::cout << "Currently in mapvalidated state, you can add players with addplayer <player>\n";
     cmd = cp->getCommand();
-    if (logObserver) {
-        cmd->attach(logObserver);
-    }
 
     if (!(cp->validate(*cmd, currentStateName))) {
         std::cout << "Unable to start game, received unexpected command:" << cmd->getCommand() << std::endl;
         return false;
+    }
+
+    if (logObserver != nullptr) {
+        cmd->attach(logObserver);
     }
 
     std::cout << "Adding player " << cmd->getArgument() << "\n";
@@ -688,14 +687,16 @@ bool GameEngine::startupPhase() {
     while (currentGameState->getStateName() == GameStates::PLAYERS_ADDED) {
         std::cout << "Currently in playersadded state, you can add players with addplayer <player> or start the game with gamestart (minimum 2 players needed)\n";
         cmd = cp->getCommand();
-        if (logObserver) {
-            cmd->attach(logObserver);
-        }
 
         if (!(cp->validate(*cmd, currentStateName))) { // check if command is valid
             std::cout << "Unable to start game, received unexpected command:" << cmd->getCommand() << std::endl;
             return false;
         }
+
+        if (logObserver != nullptr) {
+            cmd->attach(logObserver);
+        }
+
         if (cmd->getCommand() == "addplayer") {
             if (players->size() < MAX_PLAYERS) {
                 addPlayer(cmd->getArgument());
@@ -754,14 +755,10 @@ void GameEngine::distrubuteTerritories() {
     // Assign territories to players in round-robin fashion
     std::size_t playerCount = players->size();
     for (std::size_t i = 0; i < territories->size(); ++i) {
-        std::cout << "DEBUG\n";
         Player* currentPlayer = (*players)[i % playerCount];
-        std::cout << "DEBUG\n";
         currentPlayer->addTerritory((*territories)[i]);
-        std::cout << "DEBUG\n";
         (*territories)[i]->setOwner(currentPlayer);
     }
-
 }
 
 void GameEngine::shufflePlayers() {
@@ -807,7 +804,7 @@ void GameEngine::issueOrdersPhase() {
 
     for (Player* player : *players) {
         std::cout << "Player " << player->getName() << " it is your turn.\n" << std::endl;
-        player->issueOrder();
+        player->issueOrder(players);
         std::cout << std::endl;
     }
 
@@ -831,7 +828,7 @@ void GameEngine::executeOrdersPhase() {
         std::vector<int> ordersToRemove;
         for(int i = 0; i < playerOrders.size(); ++i) {
             if (auto castedPtr = dynamic_cast<DeployOrder*>(playerOrders[i].get())) {
-                // castedPtr->execute();
+                castedPtr->execute();
                 ordersToRemove.push_back(i);
             }
         }
@@ -842,7 +839,7 @@ void GameEngine::executeOrdersPhase() {
         }
     }
 
-    std::cout << "All Reinforcement/Deploy orders done. Will now execute remaining orders" << std::endl;
+    std::cout << "\nAll Reinforcement/Deploy orders done. Will now execute remaining orders\n" << std::endl;
 
     for(Player* player : *players) {
         OrderList* playerOrderList = player->getOrdersList();
@@ -853,9 +850,9 @@ void GameEngine::executeOrdersPhase() {
         } else {
             for(int i = 0; i < playerOrders.size(); ++i) {
                 std::cout << "Player " << player->getName() << ", your next order is: " << *playerOrders[i] << std::endl;
-                // playerOrders[i].get()->execute();
-                // castedPtr->execute();
+                playerOrders[i].get()->execute();
                 ordersToRemove.push_back(i);
+                std::cout << std::endl;
             }
 
             std::sort(ordersToRemove.rbegin(), ordersToRemove.rend());
@@ -864,13 +861,14 @@ void GameEngine::executeOrdersPhase() {
             }
         }
     }
+    std::cout << std::endl;
 }
 
 void GameEngine::removeEliminatedPlayers() {
     std::vector<int> playersToRemove;
     for(int i = 0; i < players->size(); ++i) {
         if (players->at(i)->toDefend().empty()) {//No territories to defend = no more owned territories
-            std::cout << "Player" << players->at(i)->getName() << " has been ELIMINATED and will be removed." << std::endl;
+            std::cout << "Player " << players->at(i)->getName() << " has been ELIMINATED and will be removed." << std::endl;
             playersToRemove.push_back(i);
         }
     }
@@ -919,11 +917,22 @@ void GameEngine::mainGameLoop() {
         // Card bonus check and reset player constraint status
         refreshPlayerConstraints();
 
+        endGame();//Will make player 1 win automatically ONLY FOR DEMO PURPOSES
         removeEliminatedPlayers();
         setGameOverStatus(hasGameEnded());
-        setGameOverStatus(true);//Comment this out to try out the full game, this is just for testing to force the game to end
     }
 
-    exit(0);
+    //exit(0);
 }
 
+void GameEngine::endGame() {
+    std::cout << "\n\nFORCING END OF GAME FOR TESTING PURPOSES\n\n" << std::endl;
+    for (int i = 1; i < players->size(); ++i) {
+        for(Territory* territory : (*players)[i]->toDefend()) {
+            territory->setOwner((*players)[0]);
+            (*players)[i]->addTerritory(new Territory(*territory));
+        }
+
+        (*players)[i]->emptyToDefend();
+    }
+}

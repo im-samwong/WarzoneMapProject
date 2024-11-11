@@ -4,21 +4,28 @@
 #ifndef COMMANDPROCESSING_H
 #define COMMANDPROCESSING_H
 
+# include "../LoggingObserver/LoggingObserver.h"
 #include <fstream>
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include "../LoggingObserver/LoggingObserver.h"
 
-class Command : public Subject, public ILoggable{
+class Command: public Subject, public ILoggable {
 public:
     //Constructors
     Command(const std::string& cmd);
     Command(const std::string& cmd, const std::string& arg);
+    //Copy constructor
     Command(const Command& other);
     //Destructor
     ~Command();
-    // Methods
+
+    //Assignment operator
+    Command& operator=(const Command& other);
+    //Stream insertion operator
+    friend std::ostream& operator<<(std::ostream& out, const Command& cmd);
+
+    //Methods
     void saveEffect(const std::string& effect);
     std::string stringToLog() const override;
     std::string getCommand() const {return *command;}
@@ -33,19 +40,24 @@ private:
 };
 
 
-class CommandProcessor : public Subject, public ILoggable{
+class CommandProcessor: public Subject, public ILoggable {
 public:
     //Constructor
     CommandProcessor();
+    //Copy constructor
+    CommandProcessor(const CommandProcessor& other);
     //Destructor
     ~CommandProcessor();
+
+    //Assignment operator
+    CommandProcessor& operator=(const CommandProcessor& other);
+    //Stream insertion operator
+    friend std::ostream& operator<<(std::ostream& out, const CommandProcessor& cmdProcessor);
+
     //Methods
     Command* getCommand();
     std::string stringToLog() const override;
-    
-    //check if command is valid given the current state of the program
-    bool validate(Command& command, std::string& currentGameState);
-    
+    bool validate(Command& command, std::string& currentGameState); //checks if command is valid given current state of program
     Command* getLastCommand() const;
 
 protected:
@@ -63,13 +75,22 @@ class FileLineReader {
 public:
     //Constructor
     FileLineReader(const std::string& fileName);
+    //Copy constructor
+    FileLineReader(const FileLineReader& other);
     //Destructor
     ~FileLineReader();
+
+    //Assignment operator
+    FileLineReader& operator=(const FileLineReader& other);
+    //Stream insertion operator
+    friend std::ostream& operator<<(std::ostream& out, const FileLineReader& fileLR);
+
     //Method
     std::string readLine();
 
 private:
     std::ifstream* file;
+    std::string* filename;
 };
 
 
@@ -77,8 +98,16 @@ class FileCommandProcessorAdapter : public CommandProcessor {
 public:
     //Constructor
     FileCommandProcessorAdapter(const std::string& fileName);
+    //Copy constructor
+    FileCommandProcessorAdapter(const FileCommandProcessorAdapter& other);
     //Destructor
     ~FileCommandProcessorAdapter();
+
+    //Assignment operator
+    FileCommandProcessorAdapter& operator=(const FileCommandProcessorAdapter& other);
+    //Stream insertion operator
+    friend std::ostream& operator<<(std::ostream& out, const FileCommandProcessorAdapter& fileCmdPA);
+
     //Method
     void readCommand() override;
 

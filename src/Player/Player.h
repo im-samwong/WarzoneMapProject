@@ -39,9 +39,10 @@ public:
     std::vector<Territory*> toDefend();            // Return list of territories to defend
     std::vector<Territory*> toAttack();            // Return list of territories to attack
     void issueOrder(std::unique_ptr<Order> order); // Issue an order
-    void issueOrder();
+    void issueOrder(std::vector<Player*>* players);
     void addTerritory(Territory* t);
 
+    void emptyToDefend();
     void changeReinforcements(int i);
     int getReinforcements() const;
 
@@ -52,7 +53,6 @@ public:
     void setOrdersList(const OrderList& ol);
 
 private:
-    // std::string name;                      // Player's name
     std::string* name;
     std::vector<Territory*>* territories; // Collection of player's territories
     Hand* hand;                           // Player's hand of cards

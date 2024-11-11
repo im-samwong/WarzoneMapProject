@@ -2,15 +2,15 @@
 #define ORDERS_H
 
 #include "../Map/Map.h"
-#include "../LoggingObserver/LoggingObserver.h"
 #include "../Player/Player.h"
+#include "../LoggingObserver/LoggingObserver.h"
 #include <iostream>
 #include <memory>
 #include <string>
 #include <vector>
 
 // Abstract Order class
-class Order: public Subject, public ILoggable{
+class Order: public Subject, public ILoggable {
 public:
     // Constructors
     Order();
@@ -30,10 +30,10 @@ public:
 
     // Virtual clone method for deep copying
     virtual std::unique_ptr<Order> clone() const = 0;
+    virtual std::string description() const = 0;  // For printing the order description
 
     // Stream insertion operator to describe the order
     friend std::ostream& operator<<(std::ostream& os, const Order& order);
-    virtual std::string description() const = 0;  // For printing the order description
 
 protected:
     Player* sourcePlayer;
@@ -184,7 +184,6 @@ public:
     void removeOrder(int index);
     void moveOrder(int fromIndex, int toIndex);
     void printOrders() const;
-
     std::string stringToLog() const override;
 
     // Getters

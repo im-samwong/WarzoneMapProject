@@ -25,4 +25,6 @@ add_executable(MainDriver src/MainDriver.cpp
         src/LoggingObserver/LoggingObserver.h
         src/LoggingObserver/LoggingObserver.cpp
         src/Drivers/LoggingObserverDriver.cpp
+        src/LoggingObserver/LoggingObserver.cpp
+        src/Drivers/LoggingObserverDriver.cpp
 )

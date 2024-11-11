@@ -1,5 +1,11 @@
+//
+// Created by USER on 2024-11-08.
+//
+
 #include "LoggingObserver.h"
 #include <iostream>
+
+LogObserver* logObserver = nullptr;
 
 // Function to show inheritance
 std::string ILoggable::nameI() const {
@@ -63,6 +69,7 @@ void LogObserver::update(ILoggable* loggable) {
 
 void LogObserver::closeFile() {
     this->logfile->close();
+    std::cout << std::endl << "Loggable closed" << std::endl;
 }
 
 // Subject constructor

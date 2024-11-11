@@ -1,15 +1,24 @@
-start
-Current Command: loadmap-----Argument: ../maps/World.map-----Effect: This command has no effect..
-Map file loaded successfully.
+Current state: start
+Current Command: loadmap-----Argument: ../maps/World.map.
+Effect: Map file loaded successfully.
 
-maploaded
-Current Command: validatemap-----Argument: -----Effect: This command has no effect..
-Map is validated
-mapvalidated
-Current Command: addplayer-----Argument: Eve-----Effect: This command has no effect..
-Player added
-playersadded
-Current Command: addplayer-----Argument: Adam-----Effect: This command has no effect..
-Player added
-Current Command: gamestart-----Argument: -----Effect: This command has no effect..
-Triggered game start
+
+Current state: maploaded
+Current Command: validatemap-----Argument: .
+Effect: Map is validated
+
+Current state: mapvalidated
+Current Command: addplayer-----Argument: Eve.
+Effect: Player added
+
+Current state: playersadded
+Current Command: addplayer-----Argument: Adam.
+Effect: Player added
+
+Current Command: gamestart-----Argument: .
+Effect: Triggered game start
+
+Current state: assignreinforcement
+Current state: ISSUE_ORDERS
+Current state: EXECUTE_ORDERS
+Current state: WIN
