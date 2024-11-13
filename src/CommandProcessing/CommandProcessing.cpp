@@ -53,7 +53,7 @@ std::ostream& operator<<(std::ostream& out, const Command& cmd) {
 }
 
 void Command::saveEffect(const std::string& eff) {
-    effect = new std::string(eff);
+   effect = new std::string(eff);
 
     if (logObserver != nullptr) {
         notify(this);
@@ -61,13 +61,13 @@ void Command::saveEffect(const std::string& eff) {
 }
 
 std::string Command::stringToLog() const {
-    return this-> getEffect();
+    return "Effect: " + this-> getEffect() + "\n";
 }
 
 
 std::string Command::getEffect() const {
     if(effect==nullptr){
-        return "This command has no effect.";
+        return "This command has no effect";
     } else {
         return *effect;
     }
@@ -207,10 +207,10 @@ std::string CommandProcessor::stringToLog() const {
     Command* toLog = this->getLastCommand();
     if (toLog != nullptr) {
         std::string log = "Current Command: " + toLog->getCommand() + "-----Argument: "
-                          + toLog->getArgument() + "-----Effect: " + toLog->getEffect() + ".";
+                          + toLog->getArgument() + ".";
         return log;
     }
-    return "No Command has been saved.";
+    return "No Command has been saved";
 }
 
 //FileLineReader class definition

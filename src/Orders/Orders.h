@@ -24,7 +24,7 @@ public:
     virtual ~Order();
 
     // Pure virtual methods to be implemented by subclasses
-    virtual bool validate() const = 0;
+    virtual bool validate() = 0;
     virtual void execute() = 0;
     std::string stringToLog() const override = 0;
 
@@ -41,6 +41,7 @@ protected:
     Territory* source;
     Territory* target;
     int* numUnits;
+    std::string* effects = nullptr;
 };
 
 // Subclass: DeployOrder
@@ -55,7 +56,7 @@ public:
     DeployOrder& operator=(const DeployOrder& other);
 
     // Override methods
-    bool validate() const override;
+    bool validate()  override;
     void execute() override;
     std::unique_ptr<Order> clone() const override;
     std::string stringToLog() const override;
@@ -75,15 +76,13 @@ public:
     AdvanceOrder& operator=(const AdvanceOrder& other);
 
     // Override methods
-    bool validate() const override;
+    bool validate()  override;
     void execute() override;
     std::unique_ptr<Order> clone() const override;
     std::string stringToLog() const override;
 
     std::string description() const override;
 
-private:
-    std::string* effects = nullptr;
 };
 
 // Subclass: BombOrder
@@ -98,7 +97,7 @@ public:
     BombOrder& operator=(const BombOrder& other);
 
     // Override methods
-    bool validate() const override;
+    bool validate() override;
     void execute() override;
     std::unique_ptr<Order> clone() const override;
     std::string stringToLog() const override;
@@ -118,7 +117,7 @@ public:
     BlockadeOrder& operator=(const BlockadeOrder& other);
 
     // Override methods
-    bool validate() const override;
+    bool validate() override;
     void execute() override;
     std::unique_ptr<Order> clone() const override;
     std::string stringToLog() const override;
@@ -138,7 +137,7 @@ public:
     AirliftOrder& operator=(const AirliftOrder& other);
 
     // Override methods
-    bool validate() const override;
+    bool validate() override;
     void execute() override;
     std::unique_ptr<Order> clone() const override;
     std::string stringToLog() const override;
@@ -158,7 +157,7 @@ public:
     NegotiateOrder& operator=(const NegotiateOrder& other);
 
     // Override methods
-    bool validate() const override;
+    bool validate() override;
     void execute() override;
     std::unique_ptr<Order> clone() const override;
     std::string stringToLog() const override;
