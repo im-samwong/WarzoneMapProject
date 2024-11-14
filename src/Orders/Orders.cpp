@@ -94,12 +94,16 @@ DeployOrder& DeployOrder::operator=(const DeployOrder& other) {
     return *this;
 }
 
-bool DeployOrder::validate() const {
+bool DeployOrder::validate()  {
+    effects = new std::string("");
+
     if (target == nullptr || target->getOwner() != sourcePlayer) {
+        *effects += "DeployOrder Validation Failed: Target territory is not owned by the player.\n";
         std::cout << "DeployOrder Validation Failed: Target territory is not owned by the player." << std::endl;
         return false;
     }
     if (*numUnits > sourcePlayer->getReinforcements()) {
+        *effects += "DeployOrder Validation Failed: Not enough units in the reinforcement pool.\n";
         std::cout << "DeployOrder Validation Failed: Not enough units in the reinforcement pool." << std::endl;
         return false;
     }
@@ -110,16 +114,20 @@ void DeployOrder::execute() {
     if (validate()) {
         target->modifyArmies(*numUnits);
         sourcePlayer->changeReinforcements(-(*numUnits));
+        *effects += "Executed DeployOrder: " + std::to_string(*numUnits) + " units deployed to " + target->getName() + "\n";
         std::cout << "Executed DeployOrder: " << *numUnits << " units deployed to " << target->getName() << std::endl;
     }
 
     if (logObserver != nullptr) {
         notify(this);
     }
+
+    delete effects;
+    effects = nullptr;
 }
 
 std::string DeployOrder::stringToLog() const {
-    return "Executed DeployOrder: " + std::to_string(*numUnits) + " units deployed to " + target->getName();
+    return *effects;
 }
 
 std::string DeployOrder::description() const {
@@ -142,15 +150,19 @@ AdvanceOrder& AdvanceOrder::operator=(const AdvanceOrder& other) {
     return *this;
 }
 
-bool AdvanceOrder::validate() const {
+bool AdvanceOrder::validate()  {
+    effects = new std::string("");
+
     // Check if the source territory is owned by the sourcePlayer
     if (source->getOwner() != sourcePlayer) {
+        *effects += "AdvanceOrder Validation Failed: Source territory is not owned by the player.\n";
         std::cout << "AdvanceOrder Validation Failed: Source territory is not owned by the player." << std::endl;
         return false;
     }
 
     // Check if there are enough units in the source territory
     if (*numUnits > source->getArmies()) {
+        *effects += "AdvanceOrder Validation Failed: Not enough units in the source territory.\n";
         std::cout << "AdvanceOrder Validation Failed: Not enough units in the source territory." << std::endl;
         return false;
     }
@@ -166,12 +178,15 @@ bool AdvanceOrder::validate() const {
     }
 
     if (!isAdjacent) {
+        *effects += "AdvanceOrder Validation Failed: Target is not adjacent to the source territory.\n";
         std::cout << "AdvanceOrder Validation Failed: Target is not adjacent to the source territory." << std::endl;
         return false;
     }
 
     // Check for a truce only if the target is owned by another player
     if (target->getOwner() != sourcePlayer && GameState::hasNegotiation(sourcePlayer, target->getOwner())) {
+        *effects += "AdvanceOrder Validation Failed: A truce is in place between " + sourcePlayer->getName()
+                  + " and " + target->getOwner()->getName() + ". Attack not allowed.\n";
         std::cout << "AdvanceOrder Validation Failed: A truce is in place between " << sourcePlayer->getName()
                   << " and " << target->getOwner()->getName() << ". Attack not allowed." << std::endl;
         return false;
@@ -181,8 +196,6 @@ bool AdvanceOrder::validate() const {
 }
 
 void AdvanceOrder::execute() {
-    effects = new std::string("");
-
      if (validate()) {
         if (target->getOwner() == sourcePlayer) {
             // Move units between territories owned by the same player
@@ -286,15 +299,19 @@ BombOrder& BombOrder::operator=(const BombOrder& other) {
     return *this;
 }
 
-bool BombOrder::validate() const {
+bool BombOrder::validate()  {
+    effects = new std::string("");
+
     // Check if the target territory belongs to the issuing player
     if (target->getOwner() == sourcePlayer) {
+        *effects += "BombOrder Validation Failed: Cannot bomb your own territory\n.";
         std::cout << "BombOrder Validation Failed: Cannot bomb your own territory." << std::endl;
         return false;
     }
 
     const std::vector<Territory*>* neighbors = target->getNeighbors();
     if (!neighbors) {
+        *effects += "BombOrder Validation Failed: Source territory has no neighbors.\n";
         std::cout << "BombOrder Validation Failed: Source territory has no neighbors." << std::endl;
         return false;
     }
@@ -309,6 +326,7 @@ bool BombOrder::validate() const {
     }
 
     if (!isAdjacent) {
+        *effects += "BombOrder Validation Failed: Target territory is not adjacent to any territory owned by the player.\n";
         std::cout << "BombOrder Validation Failed: Target territory is not adjacent to any territory owned by the player." << std::endl;
         return false;
     }
@@ -325,16 +343,20 @@ void BombOrder::execute() {
             unitsToRemove += 1;
         }
         target->modifyArmies(-unitsToRemove);
+        *effects += "Executed BombOrder: Halved the units on " + target->getName() + ". Remaining units: " + std::to_string(target->getArmies());
         std::cout << "Executed BombOrder: Halved the units on " << target->getName() << ". Remaining units: " << target->getArmies() << std::endl;
     }
 
     if (logObserver != nullptr) {
         notify(this);
     }
+
+    delete effects;
+    effects = nullptr;
 }
 
 std::string BombOrder::stringToLog() const {
-    return "Executed BombOrder: Halved the units on " + target->getName() + ". Remaining units: " + std::to_string(target->getArmies()) + ".\n";
+    return *effects;
 }
 
 std::string BombOrder::description() const {
@@ -357,8 +379,11 @@ BlockadeOrder& BlockadeOrder::operator=(const BlockadeOrder& other) {
     return *this;
 }
 
-bool BlockadeOrder::validate() const {
+bool BlockadeOrder::validate() {
+    effects = new std::string("");
+
     if (target->getOwner() != sourcePlayer) {
+        *effects += "BlockadeOrder Validation Failed: Target territory is not owned by the player.\n";
         std::cout << "BlockadeOrder Validation Failed: Target territory is not owned by the player." << std::endl;
         return false;
     }
@@ -370,6 +395,8 @@ void BlockadeOrder::execute() {
         int currentArmies = target->getArmies();
         target->modifyArmies(currentArmies);
         target->setOwner(nullptr);  // Assuming nullptr represents neutral ownership
+        *effects += "Executed BlockadeOrder: Doubled units and transferred " + target->getName()
+                  + " to neutral ownership.\n";
         std::cout << "Executed BlockadeOrder: Doubled units and transferred " << target->getName()
                   << " to neutral ownership." << std::endl;
     }
@@ -377,11 +404,13 @@ void BlockadeOrder::execute() {
     if (logObserver != nullptr) {
         notify(this);
     }
+
+    delete effects;
+    effects = nullptr;
 }
 
 std::string BlockadeOrder::stringToLog() const {
-    return "Executed BlockadeOrder: Doubled units and transferred " + target->getName()
-                  + " to neutral ownership.\n";
+    return *effects;
 }
 
 std::string BlockadeOrder::description() const {
@@ -404,12 +433,16 @@ AirliftOrder& AirliftOrder::operator=(const AirliftOrder& other) {
     return *this;
 }
 
-bool AirliftOrder::validate() const {
+bool AirliftOrder::validate() {
+    effects = new std::string("");
+
     if (source->getOwner() != sourcePlayer || target->getOwner() != sourcePlayer) {
+        *effects += "AirliftOrder Validation Failed: Both source and target must be owned by the player.\n";
         std::cout << "AirliftOrder Validation Failed: Both source and target must be owned by the player." << std::endl;
         return false;
     }
     if (*numUnits > source->getArmies()) {
+        *effects += "AirliftOrder Validation Failed: Not enough units in the source territory.\n";
         std::cout << "AirliftOrder Validation Failed: Not enough units in the source territory." << std::endl;
         return false;
     }
@@ -420,6 +453,8 @@ void AirliftOrder::execute() {
     if (validate()) {
         target->modifyArmies(*numUnits);
         source->modifyArmies(-*numUnits);
+        *effects += "Executed AirliftOrder: Moved " + std::to_string(*numUnits) + " units from " + source->getName()
+                  + " to " + target->getName() + "\n";
         std::cout << "Executed AirliftOrder: Moved " << *numUnits << " units from " << source->getName()
                   << " to " << target->getName() << std::endl;
     }
@@ -427,11 +462,13 @@ void AirliftOrder::execute() {
     if (logObserver != nullptr) {
         notify(this);
     }
+
+    delete effects;
+    effects = nullptr;
 }
 
 std::string AirliftOrder::stringToLog() const {
-    return "Executed AirliftOrder: Moved " + std::to_string(*numUnits) + " units from " + source->getName()
-                  + " to " + target->getName() + ".\n";
+    return *effects;
 }
 
 std::string AirliftOrder::description() const {
@@ -454,8 +491,11 @@ NegotiateOrder& NegotiateOrder::operator=(const NegotiateOrder& other) {
     return *this;
 }
 
-bool NegotiateOrder::validate() const {
+bool NegotiateOrder::validate() {
+    effects = new std::string("");
+
     if (targetPlayer == sourcePlayer) {
+        *effects += "NegotiateOrder Validation Failed: Cannot negotiate with yourself.\n";
         std::cout << "NegotiateOrder Validation Failed: Cannot negotiate with yourself." << std::endl;
         return false;
     }
@@ -465,6 +505,8 @@ bool NegotiateOrder::validate() const {
 void NegotiateOrder::execute() {
     if (validate()) {
         GameState::addNegotiation(sourcePlayer, targetPlayer);
+        *effects +="Executed NegotiateOrder: " + sourcePlayer->getName() + " and " + targetPlayer->getName()
+                  + " will not attack each other this turn.";
         std::cout << "Executed NegotiateOrder: " << sourcePlayer->getName() << " and " << targetPlayer->getName()
                   << " will not attack each other this turn." << std::endl;
     }
@@ -472,11 +514,13 @@ void NegotiateOrder::execute() {
     if (logObserver != nullptr) {
         notify(this);
     }
+
+    delete effects;
+    effects = nullptr;
 }
 
 std::string NegotiateOrder::stringToLog() const {
-    return "Executed NegotiateOrder: " + sourcePlayer->getName() + " and " + targetPlayer->getName()
-                  + " will not attack each other this turn.\n";
+    return *effects;
 }
 
 std::string NegotiateOrder::description() const {

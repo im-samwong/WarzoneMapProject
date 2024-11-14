@@ -26,10 +26,10 @@ int main() {
     //
     // testGameStates();
     // std::cout << std::endl;
-     testOrderExecution();
-     testCommandProcessor();
-     testStartupPhase();
-     testMainGameLoop();
+    // testOrderExecution();
+    // testCommandProcessor();
+    // testStartupPhase();
+    // testMainGameLoop();
      testLoggingObserver();
 
     return 0;

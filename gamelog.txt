@@ -1,24 +1,30 @@
-Executed DeployOrder: 5 units deployed to Territory 1
-Executed AdvanceOrder: Moved 3 units from Territory 1 to Territory 2.
-
-Executed BombOrder: Halved the units on Enemy Territory 1. Remaining units: 3.
-
-Executed AdvanceOrder: Enemy Territory 1 has been conquered!
-Battle Result: 0 attacking units lost, 3 defending units lost.
-
-Executed AirliftOrder: Moved 2 units from Territory 1 to Enemy Territory 1.
-
-Executed BlockadeOrder: Doubled units and transferred Territory 1 to neutral ownership.
-
-Executed NegotiateOrder: Player 1 and Player 2 will not attack each other this turn.
+Current state: start
+Current Command: loadmap-----Argument: ../maps/World.map.
+Effect: Map file loaded successfully.
 
 
-Order added to list: Bomb Order
-start
-maploaded
-mapvalidated
-playersadded
-assignreinforcement
-ISSUE_ORDERS
-EXECUTE_ORDERS
-WIN
+Current state: maploaded
+Current Command: validatemap-----Argument: .
+Effect: Map is validated
+
+Current state: mapvalidated
+Current Command: addplayer-----Argument: Eve.
+Effect: Player added
+
+Current state: playersadded
+Current Command: addplayer-----Argument: Adam.
+Effect: Player added
+
+Current Command: gamestart-----Argument: .
+Effect: Triggered game start
+
+Current state: assignreinforcement
+Current state: ISSUE_ORDERS
+Order added to list: Deploy Order
+Order added to list: Deploy Order
+Current state: EXECUTE_ORDERS
+DeployOrder Validation Failed: Target territory is not owned by the player.
+
+DeployOrder Validation Failed: Target territory is not owned by the player.
+
+Current state: WIN

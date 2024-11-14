@@ -202,7 +202,7 @@ GameState::GameState(const GameState& otherGameState) {
 
 std::string GameState::stringToLog() const {
     std::string state = mapEnumToString(*this->stateName);
-    return state;
+    return "Current state: " + state;
 }
 
 GameState& GameState::operator=(const GameState& otherGameState) {
@@ -566,7 +566,7 @@ bool GameEngine::transitionToNextState(TransitionCommand transitionCommand) {
 
 std::string GameEngine::stringToLog() const {
     GameStates currentGameState = this->getCurrentGameState()->getStateName();
-    return mapEnumToString(currentGameState);
+    return "Current state: " + mapEnumToString(currentGameState);
 }
 
 void GameEngine::printCurrentStateCommands(const std::vector<TransitionCommand>& commands, const std::string& gameStateName) {
@@ -598,11 +598,19 @@ bool GameEngine::startupPhase() {
     std::string currentStateName = mapEnumToString(currentGameState->getStateName());
     std::cout << "Currently in 'Start' state, waiting for 'loadmap <filename>' command\n";
 
+    if (logObserver != nullptr) {
+        cp->attach(logObserver);
+    }
+
     Command* cmd = cp->getCommand(); // get command from user
 
     if (!(cp->validate(*cmd, currentStateName))) { // validate command (only loadmap should work here)
         std::cout << "Unable to start game, received unexpected command:" << cmd->getCommand() << std::endl;
         return false;
+    }
+
+    if (logObserver != nullptr) {
+        cmd->attach(logObserver);
     }
 
     // load the map file
@@ -627,6 +635,11 @@ bool GameEngine::startupPhase() {
             std::cout << "Unable to start game, received unexpected command:" << cmd->getCommand() << std::endl;
             return false;
         }
+
+        if (logObserver != nullptr) {
+            cmd->attach(logObserver);
+        }
+
         if (cmd->getCommand() == "validatemap") {
             std::cout << "Validating Map...\n";
             if (map->validate()) { // validate the loaded map file using the Map object built in method.
@@ -657,6 +670,10 @@ bool GameEngine::startupPhase() {
         return false;
     }
 
+    if (logObserver != nullptr) {
+        cmd->attach(logObserver);
+    }
+
     std::cout << "Adding player " << cmd->getArgument() << "\n";
     addPlayer(cmd->getArgument());
     cmd->saveEffect("Player added");
@@ -675,6 +692,11 @@ bool GameEngine::startupPhase() {
             std::cout << "Unable to start game, received unexpected command:" << cmd->getCommand() << std::endl;
             return false;
         }
+
+        if (logObserver != nullptr) {
+            cmd->attach(logObserver);
+        }
+
         if (cmd->getCommand() == "addplayer") {
             if (players->size() < MAX_PLAYERS) {
                 addPlayer(cmd->getArgument());
@@ -781,6 +803,9 @@ void GameEngine::issueOrdersPhase() {
     std::cout << "\nIn Issue Orders Phase!\n" << std::endl;
 
     for (Player* player : *players) {
+        if (logObserver != nullptr) {
+            player->getOrdersList()->attach(logObserver);
+        }
         std::cout << "Player " << player->getName() << " it is your turn.\n" << std::endl;
         player->issueOrder(players);
         std::cout << std::endl;
@@ -806,6 +831,9 @@ void GameEngine::executeOrdersPhase() {
         std::vector<int> ordersToRemove;
         for(int i = 0; i < playerOrders.size(); ++i) {
             if (auto castedPtr = dynamic_cast<DeployOrder*>(playerOrders[i].get())) {
+                if (logObserver != nullptr) {
+                    castedPtr->attach(logObserver);
+                }
                 castedPtr->execute();
                 ordersToRemove.push_back(i);
             }
@@ -828,6 +856,9 @@ void GameEngine::executeOrdersPhase() {
         } else {
             for(int i = 0; i < playerOrders.size(); ++i) {
                 std::cout << "Player " << player->getName() << ", your next order is: " << *playerOrders[i] << std::endl;
+                if (logObserver != nullptr) {
+                    playerOrders[i].get()->attach(logObserver);
+                }
                 playerOrders[i].get()->execute();
                 ordersToRemove.push_back(i);
                 std::cout << std::endl;
