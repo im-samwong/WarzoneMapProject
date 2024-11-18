@@ -3,6 +3,7 @@
 #include <ostream>
 #include <vector>
 
+class Territory;
 class Player;
 
 class PlayerStrategy {
@@ -13,8 +14,8 @@ protected:
 public:
     //issueOrder with other players parameter because certain commands need Player infos
     virtual void issueOrder(std::vector<Player*>* players) = 0;
-    virtual void toAttack() = 0;
-    virtual void toDefend() = 0;
+    virtual void toAttack(std::vector<Territory*> territoriesToAttack) = 0;
+    virtual void toDefend(std::vector<Territory*> playerTerritories) = 0;
     virtual ~PlayerStrategy() = 0;
 
     //Getter for obtaining the player using this strategy
@@ -37,13 +38,13 @@ public:
 
 class AggressivePlayer: public PlayerStrategy {
 public:
-    AggressivePlayer(Player* player);
+    explicit AggressivePlayer(Player* player);
 
     void issueOrder(std::vector<Player *> *players) override;
 
-    void toAttack() override;
+    void toAttack(std::vector<Territory*> territoriesToAttack) override;
 
-    void toDefend() override;
+    void toDefend(std::vector<Territory*> playerTerritories) override;
 
     ~AggressivePlayer() override;
 };
