@@ -4,10 +4,11 @@
 #include "../Cards/Cards.h"
 #include "../Map/Map.h"
 #include "../Orders/Orders.h"
-#include <iostream>
 #include <memory>
 #include <string>
 #include <vector>
+
+#include "../PlayerStrategies/PlayerStrategies.h"
 
 // Forward declarations to avoid circular dependencies
 class Territory;
@@ -46,6 +47,9 @@ public:
     void changeReinforcements(int i);
     int getReinforcements() const;
 
+    void setPlayerStrategy(PlayerStrategy* ps);
+    PlayerStrategy* getPlayerStrategy() const;
+
     // Other getters and setters as needed
     std::string getName() const;
     Hand& getHand();
@@ -58,6 +62,7 @@ private:
     Hand* hand;                           // Player's hand of cards
     OrderList* orders;                    // List of orders the player has issued
     int* reinforcements;
+    PlayerStrategy* strategy;
 };
 
 #endif // PLAYER_H

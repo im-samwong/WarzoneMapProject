@@ -309,6 +309,15 @@ int Player::getReinforcements() const {
     return *reinforcements;
 }
 
+PlayerStrategy* Player::getPlayerStrategy() const {
+    return strategy;
+}
+
+void Player::setPlayerStrategy(PlayerStrategy *ps) {
+    delete strategy;
+    strategy = ps;
+}
+
 // Other getters and setters
 std::string Player::getName() const {
     return *name;

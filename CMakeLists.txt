@@ -29,4 +29,5 @@ add_executable(MainDriver src/MainDriver.cpp
         src/Drivers/LoggingObserverDriver.cpp
         src/PlayerStrategies/PlayerStrategies.h
         src/PlayerStrategies/PlayerStrategies.cpp
+        src/Drivers/PlayerStrategiesDriver.cpp
 )
