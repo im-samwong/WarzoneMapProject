@@ -283,6 +283,17 @@ void Player::issueOrder(std::vector<Player*>* players) {
         } else {
             std::cout << "Invalid command. Did nothing, please re-issue your order" << std::endl;
         }
+
+        if (chosenOrderIndex != -1) {
+            for(int i = 0; i < playerHandOrders.size(); i++) {
+                if (playerHandOrders[i]->getTypeAsString() == stringEnumCards[chosenOrderIndex]) {
+                    delete playerHandOrders[i];
+                    playerHandOrders.erase(playerHandOrders.begin() + i);
+                    this->hand->setHandCards(playerHandOrders);//Update the player hand
+                    break;
+                }
+            }
+        }
     }
 }
 
@@ -296,6 +307,15 @@ void Player::changeReinforcements(int i) {
 
 int Player::getReinforcements() const {
     return *reinforcements;
+}
+
+PlayerStrategy* Player::getPlayerStrategy() const {
+    return strategy;
+}
+
+void Player::setPlayerStrategy(PlayerStrategy *ps) {
+    delete strategy;
+    strategy = ps;
 }
 
 // Other getters and setters
