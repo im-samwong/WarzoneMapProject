@@ -288,6 +288,7 @@ public:
         players = new std::vector<Player*>();
         deck = new Deck();
         cp = new CommandProcessor();
+        map = nullptr;
     };
 
     ~GameEngine();
@@ -319,6 +320,12 @@ public:
     // Helper function for printing out the possible commands of the current state
     void printCurrentStateCommands(const std::vector<TransitionCommand>& commands, const std::string& gameStateName);
 
+    // Launch tournament mode
+    void playTournament(const TournamentParameters& params);
+
+    // Display tournament results
+    void printTournamentResults(const std::vector<TournamentResult>& results, int numberOfGames);
+
     //helper method to add player to game
     void addPlayer(const std::string& playerName);
 
@@ -327,7 +334,7 @@ public:
 
     bool startupPhase();
 
-    void mainGameLoop();
+    std::string mainGameLoop();
 
     void reinforcementPhase();
 
@@ -343,7 +350,9 @@ public:
 
     bool hasGameEnded();
     //helper method to distribute territories to players at the start of the game
-    void distrubuteTerritories(); 
+    void distrubuteTerritories();
+
+    void resetGame();
 
     //helper method to randomly determine play order by shuffling the players vector.
     void shufflePlayers();

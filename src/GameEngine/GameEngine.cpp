@@ -1,5 +1,6 @@
 #include "GameEngine.h"
 #include <iostream>
+#include <map>
 
 // Initialize static members
 std::set<std::string> GameState::negotiations;
@@ -586,6 +587,60 @@ void GameEngine::readInputFromFile(const std::string& filename) {
     cp = new FileCommandProcessorAdapter(filename);
 }
 
+void GameEngine::playTournament(const TournamentParameters& params) {
+    std::cout << "Starting Tournament Mode...\n";
+
+    // Generate tournament commands grouped by map
+    std::vector<std::vector<std::string>> commandsByMap = cp->generateTournamentCommands(params);
+
+    // Store tournament results
+    std::vector<TournamentResult> tournamentResults;
+
+    for (size_t mapIndex = 0; mapIndex < commandsByMap.size(); ++mapIndex) {
+        TournamentResult result; // Create a result object for this map
+        result.mapName = params.mapFiles[mapIndex];
+
+        // For each map, run the specified number of games
+        for (size_t gameIndex = 0; gameIndex < params.numberOfGames; ++gameIndex) {
+            if (!(mapIndex == 0 && gameIndex == 0)) {
+                resetGame();
+            }
+
+            const auto& commands = commandsByMap[mapIndex]; // Commands for the current map
+            std::cout << "Starting tournament for map " << result.mapName << ", Game " << gameIndex + 1 << "\n";
+
+            // Prepare command stream for the current game
+            std::stringstream commandStream;
+            for (const auto& command : commands) {
+                commandStream << command << "\n";
+            }
+            cp->setInputStream(&commandStream); // Redirect input to automated commands
+
+            // Execute startupPhase with automated input
+            if (!startupPhase()) {
+                std::cout << "Failed to initialize game for map: " << result.mapName << "\n";
+                result.gameResults.push_back("Initialization Failed");
+                continue; // Skip to the next game if initialization fails
+            }
+
+            cp->restoreConsoleInput(); // Restore console input for manual player decisions
+
+            // Run main game loop and record the result
+            std::string winner = mainGameLoop(); // Assume this returns the winner or outcome
+            result.gameResults.push_back(winner);
+        }
+
+        // Add the result for this map to the tournament results
+        tournamentResults.push_back(result);
+    }
+
+    std::cout << "Tournament finished.\n";
+
+    // Print the tournament results
+    printTournamentResults(tournamentResults, params.numberOfGames);
+}
+
+
 bool GameEngine::startupPhase() {
 
     std::cout << "== Entering Startup Phase == \n";
@@ -904,6 +959,48 @@ bool GameEngine::hasGameEnded() {
     return false;
 }
 
+void GameEngine::resetGame() {
+
+    std::cout << "Resetting game parameters." << std::endl;
+
+    // Reset the game over flag
+    *gameOver = false;
+
+    std::cout << "Error after gameover." << std::endl;
+
+    // Clear players
+    for (auto player : *players) {
+        delete player; // Clean up player objects
+    }
+    players->clear();
+
+    std::cout << "Error after players." << std::endl;
+
+    // Clear map
+    if (map != nullptr) {
+        delete map; // Clean up map object
+        map = nullptr;
+    }
+
+    std::cout << "Error after map." << std::endl;
+
+    // Reset the deck
+    if (deck != nullptr) {
+        delete deck; // Clean up the old deck
+    }
+    deck = new Deck();
+
+    std::cout << "Error after deck." << std::endl;
+
+    // Reset the current game state
+    if (currentGameState != nullptr) {
+        delete currentGameState; // Clean up the old state
+    }
+    currentGameState = nullptr;
+
+    std::cout << "GameEngine has been reset for the next game.\n";
+}
+
 void GameEngine::refreshPlayerConstraints() {
     std::cout << "Refreshing player constraints." << std::endl;
     for(Player* player : *players) {
@@ -917,7 +1014,7 @@ void GameEngine::refreshPlayerConstraints() {
     GameState::resetNegotiations();          // Reset the negotiation status for the next turn
 }
 
-void GameEngine::mainGameLoop() {
+std::string GameEngine::mainGameLoop() {
     while (!*gameOver) {
         reinforcementPhase();
         issueOrdersPhase();
@@ -931,7 +1028,51 @@ void GameEngine::mainGameLoop() {
         setGameOverStatus(hasGameEnded());
     }
 
+    if (players->size() == 1) {
+        return players->front()->getName(); // Return the winner's name
+    }
+
+    return "Draw"; // If no players remain or game ends in a tie
+
     //exit(0);
+}
+
+void GameEngine::printTournamentResults(const std::vector<TournamentResult>& results, int numberOfGames) {
+    std::cout << "\nTournament Results:\n";
+
+    // Dynamically generate the header based on numberOfGames
+    std::cout << " Map                ";
+    for (int i = 1; i <= numberOfGames; ++i) {
+        std::cout << "| Game " << i << "   ";
+    }
+    std::cout << "\n";
+
+    // Print separator
+    std::cout << "--------------------";
+    for (int i = 0; i < numberOfGames; ++i) {
+        std::cout << "|----------";
+    }
+    std::cout << "\n";
+
+    // Print results for each map
+    for (const auto& result : results) {
+        // Print map name
+        std::cout << result.mapName;
+        for (size_t i = result.mapName.size(); i < 20; ++i) std::cout << " "; // Align map names
+
+        // Print game results
+        for (size_t i = 0; i < result.gameResults.size(); ++i) {
+            std::cout << "| " << result.gameResults[i];
+            for (size_t j = result.gameResults[i].size(); j < 9; ++j) std::cout << " "; // Align results
+        }
+
+        // Fill empty slots for unplayed games
+        for (size_t i = result.gameResults.size(); i < numberOfGames; ++i) {
+            std::cout << "|          ";
+        }
+
+        std::cout << "\n";
+    }
 }
 
 void GameEngine::endGame() {
@@ -939,7 +1080,7 @@ void GameEngine::endGame() {
     for (int i = 1; i < players->size(); ++i) {
         for(Territory* territory : (*players)[i]->toDefend()) {
             territory->setOwner((*players)[0]);
-            (*players)[i]->addTerritory(new Territory(*territory));
+            (*players)[0]->addTerritory(territory);
         }
 
         (*players)[i]->emptyToDefend();

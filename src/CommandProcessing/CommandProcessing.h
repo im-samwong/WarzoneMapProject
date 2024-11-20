@@ -10,6 +10,19 @@
 #include <unordered_map>
 #include <vector>
 
+struct TournamentParameters {
+    std::vector<std::string> mapFiles;
+    std::vector<std::string> playerStrategies;
+    int numberOfGames;
+    int maxTurns;
+};
+
+struct TournamentResult {
+    std::string mapName;
+    std::vector<std::string> gameResults; // One result per game on this map
+};
+
+
 class Command: public Subject, public ILoggable {
 public:
     //Constructors
@@ -59,6 +72,10 @@ public:
     std::string stringToLog() const override;
     bool validate(Command& command, std::string& currentGameState); //checks if command is valid given current state of program
     Command* getLastCommand() const;
+    void restoreConsoleInput();
+    void setInputStream(std::istream* input); // Allow changing the input source dynamically
+    bool validateTournamentCommand(const std::string& command, TournamentParameters& params);
+    std::vector<std::vector<std::string>> generateTournamentCommands(const TournamentParameters& params);
 
 protected:
     void saveCommand(const std::string& command, const std::string& argument="");
@@ -68,6 +85,8 @@ private:
     virtual void readCommand();
     //Attributes
     std::vector<Command*>* lc; //stores collection of command objects
+    std::istream* inputStream; // Pointer to the current input source
+
 };
 
 
