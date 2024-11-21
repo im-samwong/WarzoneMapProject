@@ -333,3 +333,6 @@ void Player::setOrdersList(const OrderList& ol) {
     orders = new OrderList(ol);
 }
 
+std::vector<Territory *> Player::getAllTerritories() const {
+    return *this->territories;
+}
