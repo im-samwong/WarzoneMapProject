@@ -14,8 +14,8 @@ protected:
 public:
     //issueOrder with other players parameter because certain commands need Player infos
     virtual void issueOrder(std::vector<Player*>* players) = 0;
-    virtual void toAttack(std::vector<Territory*> territoriesToAttack) = 0;
-    virtual void toDefend(std::vector<Territory*> playerTerritories) = 0;
+    virtual std::vector<Territory*> toAttack() = 0;
+    virtual std::vector<Territory*> toDefend() = 0;
     virtual ~PlayerStrategy() = default;
 
     //Getter for obtaining the player using this strategy
@@ -42,9 +42,9 @@ public:
 
     void issueOrder(std::vector<Player *> *players) override;
 
-    void toAttack(std::vector<Territory*> territoriesToAttack) override;
+    std::vector<Territory*> toAttack() override;
 
-    void toDefend(std::vector<Territory*> playerTerritories) override;
+    std::vector<Territory*> toDefend() override;
 
     /**
      * Given a set of player owned territories, finds the source territory the player should used based on the idea that

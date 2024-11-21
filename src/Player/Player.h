@@ -42,7 +42,7 @@ public:
     void issueOrder(std::unique_ptr<Order> order); // Issue an order
     void issueOrder(std::vector<Player*>* players);
     void addTerritory(Territory* t);
-
+    std::vector<Territory*> getAllTerritories() const;
     void emptyToDefend();
     void changeReinforcements(int i);
     int getReinforcements() const;
