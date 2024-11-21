@@ -30,4 +30,5 @@ add_executable(MainDriver src/MainDriver.cpp
         src/PlayerStrategies/PlayerStrategies.h
         src/PlayerStrategies/PlayerStrategies.cpp
         src/Drivers/PlayerStrategiesDriver.cpp
+        src/Drivers/TournamentDriver.cpp
 )

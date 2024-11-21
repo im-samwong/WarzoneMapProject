@@ -65,10 +65,7 @@ std::vector<Territory*> Player::toDefend() {
 }
 
 void Player::emptyToDefend() {
-    for (Territory* territory : *territories) {
-        delete territory;
-    }
-    this->territories->clear();
+    this->territories->clear(); // Clear the list but do not delete the objects
 }
 
 // Return territories to attack

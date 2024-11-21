@@ -2,6 +2,8 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <sstream>
+#include <regex>
 
 Command::Command(const std::string& cmd) {
     command = new std::string(cmd);
@@ -84,6 +86,7 @@ std::string Command::getArgument() const {
 //CommandProcessor class definition
 CommandProcessor::CommandProcessor() {
     lc = new std::vector<Command*>();
+    inputStream = &std::cin;
 }
 
 //copy constructor
@@ -100,6 +103,7 @@ CommandProcessor::~CommandProcessor() {
         delete cmd;
     }
     delete lc;
+    delete inputStream;
 }
 
 //assignment operator
@@ -115,6 +119,10 @@ CommandProcessor& CommandProcessor::operator=(const CommandProcessor& other) {
     for (Command* cmd : *other.lc) {
         lc->push_back(new Command(*cmd));
     }
+
+    delete inputStream;
+
+    inputStream = other.inputStream;
 
     return *this;
 }
@@ -135,6 +143,88 @@ Command* CommandProcessor::getCommand() {
 
 Command* CommandProcessor::getLastCommand() const {
     return lc->back(); //returns last command
+}
+
+void CommandProcessor::setInputStream(std::istream* input) {
+    inputStream = input;
+}
+
+void CommandProcessor::restoreConsoleInput() {
+    inputStream = &std::cin;
+}
+
+std::vector<std::vector<std::string>> CommandProcessor::generateTournamentCommands(const TournamentParameters& params) {
+    std::vector<std::vector<std::string>> gameCommands;
+
+    for (const auto& map : params.mapFiles) {
+        std::vector<std::string> commands;
+        commands.push_back("loadmap ../maps/" + map);
+        commands.push_back("validatemap");
+        for (const auto& strategy : params.playerStrategies) {
+            commands.push_back("addplayer " + strategy);
+        }
+        commands.push_back("gamestart");
+        gameCommands.push_back(commands);
+    }
+
+    return gameCommands;
+}
+
+bool CommandProcessor::validateTournamentCommand(const std::string& command, TournamentParameters& params) {
+    // Regular expression to match the tournament command format
+    std::regex regexPattern(
+        R"(tournament\s+-M\s+([\w,\.\-]+)\s+-P\s+([\w,\.\-]+)\s+-G\s+(\d+)\s+-D\s+(\d+))");
+
+    std::smatch matches;
+    if (!std::regex_match(command, matches, regexPattern)) {
+        std::cout << "Invalid tournament command format.\n";
+        return false;
+    }
+
+    // Extract parameters
+    std::string mapList = matches[1];
+    std::string playerList = matches[2];
+    int games = std::stoi(matches[3]);
+    int maxTurns = std::stoi(matches[4]);
+
+    // Parse map and player lists by commas
+    std::istringstream mapStream(mapList);
+    std::istringstream playerStream(playerList);
+    std::string token;
+
+    while (std::getline(mapStream, token, ',')) {
+        params.mapFiles.push_back(token);
+    }
+
+    while (std::getline(playerStream, token, ',')) {
+        params.playerStrategies.push_back(token);
+    }
+
+    // Validate constraints
+    if (params.mapFiles.size() < 1 || params.mapFiles.size() > 5) {
+        std::cout << "Invalid number of maps (1-5 allowed).\n";
+        return false;
+    }
+
+    if (params.playerStrategies.size() < 2 || params.playerStrategies.size() > 4) {
+        std::cout << "Invalid number of player strategies (2-4 allowed).\n";
+        return false;
+    }
+
+    if (games < 1 || games > 5) {
+        std::cout << "Invalid number of games (1-5 allowed).\n";
+        return false;
+    }
+
+    if (maxTurns < 10 || maxTurns > 50) {
+        std::cout << "Invalid number of turns (10-50 allowed).\n";
+        return false;
+    }
+
+    params.numberOfGames = games;
+    params.maxTurns = maxTurns;
+
+    return true;
 }
 
 bool CommandProcessor::validate(Command& command, std::string& currentGameState) {
@@ -177,7 +267,7 @@ bool CommandProcessor::validate(Command& command, std::string& currentGameState)
 void CommandProcessor::readCommand() {
     std::string cmd;
     std::cout << "Please enter command:\n";
-    std::getline(std::cin, cmd);
+    std::getline(*inputStream, cmd);
     std::string command;
     std::string argument;
 
