@@ -64,4 +64,35 @@ public:
 
     ~AggressivePlayer() override;
 };
+
+/** requires user interactions to make decisions, including deploy and advance orders, as well as
+ playing any card
+ **/
+class HumanPlayer: public PlayerStrategy {
+public:
+    explicit HumanPlayer(Player* player);
+
+    void issueOrder(std::vector<Player *> *players) override;
+
+    std::vector<Territory*> toAttack() override;
+
+    std::vector<Territory*> toDefend() override;
+
+    ~HumanPlayer() override;
+};
+
+/** Does nothing until attacked, where it changes strategies to Aggressive
+ **/
+class NeutralPlayer: public PlayerStrategy {
+public:
+    explicit NeutralPlayer(Player* player);
+
+    void issueOrder(std::vector<Player *> *players) override;
+
+    std::vector<Territory*> toAttack() override;
+
+    std::vector<Territory*> toDefend() override;
+
+    ~NeutralPlayer() override;
+};
 #endif //PLAYERSTRATEGIES_H

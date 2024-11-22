@@ -16,6 +16,7 @@ Territory::Territory() {
     owner = nullptr;
     neighbors = nullptr;
     continent = nullptr;
+    attacked = new bool(false);
 }
 
 // Constructor with name and x,y coords. This one will be actually used in the
@@ -28,6 +29,7 @@ Territory::Territory(const std::string& n, int xCoord, int yCoord, Continent* c)
     continent = c;
     neighbors = new std::vector<Territory*>;
     owner = nullptr; // nullptr means no owner yet
+    attacked = new bool(false);
 }
 // Copy Constructor
 Territory::Territory(const Territory& other) {
@@ -37,6 +39,7 @@ Territory::Territory(const Territory& other) {
     armies = new int(*other.armies);
     neighbors = new std::vector<Territory*>(*other.neighbors);
     owner = other.owner; // no deep copy as we the class doesn't own the Player object, we just want to point to it
+    attacked = new bool(*other.attacked);
 }
 Territory& Territory::operator=(const Territory& other) {
     if (this != &other) {
@@ -45,6 +48,7 @@ Territory& Territory::operator=(const Territory& other) {
         delete x;
         delete y;
         delete neighbors;
+        delete attacked;
 
         // Deep copy the new values
         name = new std::string(*other.name);
@@ -53,6 +57,7 @@ Territory& Territory::operator=(const Territory& other) {
         continent = other.continent; // Just copy the pointer, as we don't own the continent
         owner = other.owner;         // same for owner
         neighbors = new std::vector<Territory*>(*other.neighbors);
+        attacked = new bool(*other.attacked);
     }
     return *this;
 }
@@ -63,6 +68,7 @@ Territory::~Territory() {
     delete y;
     delete armies;
     delete neighbors;
+    delete attacked;
     // we don't delete the pointer to the continet, as a continent is owned by the map
     // same for owner
 }
@@ -97,6 +103,15 @@ const std::vector<Territory*>* Territory::getNeighbors() const {
     return neighbors;
 }
 
+bool Territory::getAttacked() const {
+    return *attacked;
+}
+
+void Territory::setAttacked(bool* a) {
+    delete attacked;
+    this->attacked = a;
+}
+
 // Functions to modify a territory:
 
 void Territory::addNeighbor(Territory* territory) {
@@ -120,11 +135,17 @@ void Territory::addNeighbor(Territory* territory) {
 }
 
 void Territory::modifyArmies(int a) {
+    if (a < 0) {
+        setAttacked(new bool(true));
+    }
     *armies = a + *armies;
 }
 
 // Takes pointer to Player object and uses it to point to the owner of the territory
 void Territory::setOwner(Player* newOwner) {
+    if (owner != nullptr && owner != newOwner) {
+        setAttacked(new bool(true));
+    }
     owner = newOwner;
 }
 

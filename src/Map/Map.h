@@ -38,6 +38,8 @@ public:
     std::string getName();
     Continent* getContinent() const;
     const std::vector<Territory*>* getNeighbors() const;
+    bool getAttacked() const;
+    void setAttacked(bool* a);
     Player* getOwner() const; // return pointer to Player that owns the territory, returns nullptr if no owner
     // Methods to modify armies and add neighbors:
     void addNeighbor(Territory* neighbor);
@@ -55,6 +57,7 @@ private:
     Player* owner;
     Continent* continent;
     std::vector<Territory*>* neighbors;
+    bool* attacked;
 };
 
 class Continent {
