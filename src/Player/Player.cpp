@@ -1,5 +1,4 @@
 #include "Player.h"
-
 #include "../Cards/Cards.h"
 #include "../Map/Map.h"
 #include "../Orders/Orders.h"

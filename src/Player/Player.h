@@ -8,14 +8,12 @@
 #include <string>
 #include <vector>
 
-#include "../PlayerStrategies/PlayerStrategies.h"
-
 // Forward declarations to avoid circular dependencies
 class Territory;
 class Order;
 class OrderList;
 class Hand;
-
+class PlayerStrategy;
 
 class Player {
 public:
