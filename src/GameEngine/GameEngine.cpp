@@ -580,15 +580,10 @@ void GameEngine::printCurrentStateCommands(const std::vector<TransitionCommand>&
 
 void GameEngine::addPlayer(const std::string& playerName) {
     Player* p = new Player(playerName);
-    if(playerName == "Aggressive")
-    {
+    if(playerName == "Aggressive") {
         p->setPlayerStrategy(new AggressivePlayer(p));
-    } else if(playerName == "Benevolent") {
-        p->setPlayerStrategy(new BenevolentPlayer(p));
     } else if(playerName == "Neutral") {
         p->setPlayerStrategy(new NeutralPlayer(p));
-    } else if(playerName == "Cheater") {
-        p->setPlayerStrategy(new CheaterPlayer(p));
     } else {
         p->setPlayerStrategy(new HumanPlayer(p));
     }

@@ -1,10 +1,9 @@
 #ifndef PLAYERSTRATEGIES_H
 #define PLAYERSTRATEGIES_H
-#include <ostream>
 #include <vector>
+#include "../Player/Player.h"
 
 class Territory;
-class Player;
 
 class PlayerStrategy {
 protected:

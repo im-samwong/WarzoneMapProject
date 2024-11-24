@@ -1,8 +1,7 @@
 #include "PlayerStrategies.h"
-
+#include <limits>
 #include <set>
 
-#include "../Player/Player.h"
 
 Player* PlayerStrategy::getPlayer() const {
     return player;

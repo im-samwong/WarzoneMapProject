@@ -13,6 +13,7 @@ void testMainGameLoop();
 void testStartupPhase();
 void testLoggingObserver();
 void testTournament();
+void testPlayerStrategies();
 
 // int main() {
 //
@@ -34,8 +35,8 @@ void testTournament();
 //     // testCommandProcessor();
 //     // testStartupPhase();
 //     // testMainGameLoop();
-//      testLoggingObserver();
-//
+//      // testLoggingObserver();
+//     testPlayerStrategies();
 //     return 0;
 // }
 

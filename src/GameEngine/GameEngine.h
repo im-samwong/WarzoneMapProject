@@ -3,7 +3,7 @@
 
 #include "../CommandProcessing/CommandProcessing.h"
 #include "../Map/Map.h"
-#include "../Player/Player.h"
+#include "../PlayerStrategies/PlayerStrategies.h"
 #include "../LoggingObserver/LoggingObserver.h"
 #include <memory>
 #include <string>

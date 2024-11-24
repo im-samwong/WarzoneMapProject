@@ -1,5 +1,5 @@
 loadmap ../maps/World.map
 validatemap
-addplayer Eve
-addplayer Adam
+addplayer Aggressive
+addplayer Neutral
 gamestart
