@@ -579,7 +579,20 @@ void GameEngine::printCurrentStateCommands(const std::vector<TransitionCommand>&
 }
 
 void GameEngine::addPlayer(const std::string& playerName) {
-    players->push_back(new Player(playerName));
+    Player* p = new Player(playerName);
+    if(playerName == "Aggressive")
+    {
+        p->setPlayerStrategy(new AggressivePlayer(p));
+    } else if(playerName == "Benevolent") {
+        p->setPlayerStrategy(new BenevolentPlayer(p));
+    } else if(playerName == "Neutral") {
+        p->setPlayerStrategy(new NeutralPlayer(p));
+    } else if(playerName == "Cheater") {
+        p->setPlayerStrategy(new CheaterPlayer(p));
+    } else {
+        p->setPlayerStrategy(new HumanPlayer(p));
+    }
+    players->push_back(p);
 }
 
 void GameEngine::readInputFromFile(const std::string& filename) {

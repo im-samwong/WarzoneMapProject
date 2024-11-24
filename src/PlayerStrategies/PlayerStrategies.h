@@ -95,4 +95,10 @@ public:
 
     ~NeutralPlayer() override;
 };
+
+//TODO
+class BenevolentPlayer: public PlayerStrategy{};
+
+class CheaterPlayer: public PlayerStrategy{};
+
 #endif //PLAYERSTRATEGIES_H
