@@ -84,6 +84,14 @@ void AggressivePlayer::issueOrder(std::vector<Player *> *players) {
             this->player->getOrdersList()->addOrder(std::make_unique<NegotiateOrder>(this->player, this->player));
         }
     }
+
+
+    for(int i = 0; i < playerCards.size(); i++) {
+        delete playerCards[i];
+    }
+
+    playerCards.clear();
+    player->getHand().setHandCards(playerCards);//Update the player hand
 }
 
 Territory* AggressivePlayer::getSourceTarget(const std::vector<Territory *>& playerTerritories) {
