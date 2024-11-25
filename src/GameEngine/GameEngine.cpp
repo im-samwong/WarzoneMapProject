@@ -1,4 +1,5 @@
 #include "GameEngine.h"
+#include "../PlayerStrategies/PlayerStrategies.h"
 #include <iostream>
 #include <map>
 
@@ -1031,7 +1032,7 @@ std::string GameEngine::mainGameLoop() {
         // Card bonus check and reset player constraint status
         refreshPlayerConstraints();
 
-        endGame();//Will make player 1 win automatically ONLY FOR DEMO PURPOSES
+        // endGame();//Will make player 1 win automatically ONLY FOR DEMO PURPOSES
         removeEliminatedPlayers();
         setGameOverStatus(hasGameEnded());
     }

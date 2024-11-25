@@ -1,4 +1,5 @@
 #include "PlayerStrategies.h"
+#include "../Player/Player.h"
 #include <limits>
 #include <set>
 
@@ -30,8 +31,8 @@ std::string PlayerStrategy::getDescription() const {
 
 
 std::ostream& operator<<(std::ostream& os, const PlayerStrategy& strategy) {
-    os << "PlayerStrategy: " << strategy.description << std::endl;
-    os << "Player using this strategy: " << strategy.player->getName() << std::endl;
+    os << "PlayerStrategy: " << strategy.getDescription() << std::endl;
+    os << "Player using this strategy: " << strategy.getPlayer()->getName() << std::endl;
 
     return os;
 }
@@ -83,6 +84,14 @@ void AggressivePlayer::issueOrder(std::vector<Player *> *players) {
             this->player->getOrdersList()->addOrder(std::make_unique<NegotiateOrder>(this->player, this->player));
         }
     }
+
+
+    for(int i = 0; i < playerCards.size(); i++) {
+        delete playerCards[i];
+    }
+
+    playerCards.clear();
+    player->getHand().setHandCards(playerCards);//Update the player hand
 }
 
 Territory* AggressivePlayer::getSourceTarget(const std::vector<Territory *>& playerTerritories) {

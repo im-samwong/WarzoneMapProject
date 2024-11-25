@@ -3,7 +3,8 @@
 
 #include "../CommandProcessing/CommandProcessing.h"
 #include "../Map/Map.h"
-#include "../PlayerStrategies/PlayerStrategies.h"
+#include "../Cards/Cards.h"
+#include "../Orders/Orders.h"
 #include "../LoggingObserver/LoggingObserver.h"
 #include <memory>
 #include <string>
