@@ -41,6 +41,7 @@ void testPlayerStrategies();
 // }
 
 int main(int argc, char* argv[]) {
+    // testPlayerStrategies();
     if (argc > 1 && std::string(argv[1]) == "tournament") {
         // Combine all command-line arguments into a single string
         std::string command;

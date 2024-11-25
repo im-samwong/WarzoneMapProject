@@ -2,4 +2,6 @@ loadmap ../maps/World.map
 validatemap
 addplayer Aggressive
 addplayer Neutral
+addplayer Human
+addplayer Benevolent
 gamestart
