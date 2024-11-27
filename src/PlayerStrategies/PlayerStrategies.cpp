@@ -237,14 +237,43 @@ void HumanPlayer::issueOrder(std::vector<Player*>* players) {
         }
     }
 
+    std::cout << "\nFinished deploying units, now for advancing:" << std::endl;
+
+    std::string sourceTerritory;
+    std::string targetTerritory;
+    int numOfUnits = 0;
+
+    std::cout << "From which territory do you wish to move units from?" << std::endl;
+    std::getline(std::cin,sourceTerritory);
+    auto source = std::ranges::find_if(allTerritories, [&sourceTerritory](Territory* territory) {
+        return territory->getName() == sourceTerritory;
+    });
+
+
+    std::cout << "To what territory should these units be deployed?" << std::endl;
+    std::getline(std::cin,targetTerritory);
+    auto target = std::ranges::find_if(allTerritories, [&targetTerritory](Territory* territory) {
+        return territory->getName() == targetTerritory;
+    });
+
+    std::cout << "Lastly, how many units do you want to move." << std::endl;
+    std::cin >> numOfUnits;
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+    if (source != allTerritories.end() && target != allTerritories.end()) {
+        player->getOrdersList()->addOrder(std::make_unique<AdvanceOrder>(player, *source, *target, new int(numOfUnits)));
+    } else {
+        std::cout << "The target or source territory is not in the list of territories to defend or attack. Try again" << std::endl;
+    }
+
     if(player->getHand().getHandCards().empty()) {
         std::cout << "You have no cards in your hand. Your turn for issuing orders is over" << std::endl;
         return;
     }
 
-    std::cout << "\nYou have now issued deployment orders for all of your reinforcements units. You can now issue orders other than deploy now." << std::endl;
+    std::cout << "\nYou have now issued deployment and advancement orders for all of your reinforcements units. You can now issue orders other than deploy and advance now." << std::endl;
 
-    //Once all reinforcements are deployed then show the toAttack stuff
+    //Once all reinforcements are deployed and advanced then show the toAttack stuff
 
     std::cout << "\nHere are the territories you should attack:" << std::endl;
     for(Territory* territory: territoriesToAttack) {
@@ -252,7 +281,7 @@ void HumanPlayer::issueOrder(std::vector<Player*>* players) {
     }
 
     bool playerHasFinishedIssuingOrders = false;
-    const std::vector<std::string> possibleOrders = {"AdvanceOrder","AirliftOrder","BlockadeOrder","BombOrder","NegotiateOrder"};
+    const std::vector<std::string> possibleOrders = {"AirliftOrder","BlockadeOrder","BombOrder","NegotiateOrder"};
     const std::vector<std::string> stringEnumCards = {"Reinforcement","Airlift","Blockade","Bomb","Diplomacy"};
 
     std::vector<Card*> playerHandOrders = player->getHand().getHandCards();
@@ -289,34 +318,6 @@ void HumanPlayer::issueOrder(std::vector<Player*>* players) {
             std::string targetTerritory;
             int numOfUnits = 0;
 
-            std::cout << "From which territory do you wish to move units from?" << std::endl;
-            std::getline(std::cin,sourceTerritory);
-            auto source = std::ranges::find_if(allTerritories, [&sourceTerritory](Territory* territory) {
-                return territory->getName() == sourceTerritory;
-            });
-
-
-            std::cout << "To what territory should these units be deployed?" << std::endl;
-            std::getline(std::cin,targetTerritory);
-            auto target = std::ranges::find_if(allTerritories, [&targetTerritory](Territory* territory) {
-                return territory->getName() == targetTerritory;
-            });
-
-            std::cout << "Lastly, how many units do you want to move." << std::endl;
-            std::cin >> numOfUnits;
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-
-            if (source != allTerritories.end() && target != allTerritories.end()) {
-                player->getOrdersList()->addOrder(std::make_unique<AdvanceOrder>(player, *source, *target, new int(numOfUnits)));
-                chosenOrderIndex = 0;
-            } else {
-                std::cout << "The target or source territory is not in the list of territories to defend or attack. Try again" << std::endl;
-            }
-        } else if (orderInput == stringEnumCards[1]) {
-            std::string sourceTerritory;
-            std::string targetTerritory;
-            int numOfUnits = 0;
-
             std::cout << "From which territory do you wish to airlift units from?" << std::endl;
             std::getline(std::cin,sourceTerritory);
             auto source = std::ranges::find_if(allTerritories, [&sourceTerritory](Territory* territory) {
@@ -339,7 +340,7 @@ void HumanPlayer::issueOrder(std::vector<Player*>* players) {
             } else {
                 std::cout << "The target or source territory is not in the list of territories to defend or attack. Try again" << std::endl;
             }
-        } else if (orderInput == stringEnumCards[2]) {
+        } else if (orderInput == stringEnumCards[1]) {
             std::string targetTerritory;
             std::cout << "What territory do you want to blockade?" << std::endl;
             std::getline(std::cin,targetTerritory);
@@ -354,7 +355,7 @@ void HumanPlayer::issueOrder(std::vector<Player*>* players) {
             } else {
                 std::cout << "The target territory was not found. Try again" << std::endl;
             }
-        } else if (orderInput == stringEnumCards[3]) {
+        } else if (orderInput == stringEnumCards[2]) {
             std::string targetTerritory;
             std::cout << "What territory do you want to bomb?" << std::endl;
             std::getline(std::cin,targetTerritory);
@@ -369,7 +370,7 @@ void HumanPlayer::issueOrder(std::vector<Player*>* players) {
             } else {
                 std::cout << "The target territory was not found. Try again" << std::endl;
             }
-        } else if (orderInput == stringEnumCards[4]) {
+        } else if (orderInput == stringEnumCards[3]) {
             std::string targetPlayer;
             std::cout << "With who do you want to negotiate with? Type their name as it appears:" << std::endl;
             for(Player* player: *players) {
@@ -397,7 +398,7 @@ void HumanPlayer::issueOrder(std::vector<Player*>* players) {
                 if (playerHandOrders[i]->getTypeAsString() == stringEnumCards[chosenOrderIndex]) {
                     delete playerHandOrders[i];
                     playerHandOrders.erase(playerHandOrders.begin() + i);
-                    player->getHand().setHandCards(playerHandOrders);//Update the player hand
+                    player->getHand().setHandCards(playerHandOrders); //Update the player hand
                     break;
                 }
             }
