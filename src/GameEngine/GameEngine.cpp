@@ -1024,6 +1024,8 @@ void GameEngine::refreshPlayerConstraints() {
 }
 
 std::string GameEngine::mainGameLoop() {
+    int turnCount = 1;
+    int maxTurnCount = 3;
     while (!*gameOver) {
         reinforcementPhase();
         issueOrdersPhase();
@@ -1032,9 +1034,12 @@ std::string GameEngine::mainGameLoop() {
         // Card bonus check and reset player constraint status
         refreshPlayerConstraints();
 
-        // endGame();//Will make player 1 win automatically ONLY FOR DEMO PURPOSES
+        // if (turnCount == maxTurnCount) {
+        //     endGame();//Will make player 1 win automatically ONLY FOR DEMO PURPOSES
+        // }
         removeEliminatedPlayers();
         setGameOverStatus(hasGameEnded());
+        turnCount++;
     }
 
     if (players->size() == 1) {

@@ -114,8 +114,8 @@ void DeployOrder::execute() {
     if (validate()) {
         target->modifyArmies(*numUnits);
         sourcePlayer->changeReinforcements(-(*numUnits));
-        *effects += "Executed DeployOrder: " + std::to_string(*numUnits) + " units deployed to " + target->getName() + "\n";
-        std::cout << "Executed DeployOrder: " << *numUnits << " units deployed to " << target->getName() << std::endl;
+        *effects += "Executed DeployOrder: " + std::to_string(*numUnits) + " units deployed to " + target->getName() + " for player " + sourcePlayer->getName() + "\n";
+        std::cout << "Executed DeployOrder for player " << sourcePlayer->getName() << ": " << *numUnits << " units deployed to " << target->getName() << std::endl;
     }
 
     if (logObserver != nullptr) {
@@ -339,9 +339,6 @@ void BombOrder::execute() {
     if (validate()) {
         // Calculate units to remove (half of the army units)
         int unitsToRemove = target->getArmies() / 2;
-        if (unitsToRemove == 0) {
-            unitsToRemove += 1;
-        }
         target->modifyArmies(-unitsToRemove);
         *effects += "Executed BombOrder: Halved the units on " + target->getName() + ". Remaining units: " + std::to_string(target->getArmies());
         std::cout << "Executed BombOrder: Halved the units on " << target->getName() << ". Remaining units: " << target->getArmies() << std::endl;
