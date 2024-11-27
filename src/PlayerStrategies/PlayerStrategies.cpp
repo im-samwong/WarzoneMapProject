@@ -71,29 +71,33 @@ void AggressivePlayer::issueOrder(std::vector<Player *> *players) {
     bool issuedAttack = false;
     //Use cards
     std::vector<Card*> playerCards = this->player->getHand().getHandCards();
+    //Remove nulls from hand
+    playerCards.erase(std::ranges::remove(playerCards, nullptr).begin(), playerCards.end());
     for (Card* card: playerCards) {
-        if (card != nullptr) {
-            if (card->getTypeAsString() == "Reinforcement") {
-                //Advance on a neighbor of the source territory with full force i.e use all available units or use just enough if above target army count
-                int atkUnitsToUse = sourceTerritory->getArmies();
-                if (sourceTerritory->getArmies() >= targetTerritory->getArmies()) {
-                    atkUnitsToUse = targetTerritory->getArmies();
-                }
-                this->player->getOrdersList()->addOrder(std::make_unique<AdvanceOrder>(this->player, sourceTerritory, targetTerritory, new int(atkUnitsToUse)));
-                issuedAttack = true;
-            } else if (card->getTypeAsString() == "Bomb") {
-                //Bomb one of the neighbors of the sourceTerritory until all neighbors are conquered
-                this->player->getOrdersList()->addOrder(std::make_unique<BombOrder>(this->player, targetTerritory));
-            } else if (card->getTypeAsString() == "Blockade") {
-                //Purposely do a bad order to get rid of the card an aggressive player would never give up a territory
-                this->player->getOrdersList()->addOrder(std::make_unique<BlockadeOrder>(nullptr, territoriesToAttack.at(0)));
-            } else if (card->getTypeAsString() == "Airlift") {
-                //Purposely do a bad order to get rid of the card?? Is a neutral so the aggressive player would not use it
-                this->player->getOrdersList()->addOrder(std::make_unique<AirliftOrder>(this->player, territoriesToAttack.at(0), territoriesToAttack.at(1), nullptr));
-            } else if (card->getTypeAsString() == "Diplomacy") {
-                //Purposely do a bad order to remove it since Aggressive would never neogtiate
-                this->player->getOrdersList()->addOrder(std::make_unique<NegotiateOrder>(this->player, this->player));
+        if (card->getTypeAsString() == "Reinforcement") {
+            //Advance on a neighbor of the source territory with full force i.e use all available units or use just enough if above target army count
+            int atkUnitsToUse = sourceTerritory->getArmies();
+            if (sourceTerritory->getArmies() >= targetTerritory->getArmies()) {
+                atkUnitsToUse = targetTerritory->getArmies();
             }
+            this->player->getOrdersList()->addOrder(
+                std::make_unique<AdvanceOrder>(this->player, sourceTerritory, targetTerritory, new int(atkUnitsToUse)));
+            issuedAttack = true;
+        } else if (card->getTypeAsString() == "Bomb") {
+            //Bomb one of the neighbors of the sourceTerritory until all neighbors are conquered
+            this->player->getOrdersList()->addOrder(std::make_unique<BombOrder>(this->player, targetTerritory));
+        } else if (card->getTypeAsString() == "Blockade") {
+            //Purposely do a bad order to get rid of the card an aggressive player would never give up a territory
+            this->player->getOrdersList()->
+                    addOrder(std::make_unique<BlockadeOrder>(nullptr, territoriesToAttack.at(0)));
+        } else if (card->getTypeAsString() == "Airlift") {
+            //Purposely do a bad order to get rid of the card?? Is a neutral so the aggressive player would not use it
+            this->player->getOrdersList()->addOrder(
+                std::make_unique<AirliftOrder>(this->player, territoriesToAttack.at(0), territoriesToAttack.at(1),
+                                               nullptr));
+        } else if (card->getTypeAsString() == "Diplomacy") {
+            //Purposely do a bad order to remove it since Aggressive would never neogtiate
+            this->player->getOrdersList()->addOrder(std::make_unique<NegotiateOrder>(this->player, this->player));
         }
     }
 
@@ -238,7 +242,8 @@ void HumanPlayer::issueOrder(std::vector<Player*>* players) {
         return;
     }
 
-    std::cout << "\nYou have now issue deployment orders for all of your reinforcements units. You can now issue orders other than deploy now." << std::endl;
+    std::cout << "\nYou have now issued deployment orders for all of your reinforcements units. You can now issue orders other than deploy now." << std::endl;
+
     //Once all reinforcements are deployed then show the toAttack stuff
 
     std::cout << "\nHere are the territories you should attack:" << std::endl;
@@ -251,6 +256,9 @@ void HumanPlayer::issueOrder(std::vector<Player*>* players) {
     const std::vector<std::string> stringEnumCards = {"Reinforcement","Airlift","Blockade","Bomb","Diplomacy"};
 
     std::vector<Card*> playerHandOrders = player->getHand().getHandCards();
+
+    //At some point nulls will be added to the hand if the Deck runs out of cards
+    playerHandOrders.erase(std::ranges::remove(playerHandOrders, nullptr).begin(), playerHandOrders.end());
 
     while (!playerHasFinishedIssuingOrders) {
         if(player->getHand().getHandCards().empty()) {
