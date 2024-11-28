@@ -237,11 +237,6 @@ void HumanPlayer::issueOrder(std::vector<Player*>* players) {
         }
     }
 
-    if(player->getHand().getHandCards().empty()) {
-        std::cout << "You have no cards in your hand. Your turn for issuing orders is over" << std::endl;
-        return;
-    }
-
     std::cout << "\nFinished deploying units, now for advancing:" << std::endl;
 
     std::string sourceTerritory;
@@ -269,6 +264,11 @@ void HumanPlayer::issueOrder(std::vector<Player*>* players) {
         player->getOrdersList()->addOrder(std::make_unique<AdvanceOrder>(player, *source, *target, new int(numOfUnits)));
     } else {
         std::cout << "The target or source territory is not in the list of territories to defend or attack. Try again" << std::endl;
+    }
+
+    if(player->getHand().getHandCards().empty()) {
+        std::cout << "You have no cards in your hand. Your turn for issuing orders is over" << std::endl;
+        return;
     }
 
     std::cout << "\nYou have now issued deployment and advancement orders. You can now issue orders other than deploy now." << std::endl;
