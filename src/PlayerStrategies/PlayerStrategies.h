@@ -56,7 +56,7 @@ public:
 
     /**
      * Given a set of enemy territories, finds the target territory the player should attack based on the source territory
-     * @param sourceTerritory Source territory that
+     * @param sourceTerritory Source territory that the player will attack from
      * @param enemyTerritories Player owned territories i.e toAttack
      * @return Pointer to Territory that should be used as the target territory for orders
      */
@@ -96,9 +96,35 @@ public:
     ~NeutralPlayer() override;
 };
 
-//TODO
-class BenevolentPlayer: public PlayerStrategy{};
+/** Focuses on protecting its weak countries **/
+class BenevolentPlayer: public PlayerStrategy {
+public:
+    explicit BenevolentPlayer(Player* player);
 
-class CheaterPlayer: public PlayerStrategy{};
+    void issueOrder(std::vector<Player *> *players) override;
+
+    std::vector<Territory*> toAttack() override;
+
+    std::vector<Territory*> toDefend() override;
+
+    ~BenevolentPlayer() override;
+
+    Territory* findWeakestTerritory(); // finds player's weakest territory
+
+};
+
+/** Conquers all territories that are adjacent to its own territories **/
+class CheaterPlayer: public PlayerStrategy {
+public:
+    explicit CheaterPlayer(Player* player);
+
+    void issueOrder(std::vector<Player *> *players) override;
+
+    std::vector<Territory*> toAttack() override;
+
+    std::vector<Territory*> toDefend() override;
+
+    ~CheaterPlayer() override;
+};
 
 #endif //PLAYERSTRATEGIES_H
