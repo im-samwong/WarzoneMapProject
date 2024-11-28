@@ -238,6 +238,11 @@ void HumanPlayer::issueOrder(std::vector<Player*>* players) {
     }
 
     std::cout << "\nFinished deploying units, now for advancing:" << std::endl;
+    
+    std::cout << "\nHere are the territories you should attack:" << std::endl;
+    for(Territory* territory: territoriesToAttack) {
+        std::cout << territory->getName() << std::endl;
+    }
 
     std::string sourceTerritory;
     std::string targetTerritory;
