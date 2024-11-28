@@ -237,14 +237,48 @@ void HumanPlayer::issueOrder(std::vector<Player*>* players) {
         }
     }
 
+    std::cout << "\nFinished deploying units, now for advancing:" << std::endl;
+    
+    std::cout << "\nHere are the territories you should attack:" << std::endl;
+    for(Territory* territory: territoriesToAttack) {
+        std::cout << territory->getName() << std::endl;
+    }
+
+    std::string sourceTerritory;
+    std::string targetTerritory;
+    int numOfUnits = 0;
+
+    std::cout << "From which territory do you wish to move units from?" << std::endl;
+    std::getline(std::cin,sourceTerritory);
+    auto source = std::ranges::find_if(allTerritories, [&sourceTerritory](Territory* territory) {
+        return territory->getName() == sourceTerritory;
+    });
+
+
+    std::cout << "To what territory should these units be deployed?" << std::endl;
+    std::getline(std::cin,targetTerritory);
+    auto target = std::ranges::find_if(allTerritories, [&targetTerritory](Territory* territory) {
+        return territory->getName() == targetTerritory;
+    });
+
+    std::cout << "Lastly, how many units do you want to move." << std::endl;
+    std::cin >> numOfUnits;
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+    if (source != allTerritories.end() && target != allTerritories.end()) {
+        player->getOrdersList()->addOrder(std::make_unique<AdvanceOrder>(player, *source, *target, new int(numOfUnits)));
+    } else {
+        std::cout << "The target or source territory is not in the list of territories to defend or attack. Try again" << std::endl;
+    }
+
     if(player->getHand().getHandCards().empty()) {
         std::cout << "You have no cards in your hand. Your turn for issuing orders is over" << std::endl;
         return;
     }
 
-    std::cout << "\nYou have now issued deployment orders for all of your reinforcements units. You can now issue orders other than deploy now." << std::endl;
+    std::cout << "\nYou have now issued deployment and advancement orders. You can now issue orders other than deploy now." << std::endl;
 
-    //Once all reinforcements are deployed then show the toAttack stuff
+    //Once all reinforcements are deployed and an advance order is made, show the toAttack stuff
 
     std::cout << "\nHere are the territories you should attack:" << std::endl;
     for(Territory* territory: territoriesToAttack) {
