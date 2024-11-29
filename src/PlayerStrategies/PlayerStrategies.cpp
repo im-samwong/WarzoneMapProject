@@ -469,14 +469,39 @@ void BenevolentPlayer::issueOrder(std::vector<Player*>* players) {
         else if (card->getTypeAsString() == "Blockade") {
             if (weakestTerritory != nullptr) {
                 this->player->getOrdersList()->addOrder(std::make_unique<BlockadeOrder>(this->player, weakestTerritory));
+
+                //looking for a neutral player
+                Player* neutralPlayer = nullptr;
+                for (Player* p : *players) {
+                    if (p->getPlayerStrategy()->getDescription() == "NeutralPlayer") {
+                        neutralPlayer = p;
+                        break;
+                    }
+                }
+
+                if (!(neutralPlayer == nullptr)) {
+                    //transfer territory to neutral player
+                    weakestTerritory->setOwner(neutralPlayer);
+                }
+                else {
+                    //no neutral player exists so we create one
+                    neutralPlayer = new Player();
+                    PlayerStrategy* playerStrat = new NeutralPlayer(neutralPlayer);
+                    players->push_back(neutralPlayer);
+                    weakestTerritory->setOwner(neutralPlayer);
+
+                }
             }
 
-            //go through list of players
-            //if neutral player exists, transfer territory
-            //else, create a neutral player to transfer territory to
         }
         else if (card->getTypeAsString() == "Diplomacy") {
         // negotiate
+            for (Player* player2 : *players) {
+                if (player2 != this->player) {
+                    this->player->getOrdersList()->addOrder(std::make_unique<NegotiateOrder>(this->player, player2));
+                    break;
+                }
+            }
         }
         else if (card->getTypeAsString() == "Bomb") {
             //this card will always cause harm to other players so it will not be used
