@@ -103,7 +103,7 @@ CommandProcessor::~CommandProcessor() {
         delete cmd;
     }
     delete lc;
-    delete inputStream;
+    // delete inputStream;
 }
 
 //assignment operator
@@ -120,7 +120,7 @@ CommandProcessor& CommandProcessor::operator=(const CommandProcessor& other) {
         lc->push_back(new Command(*cmd));
     }
 
-    delete inputStream;
+    // delete inputStream;
 
     inputStream = other.inputStream;
 

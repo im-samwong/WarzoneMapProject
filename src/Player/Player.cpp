@@ -68,7 +68,7 @@ std::ostream& operator<<(std::ostream& out, const Player& player) {
 
 // Return territories to defend
 std::vector<Territory*> Player::toDefend() {
-    return *territories;
+    return strategy->toDefend();
 }
 
 void Player::emptyToDefend() {
@@ -77,18 +77,7 @@ void Player::emptyToDefend() {
 
 // Return territories to attack
 std::vector<Territory*> Player::toAttack() {
-    std::set<Territory*> uniqueAtkTargets;
-    for(const Territory* territory: *territories) {
-        for(const std::vector<Territory*> targets = *territory->getNeighbors(); Territory* target: targets) {
-            if(target->getOwner()->getName() != *this->name) {
-                uniqueAtkTargets.insert(target);
-            }
-        }
-    }
-
-    std::vector<Territory*> territoriesToAttack;
-    territoriesToAttack.assign(uniqueAtkTargets.begin(), uniqueAtkTargets.end());
-    return territoriesToAttack;
+    return strategy->toAttack();
 }
 
 // Issue an order (with unique_ptr)

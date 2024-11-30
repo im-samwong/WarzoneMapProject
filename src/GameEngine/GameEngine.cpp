@@ -585,7 +585,11 @@ void GameEngine::addPlayer(const std::string& playerName) {
         p->setPlayerStrategy(new AggressivePlayer(p));
     } else if(playerName == "Neutral") {
         p->setPlayerStrategy(new NeutralPlayer(p));
-    } else {
+    } else if(playerName == "Benevolent") {
+        p->setPlayerStrategy(new BenevolentPlayer(p));
+    } else if(playerName == "Cheater") {
+        p->setPlayerStrategy(new CheaterPlayer(p));
+    } else{
         p->setPlayerStrategy(new HumanPlayer(p));
     }
     players->push_back(p);
