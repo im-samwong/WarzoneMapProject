@@ -501,3 +501,151 @@ std::vector<Territory*> NeutralPlayer::toAttack() {
 std::vector<Territory*> NeutralPlayer::toDefend() {
     return player->getAllTerritories();
 }
+
+BenevolentPlayer::BenevolentPlayer(Player* player): PlayerStrategy(player, "BenevolentPlayer") {}
+
+BenevolentPlayer::~BenevolentPlayer() {
+    delete description;
+}
+
+void BenevolentPlayer::issueOrder(std::vector<Player*>* players) {
+    std::cout << "The Benevolent Player is issuing orders..." << std::endl;
+
+    const int reinforcements = this->player->getReinforcements();
+    const int unitsToUse = reinforcements;
+
+    //reinforcing the weakest territory
+    Territory* weakestTerritory = this->findWeakestTerritory();
+    if (weakestTerritory != nullptr) {
+        this->player->getOrdersList()->addOrder(std::make_unique<DeployOrder>(this->player, weakestTerritory, new int(unitsToUse)));
+    }
+
+    //uses cards without purposefully harming anyone
+    std::vector<Card*> playerCards = this->player->getHand().getHandCards();
+    for (Card* card : playerCards) {
+        if (card->getTypeAsString() == "Reinforcement") { //deploy to the weakest territory
+            this->player->getOrdersList()->addOrder(std::make_unique<DeployOrder>(this->player, weakestTerritory, new int(unitsToUse)));
+        }
+        else if (card->getTypeAsString() == "Airlift") {
+            //deploy units to another of the player's own weak territories
+            Territory* weakTerritory2 = this->findWeakestTerritory();
+            if (weakTerritory2 != nullptr && weakTerritory2 != weakestTerritory) {
+                this->player->getOrdersList()->addOrder(std::make_unique<AirliftOrder>(this->player, weakestTerritory, weakTerritory2, new int(unitsToUse)));
+            }
+        }
+        else if (card->getTypeAsString() == "Blockade") {
+            if (weakestTerritory != nullptr) {
+                this->player->getOrdersList()->addOrder(std::make_unique<BlockadeOrder>(this->player, weakestTerritory));
+
+                //looking for a neutral player
+                Player* neutralPlayer = nullptr;
+                for (Player* p : *players) {
+                    if (p->getPlayerStrategy()->getDescription() == "NeutralPlayer") {
+                        neutralPlayer = p;
+                        break;
+                    }
+                }
+
+                if (!(neutralPlayer == nullptr)) {
+                    //transfer territory to neutral player
+                    weakestTerritory->setOwner(neutralPlayer);
+                }
+                else {
+                    //no neutral player exists so we create one
+                    neutralPlayer = new Player();
+                    PlayerStrategy* playerStrat = new NeutralPlayer(neutralPlayer);
+                    players->push_back(neutralPlayer);
+                    weakestTerritory->setOwner(neutralPlayer);
+
+                }
+            }
+
+        }
+        else if (card->getTypeAsString() == "Diplomacy") {
+        // negotiate
+            for (Player* player2 : *players) {
+                if (player2 != this->player) {
+                    this->player->getOrdersList()->addOrder(std::make_unique<NegotiateOrder>(this->player, player2));
+                    break;
+                }
+            }
+        }
+        else if (card->getTypeAsString() == "Bomb") {
+            //this card will always cause harm to other players so it will not be used
+        }
+    }
+
+    for(int i = 0; i < playerCards.size(); i++) {
+        delete playerCards[i];
+    }
+
+    playerCards.clear();
+    player->getHand().setHandCards(playerCards);  //update player's hand
+}
+
+Territory* BenevolentPlayer::findWeakestTerritory() {
+    //territory with the fewest armies
+    Territory* weakestTerritory = nullptr;
+    int leastArmies = std::numeric_limits<int>::max(); //start with large integer
+
+    for (Territory* territory : this->player->getAllTerritories()) {
+        if (territory->getArmies() < leastArmies) {
+            leastArmies = territory->getArmies();
+            weakestTerritory = territory;
+        }
+    }
+    return weakestTerritory;
+}
+
+std::vector<Territory*> BenevolentPlayer::toAttack() {
+    return {};  //doesn't attack
+}
+
+std::vector<Territory*> BenevolentPlayer::toDefend() {
+    return this->player->getAllTerritories();
+}
+
+
+
+CheaterPlayer::CheaterPlayer(Player* player): PlayerStrategy(player, "CheaterPlayer") {}
+
+CheaterPlayer::~CheaterPlayer() {
+    delete description;
+}
+
+void CheaterPlayer::issueOrder(std::vector<Player*>* players) { //doesn't use cards
+    std::cout << "Cheater Player is issuing orders..." << std::endl;
+
+    const int reinforcements = this->player->getReinforcements();
+    const int unitsToUse = reinforcements;
+
+    //deploying units to one of the player's territory (in this case, we're using the first in the list)
+    Territory* territoryToReinforce = this->player->getAllTerritories().front();
+    this->player->getOrdersList()->addOrder(std::make_unique<DeployOrder>(this->player, territoryToReinforce, new int(unitsToUse)));
+
+    //conquering adjacent territories (once per turn)
+    std::vector<Territory*> territoriesToAttack = this->toAttack();
+    for (Territory* target : territoriesToAttack) {
+        this->player->getOrdersList()->addOrder(std::make_unique<AdvanceOrder>(this->player, territoryToReinforce, target, new int(territoryToReinforce->getArmies())));
+    }
+
+}
+
+std::vector<Territory*> CheaterPlayer::toAttack() {
+    std::set<Territory*> uniqueAtkTargets;
+    for (const Territory* territory : this->player->getAllTerritories()) {
+        for (Territory* neighbor : *territory->getNeighbors()) {
+            if (neighbor->getOwner()->getName() != this->player->getName()) {
+                uniqueAtkTargets.insert(neighbor);
+            }
+        }
+    }
+
+    std::vector<Territory*> territoriesToAttack;
+    territoriesToAttack.assign(uniqueAtkTargets.begin(), uniqueAtkTargets.end());
+    return territoriesToAttack;
+}
+
+std::vector<Territory*> CheaterPlayer::toDefend() {
+    return this->player->getAllTerritories();
+}
