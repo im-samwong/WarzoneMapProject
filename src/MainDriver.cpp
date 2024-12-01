@@ -34,14 +34,14 @@ void testPlayerStrategies();
 //     // testOrderExecution();
 //     // testCommandProcessor();
 //     // testStartupPhase();
- //    // testMainGameLoop();
+//     // testMainGameLoop();
 //      // testLoggingObserver();
 //     testPlayerStrategies();
 //     return 0;
 // }
 
 int main(int argc, char* argv[]) {
-     testPlayerStrategies();
+    testPlayerStrategies();
     // if (argc > 1 && std::string(argv[1]) == "tournament") {
     //     // Combine all command-line arguments into a single string
     //     std::string command;

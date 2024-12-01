@@ -540,7 +540,7 @@ void BenevolentPlayer::issueOrder(std::vector<Player*>* players) {
                 //looking for a neutral player
                 Player* neutralPlayer = nullptr;
                 for (Player* p : *players) {
-                    if (p->getPlayerStrategy()->getDescription() == "NeutralPlayer") {
+                    if (p->getName() == "Neutral") {
                         neutralPlayer = p;
                         break;
                     }
@@ -552,7 +552,7 @@ void BenevolentPlayer::issueOrder(std::vector<Player*>* players) {
                 }
                 else {
                     //no neutral player exists so we create one
-                    neutralPlayer = new Player();
+                    neutralPlayer = new Player("Neutral");
                     PlayerStrategy* playerStrat = new NeutralPlayer(neutralPlayer);
                     players->push_back(neutralPlayer);
                     weakestTerritory->setOwner(neutralPlayer);

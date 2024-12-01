@@ -77,7 +77,7 @@ void Player::emptyToDefend() {
 
 // Return territories to attack
 std::vector<Territory*> Player::toAttack() {
-    return strategy->toAttack();
+return strategy->toAttack();
 }
 
 // Issue an order (with unique_ptr)
